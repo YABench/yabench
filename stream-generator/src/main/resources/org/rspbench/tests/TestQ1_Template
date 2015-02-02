@@ -1,0 +1,7 @@
+<http://knoesis.wright.edu/ssw/Observation_AirTemperature_A%1$s_%2$s> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://knoesis.wright.edu/ssw/ont/weather.owl#TemperatureObservation> "%2$s" .
+<http://knoesis.wright.edu/ssw/Observation_AirTemperature_A%1$s_%2$s> <http://knoesis.wright.edu/ssw/ont/sensor-observation.owl#observedProperty> <http://knoesis.wright.edu/ssw/ont/weather.owl#_AirTemperature> "%2$s" .
+<http://knoesis.wright.edu/ssw/Observation_AirTemperature_A%1$s_%2$s> <http://knoesis.wright.edu/ssw/ont/sensor-observation.owl#procedure> <http://knoesis.wright.edu/ssw/System_A%1$s> "%2$s" .
+<http://knoesis.wright.edu/ssw/Observation_AirTemperature_A%1$s_%2$s> <http://knoesis.wright.edu/ssw/ont/sensor-observation.owl#result> <http://knoesis.wright.edu/ssw/MeasureData_AirTemperature_A%1$s_%2$s> "%2$s" .
+<http://knoesis.wright.edu/ssw/MeasureData_AirTemperature_A%1$s_%2$s> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://knoesis.wright.edu/ssw/ont/sensor-observation.owl#MeasureData> "%2$s" .
+<http://knoesis.wright.edu/ssw/MeasureData_AirTemperature_A%1$s_%2$s> <http://knoesis.wright.edu/ssw/ont/sensor-observation.owl#floatValue> "%3$.1f"^^<http://www.w3.org/2001/XMLSchema#float> "%2$s" .
+<http://knoesis.wright.edu/ssw/MeasureData_AirTemperature_A%1$s_%2$s> <http://knoesis.wright.edu/ssw/ont/sensor-observation.owl#uom> <http://knoesis.wright.edu/ssw/ont/weather.owl#fahrenheit> "%2$s" .
