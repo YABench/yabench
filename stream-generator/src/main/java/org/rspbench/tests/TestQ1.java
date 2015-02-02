@@ -50,7 +50,7 @@ public class TestQ1 extends AbstractTest {
     private final static String DEFAULT_MIN_TEMPERATURE = "0";
     private final static String DEFAULT_MAX_TEMPERATURE = "100";
     private final int numberOfStations;
-    private final int interval; //in seconds
+    private final int interval; //in milliseconds
     private final int minTemp;
     private final int maxTemp;
     private final Random random = new Random();
