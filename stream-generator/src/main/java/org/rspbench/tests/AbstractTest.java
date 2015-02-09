@@ -42,7 +42,7 @@ abstract class AbstractTest implements Test {
     }
     
     protected void writeToDestination(final String str) throws IOException {
-        writer.write(str);
+        writer.write(str+"\n");
     }
     
     protected CommandLine getCLIOptions() {
