@@ -28,7 +28,6 @@ public class RDFStreamReader {
         if (line != null) {
         	//+1 to avoid bug, if " ." is included in the last tuple prohibiting correct parsing of the time
             String[] tuple = line.split(" ", TUPLE_SIZE+1);
-            System.out.println(tuple[3]);
             Resource subject = ResourceFactory.createResource(tuple[0].substring(1, tuple[0].length()-1));
             Property predicate = ResourceFactory.createProperty(tuple[1].substring(1, tuple[1].length()-1));
             RDFNode object = ResourceFactory.createTypedLiteral(tuple[2].substring(1, tuple[2].length()-1));
