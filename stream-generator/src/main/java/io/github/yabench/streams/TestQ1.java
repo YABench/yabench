@@ -1,4 +1,4 @@
-package org.rspbench.tests;
+package io.github.yabench.streams;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -8,7 +8,7 @@ import java.util.Random;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.OptionGroup;
-import org.rspbench.RSPTest;
+import io.github.yabench.RSPTest;
 
 /**
  * Generates air temperature observations from weather stations.

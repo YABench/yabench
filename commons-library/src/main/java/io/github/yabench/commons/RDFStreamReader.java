@@ -1,4 +1,4 @@
-package org.rspbench.tester;
+package io.github.yabench.commons;
 
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -12,7 +12,7 @@ import java.nio.file.Path;
 
 public class RDFStreamReader {
 
-	//s,p,o + timestamp/interval = 4
+    //s,p,o + timestamp/interval = 4
     private static final int TUPLE_SIZE = 4;
     private final BufferedReader reader;
     private String line;
@@ -26,7 +26,7 @@ public class RDFStreamReader {
     public boolean hasNext() throws IOException {
         line = reader.readLine();
         if (line != null) {
-        	//+1 to avoid bug, if " ." is included in the last tuple prohibiting correct parsing of the time
+            //+1 to avoid bug, if " ." is included in the last tuple prohibiting correct parsing of the time
             String[] tuple = line.split(" ", TUPLE_SIZE+1);
             Resource subject = ResourceFactory.createResource(tuple[0].substring(1, tuple[0].length()-1));
             Property predicate = ResourceFactory.createProperty(tuple[1].substring(1, tuple[1].length()-1));

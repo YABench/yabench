@@ -1,4 +1,4 @@
-package org.rspbench.tools;
+package io.github.yabench.utils;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;

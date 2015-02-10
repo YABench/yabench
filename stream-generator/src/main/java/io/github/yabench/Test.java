@@ -1,4 +1,4 @@
-package org.rspbench;
+package io.github.yabench;
 
 import java.io.IOException;
 
