@@ -1,0 +1,85 @@
+{
+    "metadata": {
+        "initTimestamp": 1423576595782,
+        "testFileName": "TestQ1",
+        "queryFileName": "q1"
+    },
+    "results": [
+        {
+            "vars": [
+                "sensor",
+                "tempvalue",
+                "obs"
+            ],
+            "timestamp": 1423576596782,
+            "bindings": [
+                {
+                    "sensor": {
+                        "type": "uri",
+                        "value": "http://knoesis.wright.edu/ssw/System_C0837"
+                    },
+                    "tempvalue": {
+                        "type": "literal",
+                        "value": "30"
+                    },
+                    "obs": {
+                        "type": "uri",
+                        "value": "http://knoesis.wright.edu/ssw/Observation_AirTemperature_C0837_2004_08_08_07_15_00"
+                    }
+                },
+                {
+                    "sensor": {
+                        "type": "uri",
+                        "value": "http://knoesis.wright.edu/ssw/System_C1192"
+                    },
+                    "tempvalue": {
+                        "type": "literal",
+                        "value": "33"
+                    },
+                    "obs": {
+                        "type": "uri",
+                        "value": "http://knoesis.wright.edu/ssw/Observation_AirTemperature_C1192_2004_08_08_07_20_00"
+                    }
+                }
+            ]
+        },
+        {
+            "vars": [
+                "sensor",
+                "tempvalue",
+                "obs"
+            ],
+            "timestamp": 1423576599782,
+            "bindings": [
+                {
+                    "sensor": {
+                        "type": "uri",
+                        "value": "http://knoesis.wright.edu/ssw/System_C0837"
+                    },
+                    "tempvalue": {
+                        "type": "literal",
+                        "value": "40"
+                    },
+                    "obs": {
+                        "type": "uri",
+                        "value": "http://knoesis.wright.edu/ssw/Observation_AirTemperature_C0837_2004_08_08_07_15_00"
+                    }
+                },
+                {
+                    "sensor": {
+                        "type": "uri",
+                        "value": "http://knoesis.wright.edu/ssw/System_C1192"
+                    },
+                    "tempvalue": {
+                        "type": "literal",
+                        "value": "38"
+                    },
+                    "obs": {
+                        "type": "uri",
+                        "value": "http://knoesis.wright.edu/ssw/Observation_AirTemperature_C1192_2004_08_08_07_20_00"
+                    }
+                }
+            ]
+        }
+    ]
+}
