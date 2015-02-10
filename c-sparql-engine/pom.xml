@@ -1,19 +1,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.rspbench</groupId>
-  <artifactId>c-sparql-engine</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.rspbench</groupId>
+    <artifactId>c-sparql-engine</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
-  <name>c-sparql-engine</name>
+    <name>c-sparql-engine</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     
-        <repositories>
+    <repositories>
 
         <repository>
             <id>streamreasoning_repository</id>
@@ -81,17 +81,15 @@
             <artifactId>commons-io</artifactId>
             <version>2.4</version>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>eu.larkc.csparql</groupId>
             <artifactId>csparql-core</artifactId>
             <version>0.9.4</version>
         </dependency>
-        		<dependency>
-			<groupId>org.rspbench</groupId>
-			<artifactId>results-tester</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<scope>compile</scope>
-		</dependency>
-        
+        <dependency>
+            <groupId>io.github.yabench</groupId>
+            <artifactId>commons-library</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
