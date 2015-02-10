@@ -1,8 +1,9 @@
-package org.rspbench.tester;
+package io.github.yabench.tester;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
+import io.github.yabench.commons.RDFStreamReader;
 import java.io.IOException;
 import java.nio.file.Path;
 

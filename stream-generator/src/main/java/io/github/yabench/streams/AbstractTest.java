@@ -1,4 +1,4 @@
-package org.rspbench.tests;
+package io.github.yabench.streams;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,7 +9,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.io.IOUtils;
-import org.rspbench.Test;
+import io.github.yabench.Test;
 
 abstract class AbstractTest implements Test {
     

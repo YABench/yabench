@@ -1,4 +1,4 @@
-package org.rspbench.tester;
+package io.github.yabench.tester;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import java.io.BufferedReader;

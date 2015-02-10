@@ -1,4 +1,4 @@
-package org.rspbench.tools;
+package io.github.yabench.utils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;

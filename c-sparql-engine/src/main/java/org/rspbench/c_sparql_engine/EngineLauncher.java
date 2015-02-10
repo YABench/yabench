@@ -1,12 +1,8 @@
 package org.rspbench.c_sparql_engine;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -17,9 +13,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.IOUtils;
-import org.rspbench.tester.RDFStreamReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.github.yabench.commons.RDFStreamReader;
 
 import com.hp.hpl.jena.rdf.model.Statement;
 
@@ -30,9 +24,6 @@ import eu.larkc.csparql.core.engine.CsparqlEngine;
 import eu.larkc.csparql.core.engine.CsparqlEngineImpl;
 import eu.larkc.csparql.core.engine.CsparqlQueryResultProxy;
 
-import java.io.FileReader;
-import java.io.Reader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.slf4j.Logger;
