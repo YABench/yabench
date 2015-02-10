@@ -1,0 +1,11 @@
+REGISTER QUERY test AS 
+PREFIX om-owl: <http://knoesis.wright.edu/ssw/ont/sensor-observation.owl#> 
+PREFIX weather: <http://knoesis.wright.edu/ssw/ont/weather.owl#> 
+SELECT ?sensor ?tempvalue ?obs 
+FROM STREAM <http://ex.org/streams/test> [RANGE $SIZE$s STEP $SLIDE$s]
+WHERE { 
+  ?obs om-owl:observedProperty weather:_AirTemperature ;  
+       om-owl:procedure ?sensor ;  
+       om-owl:result [om-owl:floatValue ?tempvalue] .
+  FILTER(?tempvalue > 10)
+}
