@@ -9,6 +9,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -24,6 +25,10 @@ public class RDFStreamReader {
 	public RDFStreamReader(Path stream) throws IOException {
 		this.reader = Files.newBufferedReader(stream);
 	}
+        
+        public RDFStreamReader(Reader reader) {
+            this.reader = new BufferedReader(reader);
+        }
 
 	public boolean hasNext() throws IOException {
 		line = reader.readLine();

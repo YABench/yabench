@@ -1,11 +1,11 @@
-package io.github.yabench.tester;
+package io.github.yabench.oracle;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import io.github.yabench.commons.RDFStreamReader;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.io.Reader;
 
 public class WindowFactory {
 
@@ -15,9 +15,9 @@ public class WindowFactory {
     private long numberOfSlides = 0;
     private Model window = ModelFactory.createDefaultModel();
 
-    public WindowFactory(Path input, long windowSize, long windowSlide)
+    public WindowFactory(Reader reader, long windowSize, long windowSlide)
             throws IOException {
-        this.reader = new RDFStreamReader(input);
+        this.reader = new RDFStreamReader(reader);
         this.windowSize = windowSize;
         this.windowSlide = windowSlide;
     }
