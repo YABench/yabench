@@ -1,5 +1,6 @@
 package io.github.yabench.oracle;
 
+import io.github.yabench.oracle.tests.TestFactory;
 import io.github.yabench.oracle.tests.OracleTest;
 import java.io.File;
 import org.apache.commons.cli.CommandLine;

@@ -1,4 +1,4 @@
-package io.github.yabench.oracle;
+package io.github.yabench.oracle.tests;
 
 import io.github.yabench.oracle.tests.OracleTest;
 import java.io.File;

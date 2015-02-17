@@ -8,13 +8,13 @@ import java.util.Map;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.IOUtils;
 
-public abstract class AbstractOracleTest implements OracleTest {
+abstract class AbstractOracleTest implements OracleTest {
 
     private static final String QUERY_TEMPLATE_NAME = "query.template";
     private final CommandLine cli;
     private final Reader reader;
 
-    public AbstractOracleTest(File inputStream, CommandLine cli) throws IOException {
+    AbstractOracleTest(File inputStream, CommandLine cli) throws IOException {
         this.reader = new FileReader(inputStream);
         this.cli = cli;
     }

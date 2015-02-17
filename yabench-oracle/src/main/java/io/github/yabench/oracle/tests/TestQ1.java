@@ -27,7 +27,6 @@ import org.apache.commons.cli.OptionBuilder;
  */
 public class TestQ1 extends AbstractOracleTest {
 
-    private static final String TESTNAME = "TestQ1";
     private static final String ARG_WINDOWSIZE = "windowsize";
     private static final String ARG_WINDOWSLIDE = "windowslide";
     private static final String ARG_TEMPERATURE = "temp";
@@ -42,13 +41,8 @@ public class TestQ1 extends AbstractOracleTest {
     private long windowSlide;
     private WindowFactory windowFactory;
 
-    public TestQ1(File inputStream, CommandLine cli) throws IOException {
+    TestQ1(File inputStream, CommandLine cli) throws IOException {
         super(inputStream, cli);
-    }
-
-    @Override
-    public String getName() {
-        return TESTNAME;
     }
 
     public static Option[] expectedOptions() {

@@ -5,8 +5,6 @@ import java.io.IOException;
 
 public interface OracleTest extends Closeable {
     
-    public String getName();
-    
     public void init() throws Exception;
     
     public int compare() throws IOException;
