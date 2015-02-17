@@ -45,7 +45,7 @@ public class TestFactory {
     }
 
     private Class<?> findOracleTestByClassName(String className) {
-        Reflections reflections = new Reflections();
+        Reflections reflections = new Reflections("io.github.yabench.oracle.tests");
         Set<Class<? extends OracleTest>> classes = reflections.getSubTypesOf(OracleTest.class);
         Optional<Class<? extends OracleTest>> r = classes.stream()
                 .filter(c -> c.getSimpleName().equals(className))
