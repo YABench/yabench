@@ -2,7 +2,7 @@ package io.github.yabench;
 
 import java.io.IOException;
 
-public interface Test {
+public interface StreamGenerator {
       
     public void generate() throws IOException;
     

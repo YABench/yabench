@@ -38,7 +38,7 @@ import io.github.yabench.RSPTest;
  * </pre>
  */
 @RSPTest(name = "TestQ1")
-public class TestQ1 extends AbstractTest {
+public class SG1 extends AbstractStreamGenerator {
 
     private final static String TEMPLATE_NAME = "TestQ1_Template";
     private final static String ARG_NUMBER_OF_STATIONS = "stations";
@@ -56,7 +56,7 @@ public class TestQ1 extends AbstractTest {
     private final Random random = new Random();
     private final LinkedList<Station> stations = new LinkedList<>();
 
-    public TestQ1(Path destination, CommandLine options) throws IOException {
+    public SG1(Path destination, CommandLine options) throws IOException {
         super(destination, options);
         this.numberOfStations = Integer.parseInt(
                 getCLIOptions().getOptionValue(

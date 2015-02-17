@@ -2,10 +2,11 @@ package io.github.yabench.oracle;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Statement;
 import io.github.yabench.commons.RDFStreamReader;
+import io.github.yabench.commons.TemporalTriple;
 import java.io.IOException;
 import java.io.Reader;
+import javax.annotation.Nullable;
 
 public class WindowFactory {
 
@@ -21,36 +22,37 @@ public class WindowFactory {
         this.windowSize = windowSize;
         this.windowSlide = windowSlide;
     }
-    
-    public boolean hasNextWindow() {
-        return numberOfSlides > 0 && window.size() > 0;
-    }
 
-    public Model nextWindow() throws IOException {
-        final Model result = ModelFactory.createDefaultModel();
-        long[] bndrs = windowBoundaries();
-        while (reader.hasNext()) {
-            final long time = reader.nextTime(); //ms
-            final Statement stmt = reader.nextStatement();
-            if(time <= bndrs[1]) {
-                window.add(stmt);
+    /**
+     * @return null if the end of the stream has been reached
+     * @throws IOException 
+     */
+    public Window nextWindow() throws IOException {
+        final long windowStart = numberOfSlides * windowSlide;
+        final long windowEnd = numberOfSlides * windowSlide + windowSize;
+
+        TemporalTriple triple;
+        while ((triple = reader.readNext()) != null) {
+            if (triple.getTime() <= windowEnd) {
+                window.add(triple.getStatement());
             } else {
-                result.add(window);
-                
-                //Save the last statement and time for the next call
-                window = ModelFactory.createDefaultModel();
-                window.add(stmt);
-                
-                return result;
+                break;
             }
         }
-        return result;
-    }
+        
+        final Window w = new Window(
+                ModelFactory.createDefaultModel().add(window), 
+                windowStart, 
+                windowEnd);
 
-    private long[] windowBoundaries() {
-        long[] boundaries = new long[2];
-        boundaries[0] = numberOfSlides++ * windowSlide;
-        boundaries[1] = boundaries[0] + windowSize;
-        return boundaries;
+        //creating a new window for the next call
+        window = ModelFactory.createDefaultModel();
+        if (triple != null) {
+            window.add(triple.getStatement());
+        }
+
+        numberOfSlides++;
+
+        return w.getContent().size() > 0 ? w : null;
     }
 }

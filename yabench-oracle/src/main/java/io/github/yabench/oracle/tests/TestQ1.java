@@ -1,5 +1,6 @@
 package io.github.yabench.oracle.tests;
 
+import io.github.yabench.oracle.Window;
 import io.github.yabench.oracle.WindowFactory;
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class TestQ1 extends AbstractOracleTest {
     private static final String ARG_WINDOWSIZE = "windowsize";
     private static final String ARG_WINDOWSLIDE = "windowslide";
     private static final String ARG_TEMPERATURE = "temp";
-    
+
     private long windowSize;
     private long windowSlide;
     private float temp;
@@ -38,7 +39,7 @@ public class TestQ1 extends AbstractOracleTest {
         return TESTNAME;
     }
 
-    public static Option[] expectedOptions() {     
+    public static Option[] expectedOptions() {
         Option windowSize = OptionBuilder
                 .isRequired()
                 .withType(Long.class)
@@ -54,7 +55,7 @@ public class TestQ1 extends AbstractOracleTest {
                 .withArgName("ms")
                 .withDescription("the window slide")
                 .create(ARG_WINDOWSLIDE);
-        
+
         Option temperature = OptionBuilder
                 .isRequired()
                 .withType(Float.class)
@@ -62,8 +63,8 @@ public class TestQ1 extends AbstractOracleTest {
                 .withArgName("temperature")
                 .withDescription("FILTER value")
                 .create(ARG_TEMPERATURE);
-        
-        return new Option[] {windowSize, windowSlide, temperature};
+
+        return new Option[]{windowSize, windowSlide, temperature};
     }
 
     @Override
@@ -75,15 +76,13 @@ public class TestQ1 extends AbstractOracleTest {
     }
 
     @Override
-    public int compare() {
-//                
-//                while(windowFactory.hasNextWindow()) {
-//                    Model window = windowFactory.nextWindow();
-//                    
-//                    //write to database
-//                    //query expected results
-//                    //compare with the actual results
-//                }
+    public int compare() throws IOException {
+        Window window;
+        while ((window = windowFactory.nextWindow()) != null)  {
+            //write to database
+            //query expected results
+            //compare with the actual results
+        }
         return 0;
     }
 

@@ -9,21 +9,21 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionGroup;
 import org.reflections.Reflections;
 
-public class TestFactory {
+public class StreamGeneratorFactory {
     
     private final static String METHOD_EXPECTED_OPTIONS = "expectedOptions";
     private final File destination;
     
-    public TestFactory(File destination) {
+    public StreamGeneratorFactory(File destination) {
         this.destination = destination;
     }
     
-    public Test createTest(String testName, CommandLine cliOptions) throws Exception {
+    public StreamGenerator createTest(String testName, CommandLine cliOptions) throws Exception {
         Class<?> testClass = findTest(testName);
         if(testClass != null) {
             final Path testDest = 
                     Files.createFile(new File(destination, testName).toPath());
-            return (Test) testClass
+            return (StreamGenerator) testClass
                     .getConstructor(Path.class, CommandLine.class)
                     .newInstance(testDest, cliOptions);
         } else {

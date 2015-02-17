@@ -43,6 +43,7 @@ public class Launcher {
                             .createTest(cli.getOptionValue(ARG_TESTNAME), cli);
                     try {
                         test.init();
+                        test.compare();
                     } finally {
                         test.close();
                     }

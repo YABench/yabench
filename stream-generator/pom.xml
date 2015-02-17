@@ -28,7 +28,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.rspbench.GeneratorLauncher</mainClass>
+                            <mainClass>io.github.yabench.Launcher</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

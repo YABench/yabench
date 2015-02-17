@@ -11,7 +11,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-public class GeneratorLauncher {
+public class Launcher {
 
     private static final String PROGRAM_NAME = "stream-generator";
     private static final String ARG_NAME = "name";
@@ -25,7 +25,7 @@ public class GeneratorLauncher {
         try {
             CommandLine cli = parser.parse(options, args);
             if (cli.hasOption(ARG_NAME) && cli.hasOption(ARG_DEST)) {
-                TestFactory testFactory = new TestFactory(
+                StreamGeneratorFactory testFactory = new StreamGeneratorFactory(
                         new File(cli.getOptionValue(ARG_DEST)));
                 if (cli.hasOption(ARG_HELP)) {
                     OptionGroup group = testFactory.getTestOptions(
@@ -33,7 +33,7 @@ public class GeneratorLauncher {
                     options.addOptionGroup(group);
                     printHelp(options);
                 } else {
-                    Test test = testFactory
+                    StreamGenerator test = testFactory
                             .createTest(cli.getOptionValue(ARG_NAME), cli);
                     if (test != null) {
                         if (cli.hasOption(ARG_HELP)) {
