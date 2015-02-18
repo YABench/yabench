@@ -8,7 +8,7 @@ public interface Engine extends Closeable {
     
     public void initialize();
     
-    public void registerResultListener();
+    public void registerResultListener(ResultListener listener);
     
     public void registerQuery(String query) throws ParseException;
     

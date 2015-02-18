@@ -3,11 +3,11 @@ package io.github.yabench.engines.csparql;
 import com.hp.hpl.jena.rdf.model.Statement;
 import eu.larkc.csparql.cep.api.RdfQuadruple;
 import eu.larkc.csparql.cep.api.RdfStream;
-import eu.larkc.csparql.core.engine.ConsoleFormatter;
 import eu.larkc.csparql.core.engine.CsparqlEngine;
 import eu.larkc.csparql.core.engine.CsparqlEngineImpl;
 import eu.larkc.csparql.core.engine.CsparqlQueryResultProxy;
 import io.github.yabench.engines.AbstractEngine;
+import io.github.yabench.engines.ResultListener;
 import java.text.ParseException;
 
 public class CSPARQLEngine extends AbstractEngine {
@@ -42,8 +42,8 @@ public class CSPARQLEngine extends AbstractEngine {
     }
 
     @Override
-    public void registerResultListener() {
-        csparqlProxy.addObserver(new ConsoleFormatter());
+    public void registerResultListener(ResultListener listener) {
+        csparqlProxy.addObserver(new CSPARQLResultListenerProxy(listener));
     }
 
     @Override

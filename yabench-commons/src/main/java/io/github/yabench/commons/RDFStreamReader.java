@@ -8,19 +8,24 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class RDFStreamReader {
+public class RDFStreamReader implements AutoCloseable {
 
     // s,p,o + timestamp/interval = 4
     private static final int TUPLE_SIZE = 4;
     private final BufferedReader reader;
+    
+    public RDFStreamReader(File stream) throws IOException {
+        this(stream.toPath());
+    }
 
     public RDFStreamReader(Path stream) throws IOException {
-        this.reader = Files.newBufferedReader(stream);
+        this(Files.newBufferedReader(stream));
     }
 
     public RDFStreamReader(Reader reader) {
@@ -75,6 +80,11 @@ public class RDFStreamReader {
                     tuple.substring(1, tuple.length() - 1));
         }
 
+    }
+
+    @Override
+    public void close() throws IOException {
+        reader.close();
     }
 
 }

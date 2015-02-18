@@ -14,9 +14,10 @@ import org.apache.commons.cli.PosixParser;
 import io.github.yabench.commons.RDFStreamReader;
 
 import io.github.yabench.commons.TemporalTriple;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
-
-import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,26 +57,34 @@ public class Launcher extends AbstractLauncher {
                     Charset.defaultCharset());
 
             // 2. read quads from source file
-            Path source = new File(cli.getOptionValue(ARG_SOURCE)).toPath();
-            RDFStreamReader reader = new RDFStreamReader(source);
+            try(
+                final RDFStreamReader reader = new RDFStreamReader(
+                        new File(cli.getOptionValue(ARG_SOURCE)));
+                final Writer writer = new BufferedWriter(
+                        new FileWriter(cli.getOptionValue(ARG_DEST)));
+            ) {
 
-            log.info("initialize engine");
-            EngineFactory engineFactory = new EngineFactory();
-            try (Engine engine = engineFactory.create()) {
-                engine.initialize();
+                log.info("initialize engine");
+                EngineFactory engineFactory = new EngineFactory();
+                try (Engine engine = engineFactory.create()) {
+                    engine.initialize();
 
-                log.info("register query");
-                engine.registerQuery(query);
-                engine.registerResultListener();
+                    log.info("register query");
+                    engine.registerQuery(query);
+                    ResultSerializer serializer = new ResultSerializer(writer);
+                    engine.registerResultListener(serializer);
 
-                long time = 0;
-                TemporalTriple triple;
-                while ((triple = reader.readNext()) != null) {
-                    Thread.sleep(triple.getTime() - time);
+                    serializer.initialize();
 
-                    engine.stream(triple.getStatement());
+                    long time = 0;
+                    TemporalTriple triple;
+                    while ((triple = reader.readNext()) != null) {
+                        Thread.sleep(triple.getTime() - time);
 
-                    time = triple.getTime();
+                        engine.stream(triple.getStatement());
+
+                        time = triple.getTime();
+                    }
                 }
             }
         } catch (ParseException exp) {
