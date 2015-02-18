@@ -7,9 +7,11 @@ import java.io.Writer;
 import java.nio.file.Path;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.io.IOUtils;
 import io.github.yabench.StreamGenerator;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.cli.Option;
 
 abstract class AbstractStreamGenerator implements StreamGenerator {
 
@@ -49,16 +51,17 @@ abstract class AbstractStreamGenerator implements StreamGenerator {
         return options;
     }
 
-    protected static OptionGroup getCommonExpectedOptions() {
-        OptionGroup group = new OptionGroup();
+    protected static List<Option> getCommonExpectedOptions() {
+        List<Option> options = new ArrayList<>();
 
-        group.addOption(OptionBuilder
-                .withArgName("seconds")
+        options.add(OptionBuilder
+                .isRequired()
+                .withArgName("milliseconds")
                 .withDescription("duration in milliseconds, default: " + DEFAULT_DURATION)
                 .hasArg()
                 .create(ARG_DURATION));
 
-        return group;
+        return options;
     }
 
     protected long getDuration() {

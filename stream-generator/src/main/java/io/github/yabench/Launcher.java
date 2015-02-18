@@ -1,17 +1,17 @@
 package io.github.yabench;
 
+import io.github.yabench.commons.AbstractLauncher;
 import java.io.File;
+import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-public class Launcher {
+public class Launcher extends AbstractLauncher {
 
     private static final String PROGRAM_NAME = "stream-generator";
     private static final String ARG_NAME = "name";
@@ -19,56 +19,54 @@ public class Launcher {
     private static final String ARG_HELP = "help";
 
     public static void main(String[] args) {
+        Launcher launcher = new Launcher();
+        launcher.launch(args);
+    }
+
+    @Override
+    public String getName() {
+        return PROGRAM_NAME;
+    }
+
+    @Override
+    public void launch(String[] args) {
         CommandLineParser parser = new PosixParser();
         Options options = createCLIOptions();
 
         try {
-            CommandLine cli = parser.parse(options, args);
-            if (cli.hasOption(ARG_NAME) && cli.hasOption(ARG_DEST)) {
-                StreamGeneratorFactory testFactory = new StreamGeneratorFactory(
-                        new File(cli.getOptionValue(ARG_DEST)));
+            CommandLine cli = parser.parse(options, args, true);
+
+            StreamGeneratorFactory testFactory = new StreamGeneratorFactory(
+                    new File(cli.getOptionValue(ARG_DEST)));
+            final String sgName = cli.getOptionValue(ARG_NAME);
+            final List<Option> sgOptions = testFactory.getTestOptions(sgName);
+
+            if (sgOptions != null) {
+                mergeOptions(options, sgOptions);
+                cli = parser.parse(options, args);
+
                 if (cli.hasOption(ARG_HELP)) {
-                    OptionGroup group = testFactory.getTestOptions(
-                            cli.getOptionValue(ARG_NAME));
-                    options.addOptionGroup(group);
                     printHelp(options);
                 } else {
-                    StreamGenerator test = testFactory
-                            .createTest(cli.getOptionValue(ARG_NAME), cli);
-                    if (test != null) {
-                        if (cli.hasOption(ARG_HELP)) {
-                            testFactory.getTestOptions(
-                                    cli.getOptionValue(ARG_NAME));
-                            printHelp(options);
-                        } else {
-                            try {
-                                test.generate();
-                            } finally {
-                                test.close();
-                            }
-                        }
-                    } else {
-                        printHelp(options);
+                    StreamGenerator sg = testFactory.createTest(sgName, cli);
+                    try {
+                        sg.generate();
+                    } finally {
+                        sg.close();
                     }
                 }
             } else {
-                printHelp(options);
+                printHelp(options, String.format(
+                        "Stream generator with name %1s not found!", sgName));
             }
         } catch (ParseException exp) {
-            System.out.println(exp.getMessage() + "\n");
-
-            printHelp(options);
+            printHelp(options, exp.getMessage());
         } catch (Exception iex) {
             iex.printStackTrace();
         }
     }
 
-    private static void printHelp(Options options) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp(PROGRAM_NAME, options);
-    }
-
-    private static Options createCLIOptions() {
+    private Options createCLIOptions() {
         Options opts = new Options();
 
         Option dest = OptionBuilder

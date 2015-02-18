@@ -7,8 +7,9 @@ import java.util.LinkedList;
 import java.util.Random;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.OptionGroup;
 import io.github.yabench.RSPTest;
+import java.util.List;
+import org.apache.commons.cli.Option;
 
 /**
  * Generates air temperature observations from weather stations.
@@ -97,33 +98,33 @@ public class SG1 extends AbstractStreamGenerator {
         }
     }
 
-    public static OptionGroup expectedOptions() {
-        OptionGroup group = getCommonExpectedOptions();
+    public static List<Option> expectedOptions() {
+        List<Option> options = getCommonExpectedOptions();
 
-        group.addOption(OptionBuilder
+        options.add(OptionBuilder
                 .withArgName("number")
                 .withDescription("default: " + DEFAULT_NUMBER_OF_STATIONS)
                 .hasArg()
                 .create(ARG_NUMBER_OF_STATIONS));
 
-        group.addOption(OptionBuilder
+        options.add(OptionBuilder
                 .withArgName("milliseconds")
                 .withDescription("default: " + DEFAULT_INTERVAL)
                 .hasArg()
                 .create(ARG_INTERVAL));
 
-        group.addOption(OptionBuilder
+        options.add(OptionBuilder
                 .withArgName("degree")
                 .withDescription("default: " + DEFAULT_MIN_TEMPERATURE)
                 .hasArg()
                 .create(ARG_MIN_TEMPERATURE));
 
-        group.addOption(OptionBuilder
+        options.add(OptionBuilder
                 .withArgName("degree")
                 .withDescription("default: " + DEFAULT_MAX_TEMPERATURE)
                 .hasArg()
                 .create(ARG_MAX_TEMPERATURE));
-        return group;
+        return options;
     }
 
     private static class Station implements Comparable<Station> {

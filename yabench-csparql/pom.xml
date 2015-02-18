@@ -1,12 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.rspbench</groupId>
-    <artifactId>c-sparql-engine</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <groupId>io.github.yabench</groupId>
+    <artifactId>yabench-csparql</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>c-sparql-engine</name>
+    <name>yabench-csparql</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -14,15 +14,12 @@
     </properties>
     
     <repositories>
-
         <repository>
             <id>streamreasoning_repository</id>
             <name>Csparql server repository</name>
             <url>http://streamreasoning.org/maven/</url>
             <layout>default</layout>
         </repository>
-
-
     </repositories>
     <build>
         <plugins>
@@ -41,7 +38,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.rspbench.c_sparql_engine.EngineLauncher</mainClass>
+                            <mainClass>io.github.yabench.engines.Launcher</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -84,11 +81,11 @@
         <dependency>
             <groupId>eu.larkc.csparql</groupId>
             <artifactId>csparql-core</artifactId>
-            <version>0.9.4</version>
+            <version>0.9.5</version>
         </dependency>
         <dependency>
             <groupId>io.github.yabench</groupId>
-            <artifactId>commons-library</artifactId>
+            <artifactId>yabench-commons</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

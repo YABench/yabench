@@ -3,9 +3,11 @@ package io.github.yabench;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
 import org.reflections.Reflections;
 
@@ -31,10 +33,10 @@ public class StreamGeneratorFactory {
         }
     }
     
-    public OptionGroup getTestOptions(String testName) throws Exception {
+    public List<Option> getTestOptions(String testName) throws Exception {
         Class<?> testClass = findTest(testName);
         if(testClass != null) {
-            return (OptionGroup) testClass
+            return (List<Option>) testClass
                     .getMethod(METHOD_EXPECTED_OPTIONS).invoke(null, new Object[]{});
         } else {
             return null;
