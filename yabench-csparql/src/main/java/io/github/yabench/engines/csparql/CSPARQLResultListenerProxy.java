@@ -1,14 +1,9 @@
 package io.github.yabench.engines.csparql;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.sparql.core.Var;
 import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.BindingFactory;
-import com.hp.hpl.jena.sparql.engine.binding.BindingMap;
 import eu.larkc.csparql.common.RDFTable;
-import eu.larkc.csparql.common.RDFTuple;
 import eu.larkc.csparql.core.ResultFormatter;
+import io.github.yabench.commons.NodeUtils;
 import io.github.yabench.engines.ResultListener;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,23 +22,10 @@ public class CSPARQLResultListenerProxy extends ResultFormatter {
         final RDFTable rdfTable = (RDFTable) table;
         final List<Binding> bindings = new ArrayList<>();
         final String[] vars = rdfTable.getNames().toArray(new String[]{});
-        for(RDFTuple t : rdfTable) {
-            final String[] values = t.toString().split("\t");
-            final BindingMap binding = BindingFactory.create();
-            for(int i = 0; i < vars.length; i++) {
-                binding.add(Var.alloc(vars[i]), toNode(values[i]));
-            }
-            bindings.add(binding);
-        }
+        rdfTable.stream().forEach((t) -> {
+            bindings.add(NodeUtils.toBinding(vars, t.toString(), "\t"));
+        });
         listener.update(bindings);
-    }
-    
-    private Node toNode(String value) {
-        if(value.startsWith("http://")) {
-            return NodeFactory.createURI(value);
-        } else {
-            return NodeFactory.createLiteral(value);
-        }
     }
     
 }

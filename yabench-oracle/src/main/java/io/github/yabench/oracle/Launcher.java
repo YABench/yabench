@@ -29,8 +29,9 @@ public class Launcher {
             
             final String testName = cli.getOptionValue(ARG_TESTNAME);
             final File inputStream = new File(cli.getOptionValue(ARG_INPUTSTREAM));
+            final File outputStream = new File(cli.getOptionValue(ARG_OUTPUTSTREAM));
             
-            TestFactory testFactory = new TestFactory(inputStream);
+            TestFactory testFactory = new TestFactory(inputStream, outputStream);
             Option[] expectedOptions = testFactory
                     .getExpectedOptions(testName);
             if (expectedOptions != null) {
@@ -44,7 +45,14 @@ public class Launcher {
                             .createTest(cli.getOptionValue(ARG_TESTNAME), cli);
                     try {
                         test.init();
-                        test.compare();
+                        int equal = test.compare();
+                        if(equal == 0) {
+                            System.out.println(
+                                    "The actual results are equals to expected!");
+                        } else {
+                            System.out.printf(
+                                    "%1s bindings were not found in actual results!", equal);
+                        }
                     } finally {
                         test.close();
                     }
@@ -54,7 +62,6 @@ public class Launcher {
                         String.format("Test with name '%1s' not found!", testName));
             }
         } catch (ParseException ex) {
-            ex.printStackTrace();
             printHelp(options, ex.getMessage());
         } catch (Exception ex) {
             ex.printStackTrace();

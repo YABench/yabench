@@ -1,5 +1,6 @@
 package io.github.yabench.oracle.tests;
 
+import io.github.yabench.oracle.ResultsReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,10 +13,13 @@ abstract class AbstractOracleTest implements OracleTest {
 
     private static final String QUERY_TEMPLATE_NAME = "query.template";
     private final CommandLine cli;
-    private final Reader reader;
+    private final Reader isReader;
+    private final ResultsReader arReader;
 
-    AbstractOracleTest(File inputStream, CommandLine cli) throws IOException {
-        this.reader = new FileReader(inputStream);
+    AbstractOracleTest(File inputStream, File actualResults, CommandLine cli) 
+            throws IOException {
+        this.isReader = new FileReader(inputStream);
+        this.arReader = new ResultsReader(new FileReader(actualResults));
         this.cli = cli;
     }
 
@@ -23,13 +27,18 @@ abstract class AbstractOracleTest implements OracleTest {
         return cli;
     }
 
-    protected Reader getReader() {
-        return reader;
+    protected Reader getISReader() {
+        return isReader;
+    }
+    
+    protected ResultsReader getARReader() {
+        return arReader;
     }
 
     @Override
     public void close() throws IOException {
-        reader.close();
+        isReader.close();
+        arReader.close();
     }
 
     protected String loadQueryTemplate() throws IOException {

@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.jena</groupId>
-            <artifactId>jena-core</artifactId>
+            <artifactId>jena-arq</artifactId>
             <version>2.12.1</version>
             <type>jar</type>
         </dependency>

@@ -1,6 +1,5 @@
 package io.github.yabench.oracle.tests;
 
-import io.github.yabench.oracle.tests.OracleTest;
 import java.io.File;
 import java.util.Optional;
 import java.util.Set;
@@ -13,9 +12,11 @@ public class TestFactory {
     private final static String METHOD_EXPECTED_OPTIONS = "expectedOptions";
     
     private final File inputStream;
+    private final File actualResults;
 
-    public TestFactory(File inputStream) {
+    public TestFactory(File inputStream, File actualResults) {
         this.inputStream = inputStream;
+        this.actualResults = actualResults;
     }
 
     /**
@@ -37,8 +38,8 @@ public class TestFactory {
         Class<?> testClass = findOracleTestByClassName(testName);
         if(testClass != null) {
             return (OracleTest) testClass
-                    .getConstructor(File.class, CommandLine.class)
-                    .newInstance(inputStream, cliOptions);
+                    .getConstructor(File.class, File.class, CommandLine.class)
+                    .newInstance(inputStream, actualResults, cliOptions);
         } else {
             return null;
         }

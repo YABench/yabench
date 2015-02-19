@@ -85,6 +85,10 @@ public class Launcher extends AbstractLauncher {
 
                         time = triple.getTime();
                     }
+                    log.info("Last time: " + time);
+                    Thread.sleep(60000);
+                    
+                    //TODO: Wait while there are triples in a window
                 }
             }
         } catch (ParseException exp) {

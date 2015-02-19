@@ -1,6 +1,7 @@
 package io.github.yabench.commons;
 
 import com.hp.hpl.jena.rdf.model.Statement;
+import java.util.Objects;
 
 public class TemporalTriple {
 
@@ -18,6 +19,26 @@ public class TemporalTriple {
 
     public long getTime() {
         return time;
+    }
+
+    @Override
+    public int hashCode() {
+        return stmt.hashCode() + ((Long)time).hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TemporalTriple other = (TemporalTriple) obj;
+        if (!Objects.equals(this.stmt, other.stmt)) {
+            return false;
+        }
+        return this.time == other.time;
     }
     
 }
