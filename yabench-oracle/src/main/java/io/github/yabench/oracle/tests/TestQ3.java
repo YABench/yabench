@@ -15,19 +15,26 @@ import org.apache.commons.cli.OptionBuilder;
  * PREFIX om-owl: <http://knoesis.wright.edu/ssw/ont/sensor-observation.owl#>
  * PREFIX weather: <http://knoesis.wright.edu/ssw/ont/weather.owl#>
  *
- * REGISTER QUERY q AS SELECT (AVG(?value) AS ?avg) FROM NAMED STREAM
- * <http://cwi.nl/SRBench/observations> [RANGE %WSIZE% S STEP %WSLIDE% S] WHERE
- * { ?obs om-owl:observedProperty weather:_AirTemperature ; om-owl:procedure
- * ?sensor ; om-owl:result ?res . ?res om-owl:floatValue ?value . FILTER(?value
- * > $TEMP$) }
+ * REGISTER QUERY q AS SELECT ?sensor ?ob1 ?value1 ?ob2 
+ * FROM NAMED STREAM <http://cwi.nl/SRBench/observations>[RANGE %WSIZE% S STEP %WSLIDE% S] 
+ * WHERE {
+ *  ?ob1 om-owl:procedure ?sensor ; 
+ *      om-owl:observedProperty weather:_AirTemperature ; 
+ *      om-owl:result [om-owl:floatValue ?value1]. 
+ *  ?ob2 om-owl:procedure ?sensor ; 
+ *      om-owl:observedProperty weather:_AirTemperature ;
+ *      om-owl:result [om-owl:floatValue ?value2]. 
+ *  FILTER(?value1-?value2 > %VARIATION_THRESHOLD%) 
+ * }
  */
-public class TestQ2 extends AbstractOracleTest {
+public class TestQ3 extends AbstractOracleTest {
 
-    private static final String ARG_TEMPERATURE = "temp";
-    private static final String VAR_KEY_TEMP = "%TEMP%";
+    private static final String ARG_VARIATION_THRESHOLD = "temp";
+    private static final String VAR_KEY_VARIATION_THRESHOLD
+            = "%VARIATION_THRESHOLD%";
 
-    public TestQ2(File inputStream, File queryResults, File output,
-            CommandLine cli) throws IOException {
+    public TestQ3(File inputStream, File queryResults,
+            File output, CommandLine cli) throws IOException {
         super(inputStream, queryResults, output, cli);
     }
 
@@ -38,9 +45,9 @@ public class TestQ2 extends AbstractOracleTest {
                 .isRequired()
                 .withType(Float.class)
                 .hasArg()
-                .withArgName("temperature")
+                .withArgName("threshold")
                 .withDescription("FILTER value")
-                .create(ARG_TEMPERATURE);
+                .create(ARG_VARIATION_THRESHOLD);
 
         return Stream.concat(
                 Arrays.stream(parent),
@@ -51,7 +58,8 @@ public class TestQ2 extends AbstractOracleTest {
     @Override
     public void init() throws Exception {
         super.init();
-        getVars().put(VAR_KEY_TEMP,
-                getCommandLine().getOptionValue(ARG_TEMPERATURE));
+        getVars().put(VAR_KEY_VARIATION_THRESHOLD,
+                getCommandLine().getOptionValue(ARG_VARIATION_THRESHOLD));
     }
+
 }
