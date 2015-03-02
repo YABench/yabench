@@ -12,11 +12,13 @@ public class TestFactory {
     private final static String METHOD_EXPECTED_OPTIONS = "expectedOptions";
     
     private final File inputStream;
-    private final File actualResults;
+    private final File queryResults;
+    private final File output;
 
-    public TestFactory(File inputStream, File actualResults) {
+    public TestFactory(File inputStream, File actualResults, File output) {
         this.inputStream = inputStream;
-        this.actualResults = actualResults;
+        this.queryResults = actualResults;
+        this.output = output;
     }
 
     /**
@@ -38,8 +40,9 @@ public class TestFactory {
         Class<?> testClass = findOracleTestByClassName(testName);
         if(testClass != null) {
             return (OracleTest) testClass
-                    .getConstructor(File.class, File.class, CommandLine.class)
-                    .newInstance(inputStream, actualResults, cliOptions);
+                    .getConstructor(File.class, File.class, File.class, 
+                            CommandLine.class)
+                    .newInstance(inputStream, queryResults, output, cliOptions);
         } else {
             return null;
         }

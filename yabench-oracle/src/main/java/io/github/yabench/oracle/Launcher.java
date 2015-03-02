@@ -17,7 +17,8 @@ public class Launcher extends AbstractLauncher {
     private static final String PROGRAM_NAME = "yabench-oracle";
     private static final String ARG_HELP = "help";
     private static final String ARG_INPUTSTREAM = "inputstream";
-    private static final String ARG_OUTPUTSTREAM = "outputstream";
+    private static final String ARG_QUERYRESULTS = "queryresults";
+    private static final String ARG_OUTPUT = "output";
     private static final String ARG_TESTNAME = "test";
     
     public static void main(String[] args) {
@@ -35,9 +36,11 @@ public class Launcher extends AbstractLauncher {
             
             final String testName = cli.getOptionValue(ARG_TESTNAME);
             final File inputStream = new File(cli.getOptionValue(ARG_INPUTSTREAM));
-            final File outputStream = new File(cli.getOptionValue(ARG_OUTPUTSTREAM));
+            final File queryResults = new File(cli.getOptionValue(ARG_QUERYRESULTS));
+            final File output = new File(cli.getOptionValue(ARG_OUTPUT));
             
-            TestFactory testFactory = new TestFactory(inputStream, outputStream);
+            TestFactory testFactory = new TestFactory(
+                    inputStream, queryResults, output);
             Option[] expectedOptions = testFactory
                     .getExpectedOptions(testName);
             if (expectedOptions != null) {
@@ -47,20 +50,10 @@ public class Launcher extends AbstractLauncher {
                 if(cli.hasOption(ARG_HELP)) {
                     printHelp(options);
                 } else {
-                    OracleTest test = testFactory
-                            .createTest(cli.getOptionValue(ARG_TESTNAME), cli);
-                    try {
+                    try (OracleTest test = testFactory
+                            .createTest(cli.getOptionValue(ARG_TESTNAME), cli)) {
                         test.init();
-                        int equal = test.compare();
-                        if(equal == 0) {
-                            System.out.println(
-                                    "The actual results are equals to expected!");
-                        } else {
-                            System.out.printf(
-                                    "%1s bindings were not found in actual results!", equal);
-                        }
-                    } finally {
-                        test.close();
+                        test.compare();
                     }
                 }
             } else {
@@ -83,11 +76,17 @@ public class Launcher extends AbstractLauncher {
                 .withArgName("file")
                 .create(ARG_INPUTSTREAM);
 
-        Option outputStream = OptionBuilder
+        Option queryResults = OptionBuilder
                 .isRequired()
                 .hasArg()
                 .withArgName("file")
-                .create(ARG_OUTPUTSTREAM);
+                .create(ARG_QUERYRESULTS);
+        
+        Option output = OptionBuilder
+                .isRequired()
+                .hasArg()
+                .withArgName("file")
+                .create(ARG_OUTPUT);
 
         Option testName = OptionBuilder
                 .isRequired()
@@ -99,7 +98,8 @@ public class Launcher extends AbstractLauncher {
                 .create(ARG_HELP);
 
         opt.addOption(inputStream);
-        opt.addOption(outputStream);
+        opt.addOption(queryResults);
+        opt.addOption(output);
         opt.addOption(testName);
         opt.addOption(help);
         return opt;

@@ -7,7 +7,7 @@ public interface OracleTest extends Closeable {
     
     public void init() throws Exception;
     
-    public int compare() throws IOException;
+    public void compare() throws IOException;
     
     @Override
     public void close() throws IOException;

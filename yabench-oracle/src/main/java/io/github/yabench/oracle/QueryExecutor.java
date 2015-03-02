@@ -4,18 +4,25 @@ import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.query.ResultSetFactory;
-import com.hp.hpl.jena.query.ResultSetRewindable;
-import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.sparql.engine.binding.Binding;
+import io.github.yabench.commons.NodeUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 public class QueryExecutor {
     
-    public ResultSetRewindable executeSelect(final Model model, final String strQuery) {      
+    public BindingWindow executeSelect(final TripleWindow input, final String strQuery) {      
         Query query = QueryFactory.create(strQuery);
-        try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
+        try (QueryExecution qexec = QueryExecutionFactory.create(query, input.getModel())) {
             ResultSet results = qexec.execSelect();
-            return ResultSetFactory.copyResults(results);
+            final List<Binding> bindings = new ArrayList<>();
+            while(results.hasNext()) {
+                final QuerySolution soln = results.next();
+                bindings.add(NodeUtils.toBinding(soln));
+            }
+            return new BindingWindow(bindings, input.getEnd());
         }
     }
     

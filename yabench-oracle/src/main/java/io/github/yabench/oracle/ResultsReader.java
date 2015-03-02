@@ -3,12 +3,13 @@ package io.github.yabench.oracle;
 import com.hp.hpl.jena.sparql.engine.binding.Binding;
 import io.github.yabench.commons.NodeUtils;
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResultsReader implements AutoCloseable {
+public class ResultsReader implements AutoCloseable, Closeable {
 
     private static final String TAB = "\t";
     private final BufferedReader reader;
@@ -27,8 +28,8 @@ public class ResultsReader implements AutoCloseable {
     }
 
     public BindingWindow nextWindow() throws IOException {
-        String line;
-        line = reader.readLine();
+        final long timestamp = currentTimestamp - initialTimestamp;
+        String line = reader.readLine();
         if (line != null) {
             final List<Binding> content = new ArrayList<>();
             do {
@@ -39,7 +40,7 @@ public class ResultsReader implements AutoCloseable {
                     break;
                 }
             } while ((line = reader.readLine()) != null);
-            return new BindingWindow(content);
+            return new BindingWindow(content, timestamp);
         } else {
             return null;
         }

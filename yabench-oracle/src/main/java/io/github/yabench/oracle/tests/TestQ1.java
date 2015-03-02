@@ -1,9 +1,7 @@
 package io.github.yabench.oracle.tests;
 
-import com.hp.hpl.jena.query.ResultSetRewindable;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import io.github.yabench.commons.NodeUtils;
 import io.github.yabench.oracle.BindingWindow;
+import io.github.yabench.oracle.FMeasure;
 import io.github.yabench.oracle.QueryExecutor;
 import io.github.yabench.oracle.TripleWindow;
 import io.github.yabench.oracle.WindowFactory;
@@ -38,9 +36,10 @@ public class TestQ1 extends AbstractOracleTest {
     private long windowSlide;
     private WindowFactory windowFactory;
 
-    public TestQ1(File inputStream, File actualResults, CommandLine cli)
+    public TestQ1(File inputStream, File queryResults, File output, 
+            CommandLine cli)
             throws IOException {
-        super(inputStream, actualResults, cli);
+        super(inputStream, queryResults, output, cli);
     }
 
     public static Option[] expectedOptions() {
@@ -78,39 +77,35 @@ public class TestQ1 extends AbstractOracleTest {
 
         vars.put(VAR_KEY_TEMP, getOptions().getOptionValue(ARG_TEMPERATURE));
 
-        windowFactory = new WindowFactory(getISReader(), windowSize, windowSlide);
+        windowFactory = new WindowFactory(getInputStreamReader(), windowSize, windowSlide);
         
-        getARReader().initialize();
+        getQueryResultsReader().initialize();
     }
 
     @Override
-    public int compare() throws IOException {
+    public void compare() throws IOException {
         final QueryExecutor qexec = new QueryExecutor();
         final String query = resolveVars(loadQueryTemplate(), vars);
-        int notfound = 0;
-        int i = 0;
         TripleWindow inputWindow;
         while ((inputWindow = windowFactory.nextWindow()) != null) {
-            i++;
-            final ResultSetRewindable results = qexec.executeSelect(
-                        inputWindow.getModel(), query);
-            final BindingWindow actualWindow = getARReader().nextWindow();
-            if (actualWindow != null) {
-                while (results.hasNext()) {
-                    final Binding binding = NodeUtils.toBinding(results.next());
-                    if(!actualWindow.contains(binding)) {
-                        System.out.printf("Not found in %1s window!\n", i);
-                        System.out.println(binding);
-                        notfound++;
-                    }
-                }
-            } else {
-                if(results.hasNext()) {
-                    System.out.println("Oops!");
-                }
-            }
+            final BindingWindow expected = qexec.executeSelect(
+                    inputWindow, query);
+            final BindingWindow actual = getQueryResultsReader().nextWindow();
+            
+            FMeasure fMeasure = new FMeasure();
+            fMeasure.updateScores(expected.getBindings().toArray(), 
+                    actual.getBindings().toArray());
+            
+            getOutputWriter().write(
+                    new StringBuilder()
+                            .append(fMeasure.getPrecisionScore())
+                            .append('\t')
+                            .append(fMeasure.getRecallScore())
+                            .append('\t')
+                            .append(actual.getEnd() - expected.getEnd())
+                            .append('\n')
+                            .toString());
         }
-        return notfound;
     }
 
 }

@@ -3,8 +3,10 @@ package io.github.yabench.oracle.tests;
 import io.github.yabench.oracle.ResultsReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.util.Map;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.IOUtils;
@@ -13,13 +15,16 @@ abstract class AbstractOracleTest implements OracleTest {
 
     private static final String QUERY_TEMPLATE_NAME = "query.template";
     private final CommandLine cli;
-    private final Reader isReader;
-    private final ResultsReader arReader;
+    private final Reader inputStreamReader;
+    private final Writer outputWriter;
+    private final ResultsReader queryResultsReader;
 
-    AbstractOracleTest(File inputStream, File actualResults, CommandLine cli) 
+    AbstractOracleTest(File inputStream, File queryResults, File output, 
+            CommandLine cli) 
             throws IOException {
-        this.isReader = new FileReader(inputStream);
-        this.arReader = new ResultsReader(new FileReader(actualResults));
+        this.inputStreamReader = new FileReader(inputStream);
+        this.outputWriter = new FileWriter(output);
+        this.queryResultsReader = new ResultsReader(new FileReader(queryResults));
         this.cli = cli;
     }
 
@@ -27,18 +32,23 @@ abstract class AbstractOracleTest implements OracleTest {
         return cli;
     }
 
-    protected Reader getISReader() {
-        return isReader;
+    protected Reader getInputStreamReader() {
+        return inputStreamReader;
     }
     
-    protected ResultsReader getARReader() {
-        return arReader;
+    protected Writer getOutputWriter() {
+        return outputWriter;
+    }
+    
+    protected ResultsReader getQueryResultsReader() {
+        return queryResultsReader;
     }
 
     @Override
     public void close() throws IOException {
-        isReader.close();
-        arReader.close();
+        IOUtils.closeQuietly(inputStreamReader);
+        IOUtils.closeQuietly(outputWriter);
+        IOUtils.closeQuietly(queryResultsReader);
     }
 
     protected String loadQueryTemplate() throws IOException {

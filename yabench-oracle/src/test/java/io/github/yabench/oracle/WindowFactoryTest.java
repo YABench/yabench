@@ -1,8 +1,6 @@
 package io.github.yabench.oracle;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import io.github.yabench.commons.RDFStreamReader;
 import io.github.yabench.commons.TemporalTriple;
