@@ -7,4 +7,4 @@
 
 ## Authors
 * Peter Wetz, Vienna University of Technology, Austria
-* Maxim Kolchin, ITMO University, Russia
+* [Maxim Kolchin](http://kolchinmax.ru), [ITMO University](http://en.ifmo.ru/), Russia
