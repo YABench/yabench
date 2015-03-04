@@ -1,5 +1,6 @@
 package io.github.yabench.oracle.tests;
 
+import io.github.yabench.commons.TimeUtils;
 import io.github.yabench.oracle.BindingWindow;
 import io.github.yabench.oracle.FMeasure;
 import io.github.yabench.oracle.QueryExecutor;
@@ -12,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.cli.CommandLine;
@@ -29,8 +31,8 @@ abstract class AbstractOracleTest implements OracleTest {
     private final Writer outputWriter;
     private final ResultsReader queryResultsReader;
     private final Map<String, String> vars = new HashMap<>();
-    private long windowSize;
-    private long windowSlide;
+    private Duration windowSize;
+    private Duration windowSlide;
     private WindowFactory windowFactory;
 
     AbstractOracleTest(File inputStream, File queryResults, File output,
@@ -83,8 +85,8 @@ abstract class AbstractOracleTest implements OracleTest {
 
     @Override
     public void init() throws Exception {
-        windowSize = Long.parseLong(getCommandLine().getOptionValue(ARG_WINDOWSIZE));
-        windowSlide = Long.parseLong(getCommandLine().getOptionValue(ARG_WINDOWSLIDE));
+        windowSize = TimeUtils.parseDuration(getCommandLine().getOptionValue(ARG_WINDOWSIZE));
+        windowSlide = TimeUtils.parseDuration(getCommandLine().getOptionValue(ARG_WINDOWSLIDE));
 
         windowFactory = new WindowFactory(getInputStreamReader(), windowSize, windowSlide);
 

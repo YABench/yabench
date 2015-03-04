@@ -8,6 +8,7 @@ import java.util.Random;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import io.github.yabench.RSPTest;
+import io.github.yabench.commons.TimeUtils;
 import java.time.Duration;
 import java.util.List;
 import org.apache.commons.cli.Option;
@@ -63,7 +64,7 @@ public class SG1 extends AbstractStreamGenerator {
         this.numberOfStations = Integer.parseInt(
                 getCLIOptions().getOptionValue(
                         ARG_NUMBER_OF_STATIONS, DEFAULT_NUMBER_OF_STATIONS));
-        this.interval = parseDuration(getCLIOptions().getOptionValue(
+        this.interval = TimeUtils.parseDuration(getCLIOptions().getOptionValue(
                         ARG_INTERVAL, DEFAULT_INTERVAL));
         this.minTemp = Integer.parseInt(
                 getCLIOptions().getOptionValue(

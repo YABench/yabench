@@ -58,7 +58,7 @@
                 var seriesD = [{name: 'Delay', data: []}];
                 angular.forEach(lines, function (points) {
                     var values = points.split('\t').map(function (item) {
-                        return parseInt(item);
+                        return parseFloat(item);
                     });
                     if (values.length > 2) {
                         seriesRP[0].data.push(values[0]);

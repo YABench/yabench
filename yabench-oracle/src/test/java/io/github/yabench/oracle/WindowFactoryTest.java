@@ -7,6 +7,8 @@ import io.github.yabench.commons.TemporalTriple;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
@@ -48,8 +50,8 @@ public class WindowFactoryTest {
         final Reader reader = new StringReader(
                 IOUtils.toString(this.getClass().getResourceAsStream(
                 PREFIX + "input.stream")));
-        final long windowSize = 60000;
-        final long windowSlide  = 30000;
+        final Duration windowSize = Duration.of(60000, ChronoUnit.MILLIS);
+        final Duration windowSlide  = Duration.of(30000, ChronoUnit.MILLIS);;
         
         WindowFactory windowFactory = new WindowFactory(reader, windowSize, windowSlide);
         

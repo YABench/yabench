@@ -4,6 +4,7 @@ import io.github.yabench.commons.RDFStreamReader;
 import io.github.yabench.commons.TemporalTriple;
 import java.io.IOException;
 import java.io.Reader;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,12 +12,12 @@ import java.util.List;
 public class WindowFactory {
 
     private final RDFStreamReader reader;
-    private final long windowSize;
-    private final long windowSlide;
+    private final Duration windowSize;
+    private final Duration windowSlide;
     private long numberOfSlides = 0;
     private List<TemporalTriple> content = new ArrayList<>();
 
-    public WindowFactory(Reader reader, long windowSize, long windowSlide)
+    public WindowFactory(Reader reader, Duration windowSize, Duration windowSlide)
             throws IOException {
         this.reader = new RDFStreamReader(reader);
         this.windowSize = windowSize;
@@ -30,9 +31,9 @@ public class WindowFactory {
     public TripleWindow nextWindow() throws IOException {
         numberOfSlides++;
         
-        final long windowEnd = numberOfSlides * windowSlide;
+        final long windowEnd = numberOfSlides * windowSlide.toMillis();
         final long windowStart = 
-                windowEnd - windowSize > 0 ? windowEnd - windowSize : 0;
+                windowEnd - windowSize.toMillis() > 0 ? windowEnd - windowSize.toMillis() : 0;
         
         content = new ArrayList<>(Arrays.asList(content.stream()
                 .filter((triple)-> triple.getTime() >= windowStart)

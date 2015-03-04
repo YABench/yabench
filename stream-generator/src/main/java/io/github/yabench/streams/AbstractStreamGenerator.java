@@ -9,8 +9,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.io.IOUtils;
 import io.github.yabench.StreamGenerator;
+import io.github.yabench.commons.TimeUtils;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.cli.Option;
@@ -67,32 +67,8 @@ abstract class AbstractStreamGenerator implements StreamGenerator {
     }
 
     protected Duration getDuration() {
-        return parseDuration(options.getOptionValue(
+        return TimeUtils.parseDuration(options.getOptionValue(
                 ARG_DURATION, DEFAULT_DURATION));
-    }
-    
-    public Duration parseDuration(final String duration) {
-        if(duration.endsWith("ms")) {
-            return Duration.of(
-                    Long.parseLong(duration.substring(0, duration.length()-2)), 
-                    ChronoUnit.MILLIS);
-        }
-        if(duration.endsWith("s")) {
-            return Duration.of(
-                    Long.parseLong(duration.substring(0, duration.length()-1)), 
-                    ChronoUnit.SECONDS);
-        }
-        if(duration.endsWith("m")) {
-            return Duration.of(
-                    Long.parseLong(duration.substring(0, duration.length()-1)), 
-                    ChronoUnit.MINUTES);
-        }
-        if(duration.endsWith("h")) {
-            return Duration.of(
-                    Long.parseLong(duration.substring(0, duration.length()-1)), 
-                    ChronoUnit.HOURS);
-        }
-        return Duration.of(Long.parseLong(duration), ChronoUnit.MILLIS);
     }
 
 }

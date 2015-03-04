@@ -53,6 +53,7 @@ public class TestQ1 extends AbstractOracleTest {
 
     @Override
     public void init() throws Exception {
+        super.init();
         getVars().put(VAR_KEY_TEMP, 
                 getCommandLine().getOptionValue(ARG_TEMPERATURE));
     }
