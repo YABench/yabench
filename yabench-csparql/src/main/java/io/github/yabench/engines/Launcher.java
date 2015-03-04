@@ -18,6 +18,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public class Launcher extends AbstractLauncher {
                 final Writer writer = new BufferedWriter(
                         new FileWriter(cli.getOptionValue(ARG_DEST)));
             ) {
-
+                
                 log.info("initialize engine");
                 EngineFactory engineFactory = new EngineFactory();
                 try (Engine engine = engineFactory.create()) {
@@ -75,6 +76,8 @@ public class Launcher extends AbstractLauncher {
                     engine.registerResultListener(serializer);
 
                     serializer.initialize();
+                    
+                    log.info("started sending triples at {}", Instant.now());
 
                     long time = 0;
                     TemporalTriple triple;
@@ -85,10 +88,13 @@ public class Launcher extends AbstractLauncher {
 
                         time = triple.getTime();
                     }
+                    
+                    log.info("stopped sending triples at {}", Instant.now());
                     log.info("Last time: " + time);
                     Thread.sleep(60000);
                     
                     //TODO: Wait while there are triples in a window
+                    log.info("stopped the engine at {}", Instant.now());
                 }
             }
         } catch (ParseException exp) {
