@@ -8,6 +8,7 @@ import java.util.Random;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import io.github.yabench.RSPTest;
+import java.time.Duration;
 import java.util.List;
 import org.apache.commons.cli.Option;
 
@@ -51,7 +52,7 @@ public class SG1 extends AbstractStreamGenerator {
     private final static String DEFAULT_MIN_TEMPERATURE = "0";
     private final static String DEFAULT_MAX_TEMPERATURE = "100";
     private final int numberOfStations;
-    private final int interval; //in milliseconds
+    private final Duration interval; //in milliseconds
     private final int minTemp;
     private final int maxTemp;
     private final Random random = new Random();
@@ -62,8 +63,7 @@ public class SG1 extends AbstractStreamGenerator {
         this.numberOfStations = Integer.parseInt(
                 getCLIOptions().getOptionValue(
                         ARG_NUMBER_OF_STATIONS, DEFAULT_NUMBER_OF_STATIONS));
-        this.interval = Integer.parseInt(
-                getCLIOptions().getOptionValue(
+        this.interval = parseDuration(getCLIOptions().getOptionValue(
                         ARG_INTERVAL, DEFAULT_INTERVAL));
         this.minTemp = Integer.parseInt(
                 getCLIOptions().getOptionValue(
@@ -76,7 +76,8 @@ public class SG1 extends AbstractStreamGenerator {
     @Override
     public void generate() throws IOException {
         for (int i = 0; i < numberOfStations; i++) {
-            int step = random.nextInt(interval);
+            //TODO: This is a bad idea to cast long to int!
+            int step = random.nextInt((int) interval.toMillis());
             stations.add(new Station(i, step));
         }
         Collections.sort(stations);
@@ -84,7 +85,7 @@ public class SG1 extends AbstractStreamGenerator {
         final String template = readTemplate(TEMPLATE_NAME);
 
         long currentTime = 0;
-        while (currentTime <= getDuration()) {
+        while (currentTime <= getDuration().toMillis()) {
             Station currentStation = stations.pop();
 
             final float nextValue = random.nextInt(maxTemp - minTemp) + minTemp;
@@ -92,7 +93,7 @@ public class SG1 extends AbstractStreamGenerator {
             writeToDestination(String.format(template,
                     currentStation.id, currentTime, nextValue));
 
-            currentStation.nextObservation += interval;
+            currentStation.nextObservation += interval.toMillis();
             currentTime = currentStation.nextObservation;
             stations.addLast(currentStation);
         }

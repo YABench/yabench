@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionGroup;
 import org.reflections.Reflections;
 
 public class StreamGeneratorFactory {
@@ -24,7 +23,7 @@ public class StreamGeneratorFactory {
         Class<?> testClass = findTest(testName);
         if(testClass != null) {
             final Path testDest = 
-                    Files.createFile(new File(destination, testName).toPath());
+                    Files.createFile(destination.toPath());
             return (StreamGenerator) testClass
                     .getConstructor(Path.class, CommandLine.class)
                     .newInstance(testDest, cliOptions);
