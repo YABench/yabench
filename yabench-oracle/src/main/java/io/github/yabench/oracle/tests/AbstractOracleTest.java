@@ -23,7 +23,7 @@ import org.apache.commons.io.IOUtils;
 
 abstract class AbstractOracleTest implements OracleTest {
 
-    private static final String TAB = "\t";
+    private static final String SEPARATOR = ",";
     private static final String NEWLINE = "\n";
     private static final String QUERY_TEMPLATE_NAME = "query.template";
     private static final String ARG_WINDOWSIZE = "windowsize";
@@ -136,13 +136,13 @@ abstract class AbstractOracleTest implements OracleTest {
             getOutputWriter().write(
                     new StringBuilder()
                     .append(fMeasure.getPrecisionScore())
-                    .append(TAB)
+                    .append(SEPARATOR)
                     .append(fMeasure.getRecallScore())
-                    .append(TAB)
+                    .append(SEPARATOR)
                     .append(actual.getEnd() - expected.getEnd())
-                    .append(TAB)
+                    .append(SEPARATOR)
                     .append(actual.getBindings().size())
-                    .append(TAB)
+                    .append(SEPARATOR)
                     .append(expected.getBindings().size())
                     .append(NEWLINE)
                     .toString());

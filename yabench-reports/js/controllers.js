@@ -96,7 +96,7 @@
                 };
                 angular.forEach(lines, function (points, index) {
                     xAxis.categories.push(index + 1);
-                    var values = points.split('\t').map(function (item) {
+                    var values = points.split(',').map(function (item) {
                         return parseFloat(item);
                     });
                     if (values.length > 4) {
