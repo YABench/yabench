@@ -23,6 +23,8 @@ import org.apache.commons.io.IOUtils;
 
 abstract class AbstractOracleTest implements OracleTest {
 
+    private static final String TAB = "\t";
+    private static final String NEWLINE = "\n";
     private static final String QUERY_TEMPLATE_NAME = "query.template";
     private static final String ARG_WINDOWSIZE = "windowsize";
     private static final String ARG_WINDOWSLIDE = "windowslide";
@@ -134,11 +136,15 @@ abstract class AbstractOracleTest implements OracleTest {
             getOutputWriter().write(
                     new StringBuilder()
                     .append(fMeasure.getPrecisionScore())
-                    .append('\t')
+                    .append(TAB)
                     .append(fMeasure.getRecallScore())
-                    .append('\t')
+                    .append(TAB)
                     .append(actual.getEnd() - expected.getEnd())
-                    .append('\n')
+                    .append(TAB)
+                    .append(actual.getBindings().size())
+                    .append(TAB)
+                    .append(expected.getBindings().size())
+                    .append(NEWLINE)
                     .toString());
         }
     }
