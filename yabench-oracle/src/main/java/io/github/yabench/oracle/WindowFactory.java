@@ -56,6 +56,7 @@ public class WindowFactory {
                     windowStart, 
                     windowEnd);
             
+            //TODO: why content.add(triple) here again?
             if(triple != null) {
                 content.add(triple);
             }
