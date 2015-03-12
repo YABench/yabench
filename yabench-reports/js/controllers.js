@@ -5,97 +5,69 @@
         function ($scope) {
             $scope.chartRP = {
                 options: {
-                    chart: {
-                        type: 'line'
-                    },
-                    plotOptions: {
-                        line: {
-                            dataLabels: {
-                                enabled: true
-                            },
-                            enableMouseTracking: false
-                        }
+                    chart: {type: 'line'},
+                    plotOptions: {line: {dataLabels: {enabled: true}}},
+                    tooltip: {
+                        shared: true,
+                        crosshairs: true, 
+                        valueSuffix: '%',
+                        valueDecimals: 2
                     }
                 },
-                title: {
-                    text: 'Recall/Precision'
-                },
+                title: {text: 'Recall/Precision'},
                 series: [],
-                yAxis: {
-                    title: {
-                        text: 'Percentage (%)'
-                    }
-                }
+                yAxis: {title: {text: 'Percentage (%)'}}
             };
             $scope.chartD = {
                 options: {
-                    chart: {
-                        type: 'line'
-                    },
-                    plotOptions: {
-                        line: {
-                            dataLabels: {
-                                enabled: true
-                            },
-                            enableMouseTracking: false
-                        }
+                    chart: {type: 'line'},
+                    plotOptions: {line: {dataLabels: {enabled: true}}},
+                    tooltip: {
+                        shared: true, crosshairs: true, valueSuffix: 'ms'
                     }
                 },
-                title: {
-                    text: 'Delay/Window size'
-                },
+                title: {text: 'Delay'},
                 series: [],
                 yAxis: [
                     {
-                        labels: {
-                            format: '{value}ms',
-                            style: {
-                                color: Highcharts.getOptions().colors[0]
-                            }
-                        },
-                        title: {
-                            text: 'Delay (ms)',
-                            style: {
-                                color: Highcharts.getOptions().colors[0]
-                            }
-                        }
-                    },
-                    {
-                        labels: {
-                            style: {
-                                color: Highcharts.getOptions().colors[1]
-                            }
-                        },
-                        title: {
-                            text: 'Number of triples',
-                            style: {
-                                color: Highcharts.getOptions().colors[1]
-                            }
-                        },
-                        opposite: true
+                        labels: {format: '{value}ms'},
+                        title: {text: 'Delay (ms)'}
                     }
                 ]
+            };
+            $scope.chartW = {
+                options: {
+                    chart: {type: 'line'},
+                    plotOptions: {line: {dataLabels: {enabled: true}}},
+                    tooltip: {shared: true, crosshairs: true}
+                },
+                title: {text: 'Window size (num of triples)'},
+                series: [],
+                yAxis: [{title: {text: 'Number of triples'}}]
             };
 
             $scope.loadData = function ($fileContent) {
                 var lines = $fileContent.split('\n');
                 var seriesRP = [
-                    {name: 'Recall', data: []}, 
+                    {name: 'Recall', data: []},
                     {name: 'Precision', data: []}
                 ];
                 var seriesD = [
-                    {name: 'Delay', data: [], yAxis: 0},
-                    {name: 'Window size (actual)', data: [], yAxis: 1},
-                    {name: 'Window size (expected)', data: [], yAxis: 1}
+                    {name: 'Delay', data: []}
+                ];
+                var seriesW = [
+                    {name: 'Window size (actual)', data: []},
+                    {name: 'Window size (expected)', data: []}
                 ];
                 var xAxis = {
                     categories: [],
                     title: {
-                        text: 'Windows'
+                        text: 'Windows',
+                        format: 'Window #{value}'
                     }
                 };
                 angular.forEach(lines, function (points, index) {
-                    xAxis.categories.push(index + 1);
+                    xAxis.categories.push('#' + (index + 1));
                     var values = points.split(',').map(function (item) {
                         return parseFloat(item);
                     });
@@ -104,14 +76,17 @@
                         seriesRP[1].data.push(values[1] * 100);
 
                         seriesD[0].data.push(values[2]);
-                        seriesD[1].data.push(values[3]);
-                        seriesD[2].data.push(values[4]);
+
+                        seriesW[0].data.push(values[3]);
+                        seriesW[1].data.push(values[4]);
                     }
                 });
                 $scope.chartRP.series = seriesRP;
                 $scope.chartRP.xAxis = xAxis;
                 $scope.chartD.series = seriesD;
                 $scope.chartD.xAxis = xAxis;
+                $scope.chartW.series = seriesW;
+                $scope.chartW.xAxis = xAxis;
             };
         }
     ]);
