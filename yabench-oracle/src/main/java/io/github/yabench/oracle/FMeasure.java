@@ -127,6 +127,7 @@ public final class FMeasure {
                 if (referenceName.equals(predListSpan)) {
                     matchedItem = predListSpan;
                     truePositives++;
+                    break;
                 }
             }
             if (matchedItem != null) {
