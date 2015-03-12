@@ -11,6 +11,7 @@ public class ResultSerializer implements ResultListener {
 
     private static final String NEWLINE = "\n";
     private static final String TAB = "\t";
+    private static final int FIRST = 0;
     private final Writer writer;
     private boolean initialized = false;
     private boolean firstResult = true;
@@ -29,8 +30,8 @@ public class ResultSerializer implements ResultListener {
     @Override
     public void update(List<Binding> bindings) {
         try {
-            if (firstResult) {
-                Iterator<Var> vars = bindings.get(0).vars();
+            if (!bindings.isEmpty() && firstResult) {
+                Iterator<Var> vars = bindings.get(FIRST).vars();
                 while (vars.hasNext()) {
                     Var var = vars.next();
                     writer.write(var.getVarName() + TAB);
