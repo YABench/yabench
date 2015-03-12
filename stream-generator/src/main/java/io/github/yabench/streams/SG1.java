@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Locale;
-import java.util.Random;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -61,7 +60,6 @@ public class SG1 extends AbstractStreamGenerator {
     private final Duration interval; //in milliseconds
     private final int minTemp;
     private final int maxTemp;
-    private final Random random = new Random();
     private final LinkedList<Station> stations = new LinkedList<>();
 
     public SG1(Path destination, CommandLine options) throws IOException {
@@ -83,7 +81,7 @@ public class SG1 extends AbstractStreamGenerator {
     public void generate() throws IOException {
         for (int i = 0; i < numberOfStations; i++) {
             //TODO: This is a bad idea to cast long to int!
-            int step = random.nextInt((int) interval.toMillis());
+            int step = getRandom().nextInt((int) interval.toMillis());
             stations.add(new Station(i, step));
         }
         Collections.sort(stations);
@@ -94,7 +92,7 @@ public class SG1 extends AbstractStreamGenerator {
         while (currentTime <= getDuration().toMillis()) {
             Station currentStation = stations.pop();
 
-            final float nextValue = random.nextInt(maxTemp - minTemp) + minTemp;
+            final float nextValue = getRandom().nextInt(maxTemp - minTemp) + minTemp;
 
             writeToDestination(String.format(Locale.ENGLISH,template,
                     currentStation.id, currentTime, nextValue));
@@ -115,8 +113,8 @@ public class SG1 extends AbstractStreamGenerator {
                 .create(ARG_NUMBER_OF_STATIONS));
 
         options.add(OptionBuilder
-                .withArgName("milliseconds")
-                .withDescription("default: " + DEFAULT_INTERVAL)
+                .withArgName("time")
+                .withDescription("e.g. 200s, 5m or 2h. Default: " + DEFAULT_INTERVAL)
                 .hasArg()
                 .create(ARG_INTERVAL));
 

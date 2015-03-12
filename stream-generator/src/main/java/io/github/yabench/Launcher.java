@@ -78,7 +78,7 @@ public class Launcher extends AbstractLauncher {
 
         Option name = OptionBuilder
                 .withArgName("name")
-                .withDescription("the name of the test scenarion")
+                .withDescription("the name of the generator")
                 .hasArg()
                 .isRequired()
                 .create(ARG_NAME);
