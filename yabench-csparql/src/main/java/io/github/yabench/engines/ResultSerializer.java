@@ -2,9 +2,13 @@ package io.github.yabench.engines;
 
 import com.hp.hpl.jena.sparql.core.Var;
 import com.hp.hpl.jena.sparql.engine.binding.Binding;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResultSerializer implements ResultListener {
 
@@ -13,6 +17,8 @@ public class ResultSerializer implements ResultListener {
     private final Writer writer;
     private boolean initialized = false;
     private boolean firstResult = true;
+    private final static Logger log = LoggerFactory.getLogger(ResultSerializer.class);
+
 
     public ResultSerializer(Writer writer) {
         this.writer = writer;
