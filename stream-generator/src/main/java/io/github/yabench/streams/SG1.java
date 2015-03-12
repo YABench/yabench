@@ -4,13 +4,18 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Random;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
+
 import io.github.yabench.RSPTest;
 import io.github.yabench.commons.TimeUtils;
+
 import java.time.Duration;
 import java.util.List;
+
 import org.apache.commons.cli.Option;
 
 /**
@@ -91,7 +96,7 @@ public class SG1 extends AbstractStreamGenerator {
 
             final float nextValue = random.nextInt(maxTemp - minTemp) + minTemp;
 
-            writeToDestination(String.format(template,
+            writeToDestination(String.format(Locale.ENGLISH,template,
                     currentStation.id, currentTime, nextValue));
 
             currentStation.nextObservation += interval.toMillis();

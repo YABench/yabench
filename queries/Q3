@@ -1,4 +1,4 @@
-REGISTER QUERY test AS
+REGISTER QUERY test AS 
 
 PREFIX om-owl: <http://knoesis.wright.edu/ssw/ont/sensor-observation.owl#> 
 PREFIX weather: <http://knoesis.wright.edu/ssw/ont/weather.owl#> 
