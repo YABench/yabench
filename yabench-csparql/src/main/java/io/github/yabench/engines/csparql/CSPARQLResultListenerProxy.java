@@ -11,6 +11,7 @@ import java.util.Observable;
 
 public class CSPARQLResultListenerProxy extends ResultFormatter {
 
+    private static final String TAB = "\t";
     private final ResultListener listener;
     
     public CSPARQLResultListenerProxy(ResultListener listener) {
@@ -23,9 +24,9 @@ public class CSPARQLResultListenerProxy extends ResultFormatter {
         final List<Binding> bindings = new ArrayList<>();
         final String[] vars = rdfTable.getNames().toArray(new String[]{});
         rdfTable.stream().forEach((t) -> {
-            bindings.add(NodeUtils.toBinding(vars, t.toString(), "\t"));
+            bindings.add(NodeUtils.toBinding(vars, t.toString(), TAB));
         });
-        listener.update(bindings);
+        listener.update(vars, bindings);
     }
     
 }

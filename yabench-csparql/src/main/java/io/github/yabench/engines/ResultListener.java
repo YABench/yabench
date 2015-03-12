@@ -5,6 +5,6 @@ import java.util.List;
 
 public interface ResultListener {
     
-    public void update(List<Binding> binding);
+    public void update(final String[] vars, final List<Binding> binding);
     
 }

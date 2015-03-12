@@ -4,14 +4,12 @@ import com.hp.hpl.jena.sparql.core.Var;
 import com.hp.hpl.jena.sparql.engine.binding.Binding;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Iterator;
 import java.util.List;
 
 public class ResultSerializer implements ResultListener {
 
     private static final String NEWLINE = "\n";
     private static final String TAB = "\t";
-    private static final int FIRST = 0;
     private final Writer writer;
     private boolean initialized = false;
     private boolean firstResult = true;
@@ -28,13 +26,11 @@ public class ResultSerializer implements ResultListener {
     }
 
     @Override
-    public void update(List<Binding> bindings) {
+    public void update(String[] vars, List<Binding> bindings) {
         try {
-            if (!bindings.isEmpty() && firstResult) {
-                Iterator<Var> vars = bindings.get(FIRST).vars();
-                while (vars.hasNext()) {
-                    Var var = vars.next();
-                    writer.write(var.getVarName() + TAB);
+            if (firstResult) {
+                for(String var : vars) {
+                    writer.write(var + TAB);
                 }
                 writer.write(NEWLINE);
                 firstResult = false;
@@ -44,9 +40,8 @@ public class ResultSerializer implements ResultListener {
             writeln(timestamp);
             
             for(Binding binding : bindings) {
-                final Iterator<Var> vars = binding.vars();
-                while(vars.hasNext()) {
-                    final Var var  = vars.next();
+                for(String varName : vars) {
+                    final Var var  = Var.alloc(varName);
                     writer.write(binding.get(var).toString(false) + TAB);
                 }
                 writer.write(NEWLINE);
