@@ -23,7 +23,7 @@
                         valueDecimals: 2
                     }
                 },
-                title: {text: 'Recall/Precision'},
+                title: {text: 'Precision/Recall'},
                 series: [],
                 yAxis: {title: {text: 'Percentage (%)'}, max: 100}
             };
@@ -58,8 +58,8 @@
             $scope.loadData = function ($fileContent) {
                 var lines = $fileContent.split('\n');
                 var seriesRP = [
-                    {name: 'Recall', data: []},
-                    {name: 'Precision', data: []}
+                    {name: 'Precision', data: []},
+                    {name: 'Recall', data: []}
                 ];
                 var seriesD = [
                     {name: 'Delay', data: []}
