@@ -39,7 +39,6 @@ public class WindowFactory {
                 .filter((triple)-> triple.getTime() >= windowStart)
                 .toArray(TemporalTriple[]::new)));
         
-        boolean hasNewContent = false;
         TemporalTriple triple;
         while ((triple = reader.readNext()) != null) {
             if (triple.getTime() <= windowEnd) {
@@ -47,23 +46,19 @@ public class WindowFactory {
             } else {
                 break;
             }
-            hasNewContent = true;
         }
         
-        if(hasNewContent) {
-            final TripleWindow w = new TripleWindow(
-                    new ArrayList<>(content), 
-                    windowStart, 
-                    windowEnd);
-            
-            //TODO: why content.add(triple) here again?
-            if(triple != null) {
-                content.add(triple);
-            }
-            
-            return w;
-        } else {
+        final TripleWindow w = new TripleWindow(
+                new ArrayList<>(content), 
+                windowStart, 
+                windowEnd);
+
+        if(triple != null) {
+            content.add(triple);
+        } else if (triple == null && content.isEmpty()){
             return null;
         }
+
+        return w;
     }
 }

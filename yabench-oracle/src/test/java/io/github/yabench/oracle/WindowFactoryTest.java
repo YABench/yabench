@@ -51,7 +51,7 @@ public class WindowFactoryTest {
                 IOUtils.toString(this.getClass().getResourceAsStream(
                 PREFIX + "input.stream")));
         final Duration windowSize = Duration.of(60000, ChronoUnit.MILLIS);
-        final Duration windowSlide  = Duration.of(30000, ChronoUnit.MILLIS);;
+        final Duration windowSlide  = Duration.of(30000, ChronoUnit.MILLIS);
         
         WindowFactory windowFactory = new WindowFactory(reader, windowSize, windowSlide);
         
@@ -83,6 +83,13 @@ public class WindowFactoryTest {
         actual = windowFactory.nextWindow();
         assertNotNull(actual);
         expected = load("5.window", 90000, 150000);
+        assertEquals(expected, actual);
+        
+        //#6 This window already doesn't contains new triple from 
+        //the input stream, but a subset of the previous one.
+        actual = windowFactory.nextWindow();
+        assertNotNull(actual);
+        expected = load("6.window", 120000, 180000);
         assertEquals(expected, actual);
         
         actual = windowFactory.nextWindow();
