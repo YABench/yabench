@@ -6,7 +6,16 @@
             $scope.chartRP = {
                 options: {
                     chart: {type: 'line'},
-                    plotOptions: {line: {dataLabels: {enabled: true}}},
+                    plotOptions: {
+                        line: {
+                            dataLabels: {
+                                enabled: true,
+                                formatter: function() {
+                                    return this.y.toPrecision(3) + '%';
+                                }
+                            }
+                        }
+                    },
                     tooltip: {
                         shared: true,
                         crosshairs: true, 
@@ -16,7 +25,7 @@
                 },
                 title: {text: 'Recall/Precision'},
                 series: [],
-                yAxis: {title: {text: 'Percentage (%)'}}
+                yAxis: {title: {text: 'Percentage (%)'}, max: 100}
             };
             $scope.chartD = {
                 options: {
