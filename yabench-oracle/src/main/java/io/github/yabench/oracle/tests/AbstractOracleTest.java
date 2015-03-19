@@ -132,15 +132,18 @@ abstract class AbstractOracleTest implements OracleTest {
 
             FMeasure fMeasure = new FMeasure();
             long delay;
+            int actualSize;
 
             if (actual == null) {
                 fMeasure.updateScores(expected.getBindings().toArray(),
                         new Binding[]{});
                 delay = 0;
+                actualSize = 0;
             } else {
                 fMeasure.updateScores(expected.getBindings().toArray(),
                         actual.getBindings().toArray());
                 delay = actual.getEnd() - expected.getEnd();
+                actualSize = actual.getBindings().size();
             }
 
             getOutputWriter().write(
@@ -151,7 +154,7 @@ abstract class AbstractOracleTest implements OracleTest {
                     .append(SEPARATOR)
                     .append(delay)
                     .append(SEPARATOR)
-                    .append(actual.getBindings().size())
+                    .append(actualSize)
                     .append(SEPARATOR)
                     .append(expected.getBindings().size())
                     .append(NEWLINE)
