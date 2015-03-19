@@ -4,3 +4,4 @@
 */nbproject
 /yabench-reports/nbproject/private/
 */*~
+**/tests/**/results

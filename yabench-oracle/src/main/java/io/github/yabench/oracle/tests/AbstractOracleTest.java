@@ -1,5 +1,6 @@
 package io.github.yabench.oracle.tests;
 
+import com.hp.hpl.jena.sparql.engine.binding.Binding;
 import io.github.yabench.commons.TimeUtils;
 import io.github.yabench.oracle.BindingWindow;
 import io.github.yabench.oracle.FMeasure;
@@ -130,8 +131,17 @@ abstract class AbstractOracleTest implements OracleTest {
             final BindingWindow actual = getQueryResultsReader().nextWindow();
 
             FMeasure fMeasure = new FMeasure();
-            fMeasure.updateScores(expected.getBindings().toArray(),
-                    actual.getBindings().toArray());
+            long delay;
+
+            if (actual == null) {
+                fMeasure.updateScores(expected.getBindings().toArray(),
+                        new Binding[]{});
+                delay = 0;
+            } else {
+                fMeasure.updateScores(expected.getBindings().toArray(),
+                        actual.getBindings().toArray());
+                delay = actual.getEnd() - expected.getEnd();
+            }
 
             getOutputWriter().write(
                     new StringBuilder()
@@ -139,7 +149,7 @@ abstract class AbstractOracleTest implements OracleTest {
                     .append(SEPARATOR)
                     .append(fMeasure.getRecallScore())
                     .append(SEPARATOR)
-                    .append(actual.getEnd() - expected.getEnd())
+                    .append(delay)
                     .append(SEPARATOR)
                     .append(actual.getBindings().size())
                     .append(SEPARATOR)
