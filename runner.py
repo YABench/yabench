@@ -50,7 +50,7 @@ def runGenerator(resultsDir, config):
     if 'max_temp' in config:
         run_args.extend(["-max_temp", config['max_temp']]);
     if 'min_temp' in config:
-        run_args.extend(["-max_temp", config['min_temp']]);
+        run_args.extend(["-min_temp", config['min_temp']]);
 
     print(run_args)
     return subprocess.check_call(run_args)

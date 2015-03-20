@@ -1,0 +1,31 @@
+{
+  "exec" : {
+    "stream-generator": "stream-generator/target/stream-generator-1.0-SNAPSHOT-jar-with-dependencies.jar",
+    "engine": "yabench-csparql/target/yabench-csparql-1.0-SNAPSHOT-jar-with-dependencies.jar",
+    "oracle": "yabench-oracle/target/yabench-oracle-1.0-SNAPSHOT-jar-with-dependencies.jar"
+  },
+  "query": "query",
+  "generator": "SG1",
+  "oracle_test": "TestQ1",
+  "duration": "5m",
+  "seed": "101010",
+  "window": {
+    "size": "1m",
+    "slide": "1m"
+  },
+  "vars": {
+    "TEMP": "10.0",
+    "WSIZE": "60s",
+    "WSLIDE": "60s"
+  },
+  "stations": "10",
+  "temp": "10.0",
+  "max_temp": "100",
+  "min_temp": "0",
+  "tests": [
+    {
+      "name": "1",
+      "interval": "30s"
+    }
+  ]
+}
