@@ -153,20 +153,19 @@ abstract class AbstractOracleTest implements OracleTest {
                 windowSize, windowSlide);
         final TripleWindowFactory tripleWindowFactory
                 = new TripleWindowFactory(inputStreamReader);
-        Window window;
-        for (window = windowFactory.nextWindow();;) {
+        for (;;) {
+            final Window window = windowFactory.nextWindow();
             final BindingWindow actual = getQueryResultsReader()
                     .nextBindingWindow();
             if (actual != null) {
-                long delay;
-                if (graceful) {
-                    delay = calculateDelay(window, actual);
-                } else {
-                    delay = 0;
-                }
+                long delay = calculateDelay(window, actual);
 
-                final TripleWindow inputWindow = tripleWindowFactory
-                        .nextTripleWindow(window, delay);
+                final TripleWindow inputWindow;
+                if(graceful) {
+                    inputWindow= tripleWindowFactory.nextTripleWindow(window, delay);
+                } else {
+                    inputWindow= tripleWindowFactory.nextTripleWindow(window, 0);
+                }
 
                 if (inputWindow != null) {
                     final QueryExecutor qexec = new QueryExecutor();
@@ -175,6 +174,8 @@ abstract class AbstractOracleTest implements OracleTest {
                             inputWindow, query);
 
                     FMeasure fMeasure = new FMeasure();
+                    fMeasure.updateScores(expected.getBindings().toArray(), 
+                            actual.getBindings().toArray());
 
                     record(fMeasure.getPrecisionScore(),
                             fMeasure.getRecallScore(),

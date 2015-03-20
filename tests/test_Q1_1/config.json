@@ -23,6 +23,11 @@
   "tests": [
     {
       "name": "1",
+      "interval": "1m",
+      "graceful": "true"
+    },
+    {
+      "name": "2",
       "interval": "1m"
     }
   ]

@@ -1,5 +1,9 @@
 # YABench - Yet Another RDF Stream Processing Benchmark
 
+## Installation
+
+Script `runner.py` requires Python 3 and [psutil](https://github.com/giampaolo/psutil) module.
+
 ## Related work
 * [SRBench - Streaming RDF/SPARQL Benchmark](http://www.w3.org/wiki/SRBench)
 * [CSRBench - Correctness checking Benchmark for Streaming RDF/SPARQL](http://www.w3.org/wiki/CSRBench)

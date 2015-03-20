@@ -53,7 +53,7 @@ def runGenerator(resultsDir, config):
         run_args.extend(["-max_temp", config['max_temp']]);
     if 'min_temp' in config:
         run_args.extend(["-min_temp", config['min_temp']]);
-    if 'graceful' in config:
+    if 'graceful' in config and config['graceful'] == True:
         run_args.extend(["-graceful"])
 
     print(run_args)

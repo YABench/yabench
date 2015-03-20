@@ -5,3 +5,4 @@
 /yabench-reports/nbproject/private/
 */*~
 **/tests/**/results
+__pycache__
