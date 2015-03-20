@@ -93,7 +93,7 @@ public class Launcher extends AbstractLauncher {
                 .hasArg()
                 .withArgName("name")
                 .create(ARG_TESTNAME);
-
+        
         Option help = OptionBuilder
                 .create(ARG_HELP);
 

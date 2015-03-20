@@ -53,6 +53,8 @@ def runGenerator(resultsDir, config):
         run_args.extend(["-max_temp", config['max_temp']]);
     if 'min_temp' in config:
         run_args.extend(["-min_temp", config['min_temp']]);
+    if 'graceful' in config:
+        run_args.extend(["-graceful"])
 
     print(run_args)
     return subprocess.check_call(run_args)
@@ -64,12 +66,12 @@ def runEngine(testDir, resultsDir, config):
     run_args.extend(["-source", "{}/{}{}".format(resultsDir, INPUTSTREAM_PREFIX, config['name'])])
 
     print(run_args)
-    
+
     ptimer = ProcessTimer(run_args, "{}/{}{}".format(resultsDir, MEMORYRESULTS_PREFIX, config['name']))
-    
+
     try:
         ptimer.execute()
-        #poll as often as possible; otherwise the subprocess might 
+        #poll as often as possible; otherwise the subprocess might
         # "sneak" in some extra memory usage while you aren't looking
         while ptimer.poll():
             time.sleep(.500)

@@ -132,7 +132,7 @@ public final class FMeasure {
             }
             if (matchedItem != null) {
                 predListSpans.remove(matchedItem);
-            }
+            } 
         }
         return truePositives;
     }

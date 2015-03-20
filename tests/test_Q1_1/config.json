@@ -8,32 +8,22 @@
   "generator": "SG1",
   "oracle_test": "TestQ1",
   "duration": "5m",
-  "seed": "101010",
+  "seed": "123123123",
   "window": {
-    "size": "2m",
-    "slide": "1m"
+    "size": "60s",
+    "slide": "60s"
   },
   "vars": {
     "TEMP": "50.0",
-    "WSIZE": "120s",
+    "WSIZE": "60s",
     "WSLIDE": "60s"
   },
   "stations": "10",
-  "temp": "50",
+  "temp": "50.0",
   "tests": [
     {
       "name": "1",
       "interval": "1m"
-    },
-    {
-      "name": "2",
-      "interval": "90s"
-    },{
-      "name": "3",
-      "interval": "2m"
-    },{
-      "name": "4",
-      "interval": "150s"
     }
   ]
 }

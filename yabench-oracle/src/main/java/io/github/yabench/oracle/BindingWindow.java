@@ -3,17 +3,14 @@ package io.github.yabench.oracle;
 import com.hp.hpl.jena.sparql.engine.binding.Binding;
 import java.util.List;
 
-public class BindingWindow {
+public class BindingWindow extends Window {
 
     private final List<Binding> bindings;
-    private final long end;
-    private final long start;
 
     public BindingWindow(final List<Binding> bindings, final long start, 
             final long end) {
+        super(start, end);
         this.bindings = bindings;
-        this.end = end;
-        this.start = start;
     }
     
     public BindingWindow(final List<Binding> bindings, final long end) {
@@ -26,14 +23,6 @@ public class BindingWindow {
     
     public List<Binding> getBindings() {
         return bindings;
-    }
-    
-    public long getStart() {
-        return start;
-    }
-    
-    public long getEnd() {
-        return end;
     }
     
 }

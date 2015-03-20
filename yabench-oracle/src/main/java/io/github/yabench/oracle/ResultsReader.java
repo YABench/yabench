@@ -30,7 +30,7 @@ public class ResultsReader implements AutoCloseable, Closeable {
         currentTimestamp = Long.parseLong(reader.readLine());
     }
 
-    public BindingWindow nextWindow() throws IOException {
+    public BindingWindow nextBindingWindow() throws IOException {
         final long windowEndTimestamp = currentTimestamp - initialTimestamp;
         final long windowStartTimestamp = windowEndTimestamp - windowSize > 0
                 ? windowEndTimestamp - windowSize : 0;

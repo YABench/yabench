@@ -5,17 +5,20 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import io.github.yabench.commons.TemporalTriple;
 import java.util.List;
 
-public class TripleWindow {
+public class TripleWindow extends Window {
 
     private final List<TemporalTriple> triples;
-    private final long start;
-    private final long end;
+    
+    public TripleWindow(final Window window, 
+            final List<TemporalTriple> triples) {
+        super(window.getStart(), window.getEnd());
+        this.triples = triples;
+    }
 
     public TripleWindow(final List<TemporalTriple> triples,
             final long start, final long end) {
+        super(start, end);
         this.triples = triples;
-        this.start = start;
-        this.end = end;
     }
 
     public Model getModel() {
@@ -30,19 +33,9 @@ public class TripleWindow {
         return triples;
     }
 
-    public long getStart() {
-        return start;
-    }
-
-    public long getEnd() {
-        return end;
-    }
-
     @Override
     public int hashCode() {
-        return triples.hashCode()
-                + ((Long) start).hashCode()
-                + ((Long) end).hashCode();
+        return triples.hashCode() + super.hashCode();
     }
 
     @Override
@@ -58,7 +51,7 @@ public class TripleWindow {
             if (!this.triples.equals(that.getTriples())) {
                 return false;
             }
-            return !(this.start != that.start || this.end != that.end);
+            return super.equals(that);
         }
         return false;
     }

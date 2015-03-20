@@ -1,12 +1,13 @@
 package io.github.yabench.oracle.tests;
 
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
 import io.github.yabench.commons.TimeUtils;
 import io.github.yabench.oracle.BindingWindow;
 import io.github.yabench.oracle.FMeasure;
 import io.github.yabench.oracle.QueryExecutor;
 import io.github.yabench.oracle.ResultsReader;
 import io.github.yabench.oracle.TripleWindow;
+import io.github.yabench.oracle.TripleWindowFactory;
+import io.github.yabench.oracle.Window;
 import io.github.yabench.oracle.WindowFactory;
 import java.io.File;
 import java.io.FileReader;
@@ -29,6 +30,7 @@ abstract class AbstractOracleTest implements OracleTest {
     private static final String QUERY_TEMPLATE_NAME = "query.template";
     private static final String ARG_WINDOWSIZE = "windowsize";
     private static final String ARG_WINDOWSLIDE = "windowslide";
+    private static final String ARG_GRACEFUL = "graceful";
     private final CommandLine cli;
     private final Reader inputStreamReader;
     private final Writer outputWriter;
@@ -36,7 +38,7 @@ abstract class AbstractOracleTest implements OracleTest {
     private final Map<String, String> vars = new HashMap<>();
     private Duration windowSize;
     private Duration windowSlide;
-    private WindowFactory windowFactory;
+    private boolean graceful;
 
     AbstractOracleTest(File inputStream, File queryResults, File output,
             CommandLine cli)
@@ -83,15 +85,18 @@ abstract class AbstractOracleTest implements OracleTest {
                 .withArgName("ms")
                 .withDescription("the window slide")
                 .create(ARG_WINDOWSLIDE);
-        return new Option[]{windowSize, windowSlide};
+
+        Option graceful = OptionBuilder
+                .create(ARG_GRACEFUL);
+
+        return new Option[]{windowSize, windowSlide, graceful};
     }
 
     @Override
     public void init() throws Exception {
         windowSize = TimeUtils.parseDuration(getCommandLine().getOptionValue(ARG_WINDOWSIZE));
         windowSlide = TimeUtils.parseDuration(getCommandLine().getOptionValue(ARG_WINDOWSLIDE));
-
-        windowFactory = new WindowFactory(getInputStreamReader(), windowSize, windowSlide);
+        graceful = getCommandLine().hasOption(ARG_GRACEFUL);
 
         getQueryResultsReader().initialize(windowSize);
     }
@@ -120,45 +125,69 @@ abstract class AbstractOracleTest implements OracleTest {
         return result;
     }
 
+    private long calculateDelay(final Window one, final Window two) {
+        return two.getEnd() - one.getEnd();
+    }
+
+    private void record(final double precision, final double recall,
+            final long delay, final int actualSize, final int expectedSize)
+            throws IOException {
+        getOutputWriter().write(
+                new StringBuilder()
+                .append(precision)
+                .append(SEPARATOR)
+                .append(recall)
+                .append(SEPARATOR)
+                .append(delay)
+                .append(SEPARATOR)
+                .append(actualSize)
+                .append(SEPARATOR)
+                .append(expectedSize)
+                .append(NEWLINE)
+                .toString());
+    }
+
     @Override
     public void compare() throws IOException {
-        final QueryExecutor qexec = new QueryExecutor();
-        final String query = resolveVars(loadQueryTemplate(), vars);
-        TripleWindow inputWindow;
-        while ((inputWindow = windowFactory.nextWindow()) != null) {
-            final BindingWindow expected = qexec.executeSelect(
-                    inputWindow, query);
-            final BindingWindow actual = getQueryResultsReader().nextWindow();
+        final WindowFactory windowFactory = new WindowFactory(
+                windowSize, windowSlide);
+        final TripleWindowFactory tripleWindowFactory
+                = new TripleWindowFactory(inputStreamReader);
+        Window window;
+        for (window = windowFactory.nextWindow();;) {
+            final BindingWindow actual = getQueryResultsReader()
+                    .nextBindingWindow();
+            if (actual != null) {
+                long delay;
+                if (graceful) {
+                    delay = calculateDelay(window, actual);
+                } else {
+                    delay = 0;
+                }
 
-            FMeasure fMeasure = new FMeasure();
-            long delay;
-            int actualSize;
+                final TripleWindow inputWindow = tripleWindowFactory
+                        .nextTripleWindow(window, delay);
 
-            if (actual == null) {
-                fMeasure.updateScores(expected.getBindings().toArray(),
-                        new Binding[]{});
-                delay = 0;
-                actualSize = 0;
+                if (inputWindow != null) {
+                    final QueryExecutor qexec = new QueryExecutor();
+                    final String query = resolveVars(loadQueryTemplate(), vars);
+                    final BindingWindow expected = qexec.executeSelect(
+                            inputWindow, query);
+
+                    FMeasure fMeasure = new FMeasure();
+
+                    record(fMeasure.getPrecisionScore(),
+                            fMeasure.getRecallScore(),
+                            delay,
+                            actual.getBindings().size(),
+                            expected.getBindings().size());
+                } else {
+                    //TODO: That's it?
+                    break;
+                }
             } else {
-                fMeasure.updateScores(expected.getBindings().toArray(),
-                        actual.getBindings().toArray());
-                delay = actual.getEnd() - expected.getEnd();
-                actualSize = actual.getBindings().size();
+                break;
             }
-
-            getOutputWriter().write(
-                    new StringBuilder()
-                    .append(fMeasure.getPrecisionScore())
-                    .append(SEPARATOR)
-                    .append(fMeasure.getRecallScore())
-                    .append(SEPARATOR)
-                    .append(delay)
-                    .append(SEPARATOR)
-                    .append(actualSize)
-                    .append(SEPARATOR)
-                    .append(expected.getBindings().size())
-                    .append(NEWLINE)
-                    .toString());
         }
     }
 
