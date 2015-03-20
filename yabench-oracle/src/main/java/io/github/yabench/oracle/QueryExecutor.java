@@ -22,7 +22,7 @@ public class QueryExecutor {
                 final QuerySolution soln = results.next();
                 bindings.add(NodeUtils.toBinding(soln));
             }
-            return new BindingWindow(bindings, input.getEnd());
+            return new BindingWindow(bindings, input.getStart(), input.getEnd());
         }
     }
     

@@ -93,7 +93,7 @@ abstract class AbstractOracleTest implements OracleTest {
 
         windowFactory = new WindowFactory(getInputStreamReader(), windowSize, windowSlide);
 
-        getQueryResultsReader().initialize();
+        getQueryResultsReader().initialize(windowSize);
     }
 
     @Override

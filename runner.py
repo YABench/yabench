@@ -82,6 +82,8 @@ def runOracle(resultsDir, config):
 def main():
     parser = argparse.ArgumentParser(description='Run tests')
     parser.add_argument('testDir')
+    parser.add_argument('--onlyoracle', help='only re-run the oracle',
+                        action='store_true')
 
     args = parser.parse_args()
 
@@ -93,9 +95,12 @@ def main():
             config = json.load(configFile)
             for test_config in config['tests']:
                 new_config = gen_test_config(config, test_config)
-                runGenerator(resultsDir, new_config)
-                runEngine(args.testDir, resultsDir, new_config)
-                runOracle(resultsDir, new_config)
+                if args.onlyoracle:
+                    runOracle(resultsDir, new_config)
+                else:
+                    runGenerator(resultsDir, new_config)
+                    runEngine(args.testDir, resultsDir, new_config)
+                    runOracle(resultsDir, new_config)
     except IOError:
         print("Can\'t open {}/config.json file".format(args.testDir))
 
