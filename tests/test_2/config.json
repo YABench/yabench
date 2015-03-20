@@ -10,8 +10,8 @@
   "duration": "5m",
   "seed": "101010",
   "window": {
-    "size": "1m",
-    "slide": "1m"
+    "size": "60s",
+    "slide": "60s"
   },
   "vars": {
     "TEMP": "10.0",
@@ -26,6 +26,14 @@
     {
       "name": "1",
       "interval": "30s"
+    },
+    {
+      "name": "2",
+      "interval": "60s"
+    },
+    {
+      "name": "3",
+      "interval": "120s"
     }
   ]
 }

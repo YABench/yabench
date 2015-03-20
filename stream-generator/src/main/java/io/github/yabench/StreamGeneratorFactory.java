@@ -43,7 +43,7 @@ public class StreamGeneratorFactory {
     }
     
     private Class<?> findTest(String testName) {
-        Reflections reflections = new Reflections();
+        Reflections reflections = new Reflections("io.github.yabench.streams");
         Set<Class<?>> classes = reflections.getTypesAnnotatedWith(RSPTest.class);
         Optional<Class<?>> r = classes.stream()
                 .filter(c -> c.getSimpleName().equals(testName))

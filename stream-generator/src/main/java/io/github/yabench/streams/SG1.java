@@ -80,7 +80,7 @@ public class SG1 extends AbstractStreamGenerator {
     @Override
     public void generate() throws IOException {
         for (int i = 0; i < numberOfStations; i++) {
-            //TODO: This is a bad idea to cast long to int!
+            //TODO: This is not a good idea to cast long to int!
             int step = getRandom().nextInt((int) interval.toMillis());
             stations.add(new Station(i, step));
         }
@@ -88,7 +88,7 @@ public class SG1 extends AbstractStreamGenerator {
 
         final String template = readTemplate(TEMPLATE_NAME);
 
-        long currentTime = 0;
+        long currentTime = stations.getFirst().nextObservation;
         while (currentTime <= getDuration().toMillis()) {
             Station currentStation = stations.pop();
 
@@ -98,7 +98,9 @@ public class SG1 extends AbstractStreamGenerator {
                     currentStation.id, currentTime, nextValue));
 
             currentStation.nextObservation += interval.toMillis();
-            currentTime = currentStation.nextObservation;
+            
+            currentTime = stations.getFirst().nextObservation;
+            
             stations.addLast(currentStation);
         }
     }
