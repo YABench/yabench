@@ -7,9 +7,11 @@ import subprocess
 import os
 import errno
 from string import Template
+from processTimer import *
 
 INPUTSTREAM_PREFIX = 'SG_'
 QUERYRESULTS_PREFIX = 'QR_'
+MEMORYRESULTS_PREFIX = 'MEM_'
 QUERY_PREFIX = "QUERY_"
 ORACLE_OUTPUT_PREFIX = "ORACLE_"
 
@@ -62,7 +64,21 @@ def runEngine(testDir, resultsDir, config):
     run_args.extend(["-source", "{}/{}{}".format(resultsDir, INPUTSTREAM_PREFIX, config['name'])])
 
     print(run_args)
-    return subprocess.check_call(run_args)
+    
+    ptimer = ProcessTimer(run_args, "{}/{}{}".format(resultsDir, MEMORYRESULTS_PREFIX, config['name']))
+    
+    try:
+        ptimer.execute()
+        #poll as often as possible; otherwise the subprocess might 
+        # "sneak" in some extra memory usage while you aren't looking
+        while ptimer.poll():
+            time.sleep(.500)
+    finally:
+        #make sure that we don't leave the process dangling?
+        ptimer.close()
+
+    return True
+    #return subprocess.check_call(run_args)
 
 def runOracle(resultsDir, config):
     run_args = ["java", "-jar", config['exec']['oracle']]
