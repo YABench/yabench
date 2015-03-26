@@ -176,10 +176,25 @@
                 console.log(lines.slice(1,lines.length-1));
                 var seriesP = [
                     {name: 'Memory Usage', yAxis: 0, data: [],
+                        dataLabels: {
+                            enabled: true,                                         
+                            formatter: function() {
+                                    return this.y + ' MB';
+                                }},                    
                         tooltip: { valueSuffix: ' MB'}},
                     {name: 'Memory Usage %', yAxis: 1, data: [],
+                        dataLabels: {
+                            enabled: true,                                         
+                            formatter: function() {
+                                    return this.y + ' %';
+                                }},   
                         tooltip: { valueSuffix: ' %'}},
                     {name: 'CPU %', yAxis: 2, data: [],
+                        dataLabels: {
+                            enabled: true,                                         
+                            formatter: function() {
+                                    return this.y + ' %';
+                                }},   
                         tooltip: { valueSuffix: ' %'}},
                     {name: 'Threads', yAxis: 3, data: []}
                 ];
@@ -209,7 +224,8 @@
                     console.log('series:');
                     console.log(series);
                     angular.forEach(series.data, function (point,i) {
-                    console.log('point '+point);
+                    console.log(i);
+                    
 
                     /*e.data.dataLabels.attr({formatter: function() {
                             return this.y + '%';

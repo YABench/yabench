@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    
+    <logger name="org.reflections" level="INFO"/>
+    <logger name="com.espertech.esper" level="INFO"/>
+    <logger name="com.hp.hpl.jena" level="INFO"/>
+    <logger name="org.apache.jena" level="INFO"/>
+    
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>

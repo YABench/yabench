@@ -6,6 +6,7 @@ import json
 import subprocess
 import os
 import errno
+import shutil
 from string import Template
 from processTimer import *
 
@@ -102,10 +103,16 @@ def main():
     parser.add_argument('testDir')
     parser.add_argument('--onlyoracle', help='only re-run the oracle',
                         action='store_true')
+    parser.add_argument('--withoutoracle', help='without the oracle',
+                        action='store_true')
+    parser.add_argument('--rm_prev', help='remove previous results',
+                        action='store_true')
 
     args = parser.parse_args()
 
     resultsDir = args.testDir + '/results'
+    if args.rm_prev:
+        shutil.rmtree(resultsDir, ignore_errors=True)
     make_sure_path_exists(resultsDir)
 
     try:
@@ -118,7 +125,8 @@ def main():
                 else:
                     runGenerator(resultsDir, new_config)
                     runEngine(args.testDir, resultsDir, new_config)
-                    runOracle(resultsDir, new_config)
+                    if not args.withoutoracle:
+                        runOracle(resultsDir, new_config)
     except IOError:
         print("Can\'t open {}/config.json file".format(args.testDir))
 
