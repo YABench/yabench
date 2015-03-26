@@ -12,7 +12,7 @@ class ProcessTimer:
     self.execution_state = False
     
     self.results = open(self.resultsFile, 'w')
-    self.results.write("{},{},{},{},{},{}\n".format("time","rss_mem","vms_mem","cpu_percent","mem_percent","threads"))
+    self.results.write("{},{},{},{},{}\n".format("time","rss_mem","cpu_percent","mem_percent","threads"))
 
   def execute(self):
 
@@ -35,7 +35,6 @@ class ProcessTimer:
       descendants = descendants + [pp]
 
       rss_memory = 0
-      vms_memory = 0
 
       #calculate and sum up the memory of the subprocess and all its descendants 
       for descendant in descendants:
@@ -44,13 +43,13 @@ class ProcessTimer:
           mem_info = descendant.get_memory_info()
 
           rss_memory += (mem_info[0] / 1024 / 1024)
-          vms_memory += (mem_info[1] / 1024 / 1024)
+          
         except psutil.NoSuchProcess:
           #sometimes a subprocess descendant will have terminated between the time
           # we obtain a list of descendants, and the time we actually poll this
           # descendant's memory usage.
           pass
-      self.results.write("{},{},{},{},{},{}\n".format(round(self.t1-self.t0,1),round(rss_memory,2),round(vms_memory,2),pp.cpu_percent(interval=1.0),round(pp.memory_percent(),2),pp.num_threads()))
+      self.results.write("{},{},{},{},{}\n".format(round(self.t1-self.t0,1),round(rss_memory,2),pp.cpu_percent(interval=1.0),round(pp.memory_percent(),2),pp.num_threads()))
       #self.results.flush()
 
     except psutil.NoSuchProcess:
