@@ -11,7 +11,7 @@ from processTimer import *
 
 INPUTSTREAM_PREFIX = 'SG_'
 QUERYRESULTS_PREFIX = 'QR_'
-MEMORYRESULTS_PREFIX = 'MEM_'
+PERFORMANCERESULTS_PREFIX = 'P_'
 QUERY_PREFIX = "QUERY_"
 ORACLE_OUTPUT_PREFIX = "ORACLE_"
 
@@ -67,7 +67,7 @@ def runEngine(testDir, resultsDir, config):
 
     print(run_args)
 
-    ptimer = ProcessTimer(run_args, "{}/{}{}".format(resultsDir, MEMORYRESULTS_PREFIX, config['name']))
+    ptimer = ProcessTimer(run_args, "{}/{}{}".format(resultsDir, PERFORMANCERESULTS_PREFIX, config['name']))
 
     try:
         ptimer.execute()

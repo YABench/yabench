@@ -1,6 +1,6 @@
 <div>
-    <input type="file" on-read-file="loadData($fileContent)"/>
-    <input type="file" on-read-file="loadPData($fileContent)"/>
+    <div class="label">Oracle Results:</div> <input type="file" on-read-file="loadData($fileContent)"/><br/>
+    <div class="label">Performance Results:</div> <input type="file" on-read-file="loadPData($fileContent)"/>
 </div>
 <div>
     <highchart id="chartRP" config="chartRP"></highchart>
