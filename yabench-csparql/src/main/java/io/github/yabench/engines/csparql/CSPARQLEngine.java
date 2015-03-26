@@ -6,8 +6,9 @@ import eu.larkc.csparql.cep.api.RdfStream;
 import eu.larkc.csparql.core.engine.CsparqlEngine;
 import eu.larkc.csparql.core.engine.CsparqlEngineImpl;
 import eu.larkc.csparql.core.engine.CsparqlQueryResultProxy;
-import io.github.yabench.engines.AbstractEngine;
-import io.github.yabench.engines.ResultListener;
+import io.github.yabench.engines.commons.AbstractEngine;
+import io.github.yabench.engines.commons.Query;
+import io.github.yabench.engines.commons.ResultListener;
 import java.text.ParseException;
 
 public class CSPARQLEngine extends AbstractEngine {
@@ -37,8 +38,8 @@ public class CSPARQLEngine extends AbstractEngine {
     }
 
     @Override
-    public void registerQuery(final String query) throws ParseException {
-        csparqlProxy = engine.registerQuery(query, false);
+    public void registerQuery(final Query query) throws ParseException {
+        csparqlProxy = engine.registerQuery(query.getQueryString(), false);
     }
 
     @Override

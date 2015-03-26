@@ -36,7 +36,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>io.github.yabench.engines.Launcher</mainClass>
+                            <mainClass>io.github.yabench.engines.csparql.Launcher</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

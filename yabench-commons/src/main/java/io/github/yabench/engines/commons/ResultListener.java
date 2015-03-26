@@ -1,4 +1,4 @@
-package io.github.yabench.engines;
+package io.github.yabench.engines.commons;
 
 import com.hp.hpl.jena.sparql.engine.binding.Binding;
 import java.util.List;

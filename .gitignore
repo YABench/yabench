@@ -6,3 +6,5 @@
 */*~
 **/tests/**/results
 __pycache__
+**/cqels_home
+**/streams

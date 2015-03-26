@@ -18,5 +18,6 @@
         <module>stream-generator</module>
         <module>yabench-oracle</module>
         <module>yabench-csparql</module>
+        <module>yabench-cqels</module>
     </modules>
 </project>
