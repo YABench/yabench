@@ -79,7 +79,7 @@
                     }
                 }, { // Secondary yAxis
                     gridLineWidth: 0,
-                    min : 0,
+                    min : 0,    
                     title: {
                         text: 'Memory Usage %',
                         style: {
@@ -162,6 +162,7 @@
                         seriesW[1].data.push(values[4]);
                     }
                 });
+
                 $scope.chartRP.series = seriesRP;
                 $scope.chartRP.xAxis = xAxis;
                 $scope.chartD.series = seriesD;
@@ -173,7 +174,6 @@
             $scope.loadPData = function ($fileContent) {
                 var lines = $fileContent.split('\n');
                 lines = lines.slice(1,lines.length-1);
-                console.log(lines.slice(1,lines.length-1));
                 var seriesP = [
                     {name: 'Memory Usage', yAxis: 0, data: [],
                         tooltip: { valueSuffix: ' MB'}},
@@ -191,19 +191,19 @@
                     }
                 };
                 
-                
-                angular.forEach(lines, function (points, index) {
-                    var values = points.split(',').map(function (item) {
-                        return parseFloat(item);
-                    });
-                    xAxis.categories.push((values[0])+'s');
-                    if (values.length > 4) {
-                        seriesP[0].data.push(values[1]);
-                        seriesP[1].data.push(values[2]);
-                        seriesP[2].data.push(values[3]);
-                        seriesP[3].data.push(values[4]);
-                    }
-                });
+                length = lines.length;
+                for(var i=0;i<length;i++) {
+                        var values = lines[i].split(',').map(function (item) {
+                            return parseFloat(item);
+                        });
+                        xAxis.categories.push((values[0])+'s');
+                        if (values.length > 4) {
+                            seriesP[0].data.push(values[1]);
+                            seriesP[1].data.push(values[3]);
+                            seriesP[2].data.push(values[2]);
+                            seriesP[3].data.push(values[4]);
+                        }
+                }
                 $scope.chartP.series = seriesP;
                 $scope.chartP.xAxis = xAxis;
             };
