@@ -22,9 +22,13 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 abstract class AbstractOracleTest implements OracleTest {
 
+    private static final Logger logger = LoggerFactory.getLogger(
+            AbstractOracleTest.class);
     private static final String SEPARATOR = ",";
     private static final String NEWLINE = "\n";
     private static final String QUERY_TEMPLATE_NAME = "query.template";
@@ -157,7 +161,7 @@ abstract class AbstractOracleTest implements OracleTest {
                 windowSize, windowSlide);
         final TripleWindowFactory tripleWindowFactory
                 = new TripleWindowFactory(inputStreamReader);
-        for (;;) {
+        for (int i = 0;; i++) {          
             final Window window = windowFactory.nextWindow();
             final BindingWindow actual = getQueryResultsReader()
                     .nextBindingWindow();
@@ -166,10 +170,8 @@ abstract class AbstractOracleTest implements OracleTest {
 
                 final TripleWindow inputWindow;
                 if (graceful) {
-                    System.out.println("In graceful mode!");
                     inputWindow = tripleWindowFactory.nextTripleWindow(window, delay);
                 } else {
-                    System.out.println("In non-graceful mode!");
                     inputWindow = tripleWindowFactory.nextTripleWindow(window, 0);
                 }
 
@@ -182,6 +184,11 @@ abstract class AbstractOracleTest implements OracleTest {
                     FMeasure fMeasure = new FMeasure();
                     fMeasure.updateScores(expected.getBindings().toArray(),
                             actual.getBindings().toArray());
+                    
+                    if(!fMeasure.getNotFound().isEmpty()) {
+                        logger.info("Window #{}. Missing triples:\n{}", 
+                                i, fMeasure.getNotFound());
+                    }
 
                     record(fMeasure.getPrecisionScore(),
                             fMeasure.getRecallScore(),

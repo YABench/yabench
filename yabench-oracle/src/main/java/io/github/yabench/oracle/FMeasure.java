@@ -30,6 +30,8 @@ public final class FMeasure {
      * Storing the number of true positives found.
      */
     private long truePositive;
+    
+    private List<Object> notFound = new ArrayList<>();
 
     /**
      * Retrieves the arithmetic mean of the precision scores calculated for each
@@ -67,6 +69,10 @@ public final class FMeasure {
             // cannot divide by zero, return error code
             return -1;
         }
+    }
+    
+    public List<Object> getNotFound() {
+        return notFound;
     }
 
     /**
@@ -115,9 +121,10 @@ public final class FMeasure {
      * @param predictions the predictions
      * @return number of true positives
      */
-    static int countTruePositives(final Object[] references, final Object[] predictions) {
-
-        List<Object> predListSpans = new ArrayList<>(predictions.length);
+    private int countTruePositives(final Object[] references, final Object[] predictions) {
+        notFound.clear();
+        
+        final List<Object> predListSpans = new ArrayList<>(predictions.length);
         Collections.addAll(predListSpans, predictions);
         int truePositives = 0;
         Object matchedItem = null;
@@ -132,47 +139,12 @@ public final class FMeasure {
             }
             if (matchedItem != null) {
                 predListSpans.remove(matchedItem);
+                
                 matchedItem = null;
             } else {
-                System.out.println(referenceName);
+                notFound.add(referenceName);
             }
         }
         return truePositives;
-    }
-
-    /**
-     * Calculates the precision score for the given reference and predicted
-     * spans.
-     *
-     * @param references the gold standard spans
-     * @param predictions the predicted spans
-     * @return the precision score or NaN if there are no predicted spans
-     */
-    public static double precision(final Object[] references, final Object[] predictions) {
-
-        if (predictions.length > 0) {
-            return countTruePositives(references, predictions)
-                    / (double) predictions.length;
-        } else {
-            return Double.NaN;
-        }
-    }
-
-    /**
-     * Calculates the recall score for the given reference and predicted spans.
-     *
-     * @param references the gold standard spans
-     * @param predictions the predicted spans
-     *
-     * @return the recall score or NaN if there are no reference spans
-     */
-    public static double recall(final Object[] references, final Object[] predictions) {
-
-        if (references.length > 0) {
-            return countTruePositives(references, predictions)
-                    / (double) references.length;
-        } else {
-            return Double.NaN;
-        }
     }
 }
