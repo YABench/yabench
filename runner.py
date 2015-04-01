@@ -119,6 +119,7 @@ def main():
                         action='store_true')
     parser.add_argument('--rm_prev', help='remove previous results',
                         action='store_true')
+    parser.add_argument('--test')
 
     args = parser.parse_args()
 
@@ -132,13 +133,16 @@ def main():
             config = json.load(configFile)
             for test_config in config['tests']:
                 new_config = gen_test_config(config, test_config)
-                if args.onlyoracle:
-                    runOracle(resultsDir, new_config)
-                else:
-                    runGenerator(resultsDir, new_config)
-                    runEngine(args.testDir, resultsDir, new_config)
-                    if not args.withoutoracle:
+                if (args.test and args.test == new_config['name']) or not args.test:
+                    if args.onlyoracle:
                         runOracle(resultsDir, new_config)
+                    else:
+                        runGenerator(resultsDir, new_config)
+                        runEngine(args.testDir, resultsDir, new_config)
+                        if not args.withoutoracle:
+                            runOracle(resultsDir, new_config)
+                else:
+                    continue;
     except IOError:
         print("Can\'t open {}/config.json file".format(args.testDir))
 

@@ -27,20 +27,20 @@ public class TripleWindowFactory {
     public TripleWindow nextTripleWindow(final Window window, final long delay) 
             throws IOException {
         content = new ArrayList<>(Arrays.asList(content.stream()
-                .filter((triple)-> triple.getTime() >= window.getStart())
+                .filter((triple)-> triple.getTime() >= (window.getStart() + delay))
                 .toArray(TemporalTriple[]::new)));
         
         TemporalTriple triple;
         while ((triple = reader.readNext()) != null) {
-            if (triple.getTime() <= window.getEnd()) {
+            if (triple.getTime() <= (window.getEnd() + delay)) {
                 content.add(triple);
             } else {
                 break;
             }
         }
         
-        final TripleWindow w = new TripleWindow(
-                window, new ArrayList<>(content));
+        final TripleWindow w = new TripleWindow(new ArrayList<>(content), 
+                window.getStart() + delay, window.getEnd() + delay);
 
         if(triple != null) {
             content.add(triple);
