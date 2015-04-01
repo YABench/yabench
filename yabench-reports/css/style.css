@@ -1,0 +1,8 @@
+* {
+    font-family: "Lucida Grande","Lucida Sans Unicode",Arial,Helvetica,sans-serif;
+}
+
+.label {
+    width: 180px;
+    display: inline-block;
+}
