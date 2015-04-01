@@ -24,7 +24,7 @@
     {
       "name": "1",
       "interval": "1m",
-      "graceful": "true"
+      "graceful": "false"
     },
     {
       "name": "2",

@@ -61,9 +61,8 @@ public abstract class AbstractEngineLauncher extends AbstractLauncher {
                     engine.initialize();
 
                     final ResultSerializer serializer = new ResultSerializer(writer);
-                    engine.registerResultListener(serializer);
                     logger.info("register query");
-                    engine.registerQuery(query);
+                    engine.registerQuery(query, serializer);
                     logger.info("query string: " + query.getQueryString());
 
                     logger.info("started sending triples at {}", Instant.now());

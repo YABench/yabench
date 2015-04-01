@@ -16,7 +16,7 @@ public class CSPARQLEngine extends AbstractEngine {
     private static final String STREAM_URI = "http://ex.org/streams/test";
     private final CsparqlEngine engine;
     private final RdfStream stream;
-    
+
     private CsparqlQueryResultProxy csparqlProxy;
 
     public CSPARQLEngine() {
@@ -38,13 +38,15 @@ public class CSPARQLEngine extends AbstractEngine {
     }
 
     @Override
-    public void registerQuery(final Query query) throws ParseException {
+    public void registerQuery(final Query query, final ResultListener listener)
+            throws ParseException {
         csparqlProxy = engine.registerQuery(query.getQueryString(), false);
-    }
-
-    @Override
-    public void registerResultListener(ResultListener listener) {
-        csparqlProxy.addObserver(new CSPARQLResultListenerProxy(listener));
+        
+        if (csparqlProxy != null) {
+            csparqlProxy.addObserver(new CSPARQLResultListenerProxy(listener));
+        } else {
+            throw new IllegalArgumentException();
+        }
     }
 
     @Override

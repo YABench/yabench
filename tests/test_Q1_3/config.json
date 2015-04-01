@@ -22,7 +22,6 @@
   "temp": "10.0",
   "max_temp": "100",
   "min_temp": "0",
-  "graceful": true,
   "tests": [
     {
       "name": "1",

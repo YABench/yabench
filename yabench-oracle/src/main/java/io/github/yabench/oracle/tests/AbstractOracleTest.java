@@ -31,6 +31,7 @@ abstract class AbstractOracleTest implements OracleTest {
     private static final String ARG_WINDOWSIZE = "windowsize";
     private static final String ARG_WINDOWSLIDE = "windowslide";
     private static final String ARG_GRACEFUL = "graceful";
+    private static final String ARG_GRACEFUL_DEFAULT = "true";
     private final CommandLine cli;
     private final Reader inputStreamReader;
     private final Writer outputWriter;
@@ -87,6 +88,8 @@ abstract class AbstractOracleTest implements OracleTest {
                 .create(ARG_WINDOWSLIDE);
 
         Option graceful = OptionBuilder
+                .withType(Boolean.class)
+                .hasArg()
                 .create(ARG_GRACEFUL);
 
         return new Option[]{windowSize, windowSlide, graceful};
@@ -96,7 +99,8 @@ abstract class AbstractOracleTest implements OracleTest {
     public void init() throws Exception {
         windowSize = TimeUtils.parseDuration(getCommandLine().getOptionValue(ARG_WINDOWSIZE));
         windowSlide = TimeUtils.parseDuration(getCommandLine().getOptionValue(ARG_WINDOWSLIDE));
-        graceful = getCommandLine().hasOption(ARG_GRACEFUL);
+        graceful = Boolean.parseBoolean(getCommandLine().getOptionValue(
+                ARG_GRACEFUL, ARG_GRACEFUL_DEFAULT));
 
         getQueryResultsReader().initialize(windowSize);
     }
@@ -161,10 +165,12 @@ abstract class AbstractOracleTest implements OracleTest {
                 long delay = calculateDelay(window, actual);
 
                 final TripleWindow inputWindow;
-                if(graceful) {
-                    inputWindow= tripleWindowFactory.nextTripleWindow(window, delay);
+                if (graceful) {
+                    System.out.println("In graceful mode!");
+                    inputWindow = tripleWindowFactory.nextTripleWindow(window, delay);
                 } else {
-                    inputWindow= tripleWindowFactory.nextTripleWindow(window, 0);
+                    System.out.println("In non-graceful mode!");
+                    inputWindow = tripleWindowFactory.nextTripleWindow(window, 0);
                 }
 
                 if (inputWindow != null) {
@@ -174,7 +180,7 @@ abstract class AbstractOracleTest implements OracleTest {
                             inputWindow, query);
 
                     FMeasure fMeasure = new FMeasure();
-                    fMeasure.updateScores(expected.getBindings().toArray(), 
+                    fMeasure.updateScores(expected.getBindings().toArray(),
                             actual.getBindings().toArray());
 
                     record(fMeasure.getPrecisionScore(),

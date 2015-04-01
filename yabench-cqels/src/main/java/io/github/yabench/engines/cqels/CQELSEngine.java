@@ -40,16 +40,13 @@ public class CQELSEngine extends AbstractEngine {
     }
 
     @Override
-    public void registerResultListener(ResultListener listener) {
+    public void registerQuery(final Query query, final ResultListener listener)
+            throws ParseException {
         resultListener = new CQELSResultListenerProxy(execContext, listener);
-    }
-
-    @Override
-    public void registerQuery(final Query query) throws ParseException {
-        ContinuousSelect select = execContext
-                .registerSelect(query.getQueryString());
 
         if (resultListener != null) {
+            ContinuousSelect select = execContext
+                    .registerSelect(query.getQueryString());
             select.register(resultListener);
         } else {
             throw new IllegalStateException();
