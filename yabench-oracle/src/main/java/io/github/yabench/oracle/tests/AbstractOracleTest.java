@@ -186,8 +186,9 @@ abstract class AbstractOracleTest implements OracleTest {
                             actual.getBindings().toArray());
                     
                     if(!fMeasure.getNotFound().isEmpty()) {
-                        logger.info("Window #{}. Missing triples:\n{}", 
-                                i, fMeasure.getNotFound());
+                        logger.info("Window #{} [{}:{}]. Missing triples:\n{}", 
+                                i, inputWindow.getStart(), inputWindow.getEnd(), 
+                                fMeasure.getNotFound());
                     }
 
                     record(fMeasure.getPrecisionScore(),
