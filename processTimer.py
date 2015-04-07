@@ -17,6 +17,7 @@ class ProcessTimer:
   def execute(self):
 
     self.t1 = None
+    self.t2 = None
     self.t0 = time.time()
     self.p = subprocess.Popen(self.command,shell=False)
     self.execution_state = True
@@ -49,8 +50,10 @@ class ProcessTimer:
           # we obtain a list of descendants, and the time we actually poll this
           # descendant's memory usage.
           pass
-      self.results.write("{},{},{},{},{}\n".format(round(self.t1-self.t0,1),round(rss_memory,2),pp.cpu_percent(interval=1.0),round(pp.memory_percent(),2),pp.num_threads()))
-      #self.results.flush()
+      self.results.write("{},{},{},{},{}\n".format(round(self.t1-self.t0,1),round(rss_memory,2),pp.cpu_percent(interval=0.1),round(pp.memory_percent(),2),pp.num_threads()))
+      self.results.flush()
+      os.fsync(self.results)
+      self.t2 = time.time()
 
     except psutil.NoSuchProcess:
       return self.check_execution_state()
