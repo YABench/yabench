@@ -50,6 +50,17 @@
                     plotOptions: {line: {dataLabels: {enabled: true}}},
                     tooltip: {shared: true, crosshairs: true}
                 },
+                title: {text: 'Result size (num of triples)'},
+                series: [],
+                yAxis: [{title: {text: 'Number of triples'}}]
+            };
+            
+            $scope.chartWS = {
+                options: {
+                    chart: {type: 'line'},
+                    plotOptions: {line: {dataLabels: {enabled: true}}},
+                    tooltip: {shared: true, crosshairs: true}
+                },
                 title: {text: 'Window size (num of triples)'},
                 series: [],
                 yAxis: [{title: {text: 'Number of triples'}}]
@@ -137,9 +148,14 @@
                     {name: 'Delay', data: []}
                 ];
                 var seriesW = [
-                    {name: 'Window size (actual)', data: []},
+                    {name: 'Result size (actual)', data: []},
+                    {name: 'Result size (expected)', data: []}
+                ];
+                
+                var seriesWS = [
                     {name: 'Window size (expected)', data: []}
                 ];
+                
                 var xAxis = {
                     categories: [],
                     title: {
@@ -152,7 +168,7 @@
                     var values = points.split(',').map(function (item) {
                         return parseFloat(item);
                     });
-                    if (values.length > 4) {
+                    if (values.length > 5) {
                         seriesRP[0].data.push(values[0] * 100);
                         seriesRP[1].data.push(values[1] * 100);
 
@@ -160,6 +176,8 @@
 
                         seriesW[0].data.push(values[3]);
                         seriesW[1].data.push(values[4]);
+                        
+                        seriesWS[0].data.push(values[5]);
                     }
                 });
                 $scope.chartRP.series = seriesRP;
@@ -168,6 +186,8 @@
                 $scope.chartD.xAxis = xAxis;
                 $scope.chartW.series = seriesW;
                 $scope.chartW.xAxis = xAxis;
+                $scope.chartWS.series = seriesWS;
+                $scope.chartWS.xAxis = xAxis;
             };
             
             $scope.loadPData = function ($fileContent) {

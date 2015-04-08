@@ -85,7 +85,8 @@ def runEngine(testDir, resultsDir, config):
         #poll as often as possible; otherwise the subprocess might
         # "sneak" in some extra memory usage while you aren't looking
         while ptimer.poll():
-            time.sleep(.500)
+            polltime = round(ptimer.t2-ptimer.t1,3)
+            time.sleep(.500-polltime)
     finally:
         #make sure that we don't leave the process dangling?
         ptimer.close()

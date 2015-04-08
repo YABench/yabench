@@ -138,7 +138,7 @@ abstract class AbstractOracleTest implements OracleTest {
     }
 
     private void record(final double precision, final double recall,
-            final long delay, final int actualSize, final int expectedSize)
+            final long delay, final int actualSize, final int expectedSize, final int windowSize)
             throws IOException {
         getOutputWriter().write(
                 new StringBuilder()
@@ -151,6 +151,8 @@ abstract class AbstractOracleTest implements OracleTest {
                 .append(actualSize)
                 .append(SEPARATOR)
                 .append(expectedSize)
+                .append(SEPARATOR)
+                .append(windowSize)
                 .append(NEWLINE)
                 .toString());
     }
@@ -190,12 +192,14 @@ abstract class AbstractOracleTest implements OracleTest {
                                 i, inputWindow.getStart(), inputWindow.getEnd(), 
                                 fMeasure.getNotFound());
                     }
+                    
 
                     record(fMeasure.getPrecisionScore(),
                             fMeasure.getRecallScore(),
                             delay,
                             actual.getBindings().size(),
-                            expected.getBindings().size());
+                            expected.getBindings().size(),
+                            inputWindow.getTriples().size());
                 } else {
                     //TODO: That's it?
                     break;
