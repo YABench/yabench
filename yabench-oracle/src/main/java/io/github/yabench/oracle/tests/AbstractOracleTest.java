@@ -161,7 +161,7 @@ abstract class AbstractOracleTest implements OracleTest {
                 windowSize, windowSlide);
         final TripleWindowFactory tripleWindowFactory
                 = new TripleWindowFactory(inputStreamReader);
-        for (int i = 0;; i++) {          
+        for (int i = 1;; i++) {          
             final Window window = windowFactory.nextWindow();
             final BindingWindow actual = getQueryResultsReader()
                     .nextBindingWindow();

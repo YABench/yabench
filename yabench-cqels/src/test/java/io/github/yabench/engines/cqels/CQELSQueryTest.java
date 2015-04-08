@@ -1,7 +1,5 @@
 package io.github.yabench.engines.cqels;
 
-
-import io.github.yabench.engines.cqels.CQELSQuery;
 import java.time.Duration;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -25,7 +23,7 @@ public class CQELSQueryTest {
                 + "  FILTER(?value > %TEMP%) \n"
                 + "}";
         CQELSQuery query = new CQELSQuery(queryString);
-        
+
         assertEquals(Duration.ofSeconds(120), query.getWindowSize());
         assertEquals(Duration.ofSeconds(60), query.getWindowSlide());
     }
