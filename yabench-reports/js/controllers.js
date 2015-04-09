@@ -50,18 +50,7 @@
                     plotOptions: {line: {dataLabels: {enabled: true}}},
                     tooltip: {shared: true, crosshairs: true}
                 },
-                title: {text: 'Result size (num of triples)'},
-                series: [],
-                yAxis: [{title: {text: 'Number of triples'}}]
-            };
-            
-            $scope.chartWS = {
-                options: {
-                    chart: {type: 'line'},
-                    plotOptions: {line: {dataLabels: {enabled: true}}},
-                    tooltip: {shared: true, crosshairs: true}
-                },
-                title: {text: 'Window size (num of triples)'},
+                title: {text: 'Window and Result size (num of triples)'},
                 series: [],
                 yAxis: [{title: {text: 'Number of triples'}}]
             };
@@ -149,10 +138,7 @@
                 ];
                 var seriesW = [
                     {name: 'Result size (actual)', data: []},
-                    {name: 'Result size (expected)', data: []}
-                ];
-                
-                var seriesWS = [
+                    {name: 'Result size (expected)', data: []},
                     {name: 'Window size (expected)', data: []}
                 ];
                 
@@ -176,8 +162,7 @@
 
                         seriesW[0].data.push(values[3]);
                         seriesW[1].data.push(values[4]);
-                        
-                        seriesWS[0].data.push(values[5]);
+                        seriesW[2].data.push(values[5]);
                     }
                 });
                 $scope.chartRP.series = seriesRP;
@@ -186,8 +171,6 @@
                 $scope.chartD.xAxis = xAxis;
                 $scope.chartW.series = seriesW;
                 $scope.chartW.xAxis = xAxis;
-                $scope.chartWS.series = seriesWS;
-                $scope.chartWS.xAxis = xAxis;
             };
             
             $scope.loadPData = function ($fileContent) {
