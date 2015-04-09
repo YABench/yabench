@@ -90,7 +90,7 @@ public class SG1 extends AbstractStreamGenerator {
 
         long currentTime = stations.getFirst().nextObservation;
         while (currentTime <= getDuration().toMillis()) {
-            Station currentStation = stations.pop();
+            final Station currentStation = stations.pop();
 
             final float nextValue = getRandom().nextInt(maxTemp - minTemp) + minTemp;
 
@@ -99,9 +99,9 @@ public class SG1 extends AbstractStreamGenerator {
 
             currentStation.nextObservation += interval.toMillis();
             
-            currentTime = stations.getFirst().nextObservation;
-            
             stations.addLast(currentStation);
+            
+            currentTime = stations.getFirst().nextObservation;
         }
     }
 
