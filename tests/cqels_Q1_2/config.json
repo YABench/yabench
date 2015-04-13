@@ -10,6 +10,7 @@
   "duration": "20s",
   "seed": "123123123",
   "window": {
+      "policy": "oncontentchange",
     "size": "5s",
     "slide": "5s"
   },

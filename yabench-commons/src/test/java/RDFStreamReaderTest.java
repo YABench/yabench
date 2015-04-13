@@ -20,6 +20,6 @@ public class RDFStreamReaderTest {
         RDFStreamReader reader = new RDFStreamReader(input);
 
         assertEquals(ResourceFactory.createTypedLiteral("15.0", XSDDatatype.XSDfloat),
-                reader.readNext().getStatement().getObject().asLiteral());
+                reader.readNextTriple().getStatement().getObject().asLiteral());
     }
 }

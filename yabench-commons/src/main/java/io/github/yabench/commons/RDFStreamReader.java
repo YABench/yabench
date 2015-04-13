@@ -6,20 +6,22 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RDFStreamReader implements AutoCloseable {
 
     // s,p,o + timestamp/interval = 4
     private static final int TUPLE_SIZE = 4;
     private final BufferedReader reader;
-    
+    private TemporalTriple lastTriple = null;
+
     public RDFStreamReader(File stream) throws IOException {
         this(stream.toPath());
     }
@@ -36,8 +38,8 @@ public class RDFStreamReader implements AutoCloseable {
      * @return null if the end of the stream has been reached
      * @throws IOException
      */
-    public TemporalTriple readNext() throws IOException {
-        String line = reader.readLine();
+    public TemporalTriple readNextTriple() throws IOException {
+        final String line = reader.readLine();
         if (line != null) {
             String[] tuple = line.split(" ", TUPLE_SIZE + 1);
             Resource subject = ResourceFactory.createResource(
@@ -55,6 +57,34 @@ public class RDFStreamReader implements AutoCloseable {
         } else {
             return null;
         }
+    }
+
+    public TemporalGraph readNextGraph() throws IOException {
+        final List<TemporalTriple> triples = new ArrayList<>();
+        if (lastTriple != null) {
+            triples.add(lastTriple);
+        }
+        for (;;) {
+            final TemporalTriple triple = readNextTriple();
+            if (triple != null) {
+                if (lastTriple == null) {
+                    triples.add(triple);
+                    lastTriple = triple;
+                } else {
+                    if (lastTriple.getTime() == triple.getTime()) {
+                        triples.add(triple);
+                        lastTriple = triple;
+                    } else {
+                        lastTriple = triple;
+                        break;
+                    }
+                }
+            } else {
+                lastTriple = null;
+                break;
+            }
+        }
+        return triples.isEmpty() ? null : new TemporalGraph(triples);
     }
 
     /**

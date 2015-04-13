@@ -58,7 +58,7 @@ public class TripleWindowFactoryTest {
         final long delay = 0;
 
         final WindowFactory windowFactory = new WindowFactory(windowSize, windowSlide);
-        final TripleWindowFactory tripleWindowFactory = new TripleWindowFactory(reader);
+        final InputStreamReader tripleWindowFactory = new InputStreamReader(reader);
 
         //#1
         Window window = windowFactory.nextWindow();
@@ -119,7 +119,7 @@ public class TripleWindowFactoryTest {
         final long delay = 0;
 
         final WindowFactory windowFactory = new WindowFactory(windowSize, windowSlide);
-        final TripleWindowFactory tripleWindowFactory = new TripleWindowFactory(reader);
+        final InputStreamReader tripleWindowFactory = new InputStreamReader(reader);
 
         //#1
         long contentTimestamp = 0;
@@ -191,7 +191,7 @@ public class TripleWindowFactoryTest {
 
         List<TemporalTriple> triples = new ArrayList<>();
         TemporalTriple triple;
-        while ((triple = reader.readNext()) != null) {
+        while ((triple = reader.readNextTriple()) != null) {
             triples.add(triple);
         }
 

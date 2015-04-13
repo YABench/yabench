@@ -71,7 +71,7 @@ public abstract class AbstractEngineLauncher extends AbstractLauncher {
                     
                     long time = 0;
                     TemporalTriple triple;
-                    while ((triple = reader.readNext()) != null) {
+                    while ((triple = reader.readNextTriple()) != null) {
                         Thread.sleep(triple.getTime() - time);
                         engine.stream(triple.getStatement());
                         time = triple.getTime();
