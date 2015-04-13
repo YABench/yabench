@@ -11,7 +11,8 @@
   "seed": "123123123",
   "window": {
     "size": "60s",
-    "slide": "60s"
+    "slide": "60s",
+    "policy": "onwindowclose"
   },
   "vars": {
     "TEMP": "50.0",

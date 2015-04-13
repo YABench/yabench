@@ -4,17 +4,18 @@ import io.github.yabench.commons.TimeUtils;
 import io.github.yabench.oracle.BindingWindow;
 import io.github.yabench.oracle.FMeasure;
 import io.github.yabench.oracle.QueryExecutor;
-import io.github.yabench.oracle.ResultsReader;
+import io.github.yabench.oracle.EngineResultsReader;
+import io.github.yabench.oracle.OracleResultsWriter;
 import io.github.yabench.oracle.TripleWindow;
 import io.github.yabench.oracle.TripleWindowFactory;
 import io.github.yabench.oracle.Window;
 import io.github.yabench.oracle.WindowFactory;
+import io.github.yabench.oracle.WindowPolicy;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.Writer;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,28 +30,29 @@ abstract class AbstractOracleTest implements OracleTest {
 
     private static final Logger logger = LoggerFactory.getLogger(
             AbstractOracleTest.class);
-    private static final String SEPARATOR = ",";
-    private static final String NEWLINE = "\n";
+    private static final long NO_DELAY = 0;
     private static final String QUERY_TEMPLATE_NAME = "query.template";
     private static final String ARG_WINDOWSIZE = "windowsize";
     private static final String ARG_WINDOWSLIDE = "windowslide";
+    private static final String ARG_WINDOWPOLICY = "windowpolicy";
     private static final String ARG_GRACEFUL = "graceful";
     private static final String ARG_GRACEFUL_DEFAULT = "true";
     private final CommandLine cli;
     private final Reader inputStreamReader;
-    private final Writer outputWriter;
-    private final ResultsReader queryResultsReader;
+    private final OracleResultsWriter oracleResultsWriter;
+    private final EngineResultsReader queryResultsReader;
     private final Map<String, String> vars = new HashMap<>();
     private Duration windowSize;
     private Duration windowSlide;
+    private WindowPolicy windowPolicy;
     private boolean graceful;
 
     AbstractOracleTest(File inputStream, File queryResults, File output,
             CommandLine cli)
             throws IOException {
         this.inputStreamReader = new FileReader(inputStream);
-        this.outputWriter = new FileWriter(output);
-        this.queryResultsReader = new ResultsReader(new FileReader(queryResults));
+        this.oracleResultsWriter = new OracleResultsWriter(new FileWriter(output));
+        this.queryResultsReader = new EngineResultsReader(new FileReader(queryResults));
         this.cli = cli;
     }
 
@@ -62,16 +64,20 @@ abstract class AbstractOracleTest implements OracleTest {
         return inputStreamReader;
     }
 
-    protected Writer getOutputWriter() {
-        return outputWriter;
+    protected OracleResultsWriter getOracleResultsWriter() {
+        return oracleResultsWriter;
     }
 
-    protected ResultsReader getQueryResultsReader() {
+    protected EngineResultsReader getQueryResultsReader() {
         return queryResultsReader;
     }
 
     protected Map<String, String> getVars() {
         return vars;
+    }
+
+    protected WindowPolicy getWindowPolicy() {
+        return windowPolicy;
     }
 
     protected static Option[] getExpectedOptions() {
@@ -91,20 +97,30 @@ abstract class AbstractOracleTest implements OracleTest {
                 .withDescription("the window slide")
                 .create(ARG_WINDOWSLIDE);
 
+        Option windowPolicy = OptionBuilder
+                .isRequired()
+                .hasArg()
+                .withArgName("onwindowclose|oncontentchange")
+                .create(ARG_WINDOWPOLICY);
+
         Option graceful = OptionBuilder
                 .withType(Boolean.class)
                 .hasArg()
                 .create(ARG_GRACEFUL);
 
-        return new Option[]{windowSize, windowSlide, graceful};
+        return new Option[]{windowSize, windowSlide, graceful, windowPolicy};
     }
 
     @Override
     public void init() throws Exception {
-        windowSize = TimeUtils.parseDuration(getCommandLine().getOptionValue(ARG_WINDOWSIZE));
-        windowSlide = TimeUtils.parseDuration(getCommandLine().getOptionValue(ARG_WINDOWSLIDE));
-        graceful = Boolean.parseBoolean(getCommandLine().getOptionValue(
-                ARG_GRACEFUL, ARG_GRACEFUL_DEFAULT));
+        windowSize = TimeUtils.parseDuration(getCommandLine()
+                .getOptionValue(ARG_WINDOWSIZE));
+        windowSlide = TimeUtils.parseDuration(getCommandLine()
+                .getOptionValue(ARG_WINDOWSLIDE));
+        graceful = Boolean.parseBoolean(getCommandLine()
+                .getOptionValue(ARG_GRACEFUL, ARG_GRACEFUL_DEFAULT));
+        windowPolicy = WindowPolicy.valueOf(getCommandLine()
+                .getOptionValue(ARG_WINDOWPOLICY).toUpperCase());
 
         getQueryResultsReader().initialize(windowSize);
     }
@@ -112,7 +128,7 @@ abstract class AbstractOracleTest implements OracleTest {
     @Override
     public void close() throws IOException {
         IOUtils.closeQuietly(inputStreamReader);
-        IOUtils.closeQuietly(outputWriter);
+        IOUtils.closeQuietly(oracleResultsWriter);
         IOUtils.closeQuietly(queryResultsReader);
     }
 
@@ -137,44 +153,43 @@ abstract class AbstractOracleTest implements OracleTest {
         return two.getEnd() - one.getEnd();
     }
 
-    private void record(final double precision, final double recall,
-            final long delay, final int actualSize, final int expectedSize, final int windowSize)
-            throws IOException {
-        getOutputWriter().write(
-                new StringBuilder()
-                .append(precision)
-                .append(SEPARATOR)
-                .append(recall)
-                .append(SEPARATOR)
-                .append(delay)
-                .append(SEPARATOR)
-                .append(actualSize)
-                .append(SEPARATOR)
-                .append(expectedSize)
-                .append(SEPARATOR)
-                .append(windowSize)
-                .append(NEWLINE)
-                .toString());
-    }
-
     @Override
     public void compare() throws IOException {
         final WindowFactory windowFactory = new WindowFactory(
                 windowSize, windowSlide);
         final TripleWindowFactory tripleWindowFactory
                 = new TripleWindowFactory(inputStreamReader);
-        for (int i = 1;; i++) {          
+
+        switch (windowPolicy) {
+            case ONWINDOWCLOSE:
+                compareOnWindowClose(windowFactory, tripleWindowFactory);
+                break;
+            case ONCONTENTCHANGE:
+                compareOnContentChange(windowFactory, tripleWindowFactory);
+                break;
+            default:
+                throw new UnsupportedOperationException(
+                        "Given window policy is not supported!");
+        }
+    }
+
+    private void compareOnWindowClose(WindowFactory windowFactory,
+            TripleWindowFactory tripleWindowFactory)
+            throws IOException {
+        for (int i = 1;; i++) {
             final Window window = windowFactory.nextWindow();
             final BindingWindow actual = getQueryResultsReader()
                     .nextBindingWindow();
             if (actual != null) {
-                long delay = calculateDelay(window, actual);
+                final long delay = calculateDelay(window, actual);
 
                 final TripleWindow inputWindow;
                 if (graceful) {
-                    inputWindow = tripleWindowFactory.nextTripleWindow(window, delay);
+                    inputWindow = tripleWindowFactory.nextTripleWindow(
+                            window, delay);
                 } else {
-                    inputWindow = tripleWindowFactory.nextTripleWindow(window, 0);
+                    inputWindow = tripleWindowFactory.nextTripleWindow(
+                            window, NO_DELAY);
                 }
 
                 if (inputWindow != null) {
@@ -186,15 +201,60 @@ abstract class AbstractOracleTest implements OracleTest {
                     FMeasure fMeasure = new FMeasure();
                     fMeasure.updateScores(expected.getBindings().toArray(),
                             actual.getBindings().toArray());
-                    
-                    if(!fMeasure.getNotFound().isEmpty()) {
-                        logger.info("Window #{} [{}:{}]. Missing triples:\n{}", 
-                                i, inputWindow.getStart(), inputWindow.getEnd(), 
+
+                    if (!fMeasure.getNotFound().isEmpty()) {
+                        logger.info("Window #{} [{}:{}]. Missing triples:\n{}",
+                                i, inputWindow.getStart(), inputWindow.getEnd(),
                                 fMeasure.getNotFound());
                     }
-                    
 
-                    record(fMeasure.getPrecisionScore(),
+                    oracleResultsWriter.write(fMeasure.getPrecisionScore(),
+                            fMeasure.getRecallScore(),
+                            delay,
+                            actual.getBindings().size(),
+                            expected.getBindings().size(),
+                            inputWindow.getTriples().size());
+                } else {
+                    //TODO: That's it?
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
+    private void compareOnContentChange(WindowFactory windowFactory,
+            TripleWindowFactory tripleWindowFactory) throws IOException {
+        for (int i = 1;; i++) {
+            final BindingWindow actual = getQueryResultsReader()
+                    .nextBindingWindow();
+            if (actual != null) {
+                final Window window = windowFactory.nextWindow(actual.getEnd());
+                final long delay = graceful
+                        ? calculateDelay(window, actual) : NO_DELAY;
+
+                final TripleWindow inputWindow;
+                inputWindow = tripleWindowFactory.nextTripleWindow(
+                        window, delay);
+
+                if (inputWindow != null) {
+                    final QueryExecutor qexec = new QueryExecutor();
+                    final String query = resolveVars(loadQueryTemplate(), vars);
+                    final BindingWindow expected = qexec.executeSelect(
+                            inputWindow, query);
+
+                    FMeasure fMeasure = new FMeasure();
+                    fMeasure.updateScores(expected.getBindings().toArray(),
+                            actual.getBindings().toArray());
+
+                    if (!fMeasure.getNotFound().isEmpty()) {
+                        logger.info("Window #{} [{}:{}]. Missing triples:\n{}",
+                                i, inputWindow.getStart(), inputWindow.getEnd(),
+                                fMeasure.getNotFound());
+                    }
+
+                    oracleResultsWriter.write(fMeasure.getPrecisionScore(),
                             fMeasure.getRecallScore(),
                             delay,
                             actual.getBindings().size(),

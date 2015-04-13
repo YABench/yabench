@@ -102,6 +102,7 @@ def runOracle(resultsDir, config):
     run_args.extend(["-test", config['oracle_test']])
     run_args.extend(["-windowsize", config['window']['size']])
     run_args.extend(["-windowslide", config['window']['slide']])
+    run_args.extend(["-windowpolicy", config['window']['policy']])
     if 'graceful' in config:
         run_args.extend(["-graceful", config['graceful']])
 

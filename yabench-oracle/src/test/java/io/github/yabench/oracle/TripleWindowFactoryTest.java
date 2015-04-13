@@ -48,10 +48,11 @@ public class TripleWindowFactoryTest {
     }
 
     @Test
-    public void test() throws IOException {
+    public void testWindowFactoryOnWindowClose() throws IOException {
+        final String testPrefix = "testOnWindowClose/";
         final Reader reader = new StringReader(
                 IOUtils.toString(this.getClass().getResourceAsStream(
-                                PREFIX + "input.stream")));
+                                PREFIX + testPrefix + "input.stream")));
         final Duration windowSize = Duration.of(60000, ChronoUnit.MILLIS);
         final Duration windowSlide = Duration.of(30000, ChronoUnit.MILLIS);
         final long delay = 0;
@@ -63,35 +64,35 @@ public class TripleWindowFactoryTest {
         Window window = windowFactory.nextWindow();
         TripleWindow actual = tripleWindowFactory.nextTripleWindow(window, delay);
         assertNotNull(actual);
-        TripleWindow expected = load("1.window", 0, 30000);
+        TripleWindow expected = load(testPrefix + "1.window", 0, 30000);
         assertEquals(expected, actual);
 
         //#2
         window = windowFactory.nextWindow();
         actual = tripleWindowFactory.nextTripleWindow(window, delay);
         assertNotNull(actual);
-        expected = load("2.window", 0, 60000);
+        expected = load(testPrefix +  "2.window", 0, 60000);
         assertEquals(expected, actual);
 
         //#3
         window = windowFactory.nextWindow();
         actual = tripleWindowFactory.nextTripleWindow(window, delay);
         assertNotNull(actual);
-        expected = load("3.window", 30000, 90000);
+        expected = load(testPrefix +  "3.window", 30000, 90000);
         assertEquals(expected, actual);
 
         //#4
         window = windowFactory.nextWindow();
         actual = tripleWindowFactory.nextTripleWindow(window, delay);
         assertNotNull(actual);
-        expected = load("4.window", 60000, 120000);
+        expected = load(testPrefix + "4.window", 60000, 120000);
         assertEquals(expected, actual);
 
         //#5
         window = windowFactory.nextWindow();
         actual = tripleWindowFactory.nextTripleWindow(window, delay);
         assertNotNull(actual);
-        expected = load("5.window", 90000, 150000);
+        expected = load(testPrefix + "5.window", 90000, 150000);
         assertEquals(expected, actual);
 
         //#6 This window already doesn't contains new triple from 
@@ -99,10 +100,85 @@ public class TripleWindowFactoryTest {
         window = windowFactory.nextWindow();
         actual = tripleWindowFactory.nextTripleWindow(window, delay);
         assertNotNull(actual);
-        expected = load("6.window", 120000, 180000);
+        expected = load(testPrefix + "6.window", 120000, 180000);
         assertEquals(expected, actual);
 
         window = windowFactory.nextWindow();
+        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        assertNull(actual);
+    }
+    
+    @Test
+    public void testWindowFactoryOnContentChange() throws IOException {
+        final String testPrefix = "testOnContentChange/";
+        final Reader reader = new StringReader(
+                IOUtils.toString(this.getClass().getResourceAsStream(
+                                PREFIX + testPrefix + "input.stream")));
+        final Duration windowSize = Duration.of(60000, ChronoUnit.MILLIS);
+        final Duration windowSlide = Duration.of(30000, ChronoUnit.MILLIS);
+        final long delay = 0;
+
+        final WindowFactory windowFactory = new WindowFactory(windowSize, windowSlide);
+        final TripleWindowFactory tripleWindowFactory = new TripleWindowFactory(reader);
+
+        //#1
+        long contentTimestamp = 0;
+        Window window = windowFactory.nextWindow(contentTimestamp);
+        TripleWindow actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        assertNotNull(actual);
+        TripleWindow expected = load(testPrefix + "1.window", 0, contentTimestamp);
+        assertEquals(expected, actual);
+
+        //#2
+        contentTimestamp = 32434;
+        window = windowFactory.nextWindow(contentTimestamp);
+        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        assertNotNull(actual);
+        expected = load(testPrefix + "2.window", 0, contentTimestamp);
+        assertEquals(expected, actual);
+
+        //#3
+        contentTimestamp = 34125;
+        window = windowFactory.nextWindow(contentTimestamp);
+        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        assertNotNull(actual);
+        expected = load(testPrefix + "3.window", 0, contentTimestamp);
+        assertEquals(expected, actual);
+
+        //#4
+        contentTimestamp = 37047;
+        window = windowFactory.nextWindow(contentTimestamp);
+        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        assertNotNull(actual);
+        expected = load(testPrefix + "4.window", 0, contentTimestamp);
+        assertEquals(expected, actual);
+
+        //#5
+        contentTimestamp = 42365;
+        window = windowFactory.nextWindow(contentTimestamp);
+        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        assertNotNull(actual);
+        expected = load(testPrefix + "5.window", 0, contentTimestamp);
+        assertEquals(expected, actual);
+        
+        //#6
+        contentTimestamp = 62434;
+        window = windowFactory.nextWindow(contentTimestamp);
+        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        assertNotNull(actual);
+        expected = load(testPrefix + "6.window", 30000, contentTimestamp);
+        assertEquals(expected, actual);
+
+        //#7
+        contentTimestamp = 94125;
+        window = windowFactory.nextWindow(contentTimestamp);
+        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        assertNotNull(actual);
+        expected = load(testPrefix + "7.window", 60000, contentTimestamp);
+        assertEquals(expected, actual);
+
+        contentTimestamp = 160000; //Random number
+        window = windowFactory.nextWindow(contentTimestamp);
         actual = tripleWindowFactory.nextTripleWindow(window, delay);
         assertNull(actual);
     }

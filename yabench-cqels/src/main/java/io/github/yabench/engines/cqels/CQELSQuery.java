@@ -21,7 +21,9 @@ public class CQELSQuery extends AbstractQuery {
             this.windowSize = TimeUtils.parseDuration(matcher.group(1));
             this.windowSlide = TimeUtils.parseDuration(matcher.group(2));
         } else {
-            throw new IllegalArgumentException();
+            this.windowSize = Duration.ZERO;
+            this.windowSlide = Duration.ZERO;
+            //throw new IllegalArgumentException();
         }
     }
 

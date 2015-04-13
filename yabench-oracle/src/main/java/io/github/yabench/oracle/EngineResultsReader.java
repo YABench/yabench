@@ -10,7 +10,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResultsReader implements AutoCloseable, Closeable {
+public class EngineResultsReader implements AutoCloseable, Closeable {
 
     private static final String TAB = "\t";
     private final BufferedReader reader;
@@ -19,7 +19,7 @@ public class ResultsReader implements AutoCloseable, Closeable {
     private long currentTimestamp;
     private long windowSize;
 
-    public ResultsReader(final Reader reader) {
+    public EngineResultsReader(final Reader reader) {
         this.reader = new BufferedReader(reader);
     }
 
