@@ -15,6 +15,23 @@ public class OracleResultsWriter implements Closeable {
         this.writer = writer;
     }
     
+    public void write(final OracleResult result) throws IOException {
+        writer.write(new StringBuilder()
+                .append(result.getPrecision())
+                .append(SEPARATOR)
+                .append(result.getRecall())
+                .append(SEPARATOR)
+                .append(result.getDelay())
+                .append(SEPARATOR)
+                .append(result.getActualResultSize())
+                .append(SEPARATOR)
+                .append(result.getExpectedResultSize())
+                .append(SEPARATOR)
+                .append(result.getExpectedInputSize())
+                .append(NEWLINE)
+                .toString());
+    }
+    
     public void write(final double precision, final double recall, 
             final long delay, final int actualSize, final int expectedSize, 
             final int windowSize) throws IOException {

@@ -7,6 +7,9 @@ import io.github.yabench.oracle.BindingWindow;
 import io.github.yabench.oracle.EngineResultsReader;
 import io.github.yabench.oracle.FMeasure;
 import io.github.yabench.oracle.InputStreamReader;
+import io.github.yabench.oracle.OracleResult;
+import io.github.yabench.oracle.OracleResultBuilder;
+import io.github.yabench.oracle.OracleResultsWriter;
 import io.github.yabench.oracle.QueryExecutor;
 import io.github.yabench.oracle.TripleWindow;
 import io.github.yabench.oracle.Window;
@@ -22,24 +25,27 @@ public class OnContentChangeComparator implements OracleComparator {
 
     private static final Logger logger = LoggerFactory.getLogger(
             OnContentChangeComparator.class);
-    private static final long NO_DELAY = 0;
     private final InputStreamReader inputStreamReader;
     private final EngineResultsReader queryResultsReader;
     private final WindowFactory windowFactory;
     private final QueryExecutor queryExecutor;
+    private final OracleResultsWriter oracleResultsWriter;
     private TripleWindow previousInputWindow;
 
-    public OnContentChangeComparator(InputStreamReader inputStreamReader,
+    OnContentChangeComparator(InputStreamReader inputStreamReader,
             EngineResultsReader queryResultsReader,
-            WindowFactory windowFactory, QueryExecutor queryExecutor) {
+            WindowFactory windowFactory, QueryExecutor queryExecutor, 
+            OracleResultsWriter oracleResultsWriter) {
         this.inputStreamReader = inputStreamReader;
         this.queryResultsReader = queryResultsReader;
         this.windowFactory = windowFactory;
         this.queryExecutor = queryExecutor;
+        this.oracleResultsWriter = oracleResultsWriter;
     }
 
     @Override
     public void compare() throws IOException {
+        final OracleResultBuilder oracleResultBuilder = new OracleResultBuilder();
         for (int i = 1;; i++) {
             final BindingWindow actual = queryResultsReader.nextBindingWindow();
             if (actual != null) {
@@ -55,6 +61,12 @@ public class OnContentChangeComparator implements OracleComparator {
                                 i, expected.getStart(), expected.getEnd(),
                                 fMeasure.getNotFound());
                     }
+                    
+                    final OracleResult result = oracleResultBuilder
+                            .fMeasure(fMeasure)
+                            .resultSize(expected, actual)
+                            .build();
+                    oracleResultsWriter.write(result);
                 } else {
                     throw new IllegalStateException();
                 }

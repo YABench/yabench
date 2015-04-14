@@ -4,6 +4,7 @@ import io.github.yabench.oracle.BindingWindow;
 import io.github.yabench.oracle.EngineResultsReader;
 import io.github.yabench.oracle.FMeasure;
 import io.github.yabench.oracle.InputStreamReader;
+import io.github.yabench.oracle.OracleResultBuilder;
 import io.github.yabench.oracle.OracleResultsWriter;
 import io.github.yabench.oracle.QueryExecutor;
 import io.github.yabench.oracle.TripleWindow;
@@ -17,7 +18,6 @@ public class OnWindowCloseComparator implements OracleComparator {
 
     private static final Logger logger = LoggerFactory.getLogger(
             OnWindowCloseComparator.class);
-    private static final long NO_DELAY = 0;
     private final InputStreamReader inputStreamReader;
     private final EngineResultsReader queryResultsReader;
     private final WindowFactory windowFactory;
@@ -25,7 +25,7 @@ public class OnWindowCloseComparator implements OracleComparator {
     private final OracleResultsWriter oracleResultsWriter;
     private final boolean graceful;
 
-    public OnWindowCloseComparator(InputStreamReader inputStreamReader,
+    OnWindowCloseComparator(InputStreamReader inputStreamReader,
             EngineResultsReader queryResultsReader,
             WindowFactory windowFactory, QueryExecutor queryExecutor,
             OracleResultsWriter oracleResultsWriter, boolean graceful) {
@@ -39,6 +39,7 @@ public class OnWindowCloseComparator implements OracleComparator {
 
     @Override
     public void compare() throws IOException {
+        final OracleResultBuilder oracleResultBuilder = new OracleResultBuilder();
         for (int i = 1;; i++) {
             final Window window = windowFactory.nextWindow();
             final BindingWindow actual = queryResultsReader.nextBindingWindow();
@@ -60,13 +61,13 @@ public class OnWindowCloseComparator implements OracleComparator {
                                 i, inputWindow.getStart(), inputWindow.getEnd(),
                                 fMeasure.getNotFound());
                     }
-
-                    oracleResultsWriter.write(fMeasure.getPrecisionScore(),
-                            fMeasure.getRecallScore(),
-                            delay,
-                            actual.getBindings().size(),
-                            expected.getBindings().size(),
-                            inputWindow.getTriples().size());
+                    
+                    oracleResultsWriter.write(oracleResultBuilder
+                            .fMeasure(fMeasure)
+                            .delay(delay)
+                            .resultSize(expected, actual)
+                            .expectedInputSize(inputWindow.getTriples().size())
+                            .build());
                 } else {
                     throw new IllegalStateException();
                 }

@@ -1,8 +1,7 @@
 package io.github.yabench.oracle.tests;
 
 import io.github.yabench.oracle.tests.comparators.OracleComparator;
-import io.github.yabench.oracle.tests.comparators.OnWindowCloseComparator;
-import io.github.yabench.oracle.tests.comparators.OnContentChangeComparator;
+import io.github.yabench.oracle.tests.comparators.OracleComparatorBuilder;
 import io.github.yabench.commons.TimeUtils;
 import io.github.yabench.oracle.QueryExecutor;
 import io.github.yabench.oracle.EngineResultsReader;
@@ -39,12 +38,7 @@ abstract class AbstractOracleTest implements OracleTest {
     private final OracleResultsWriter oracleResultsWriter;
     private final EngineResultsReader queryResultsReader;
     private final Map<String, String> vars = new HashMap<>();
-    private QueryExecutor queryExecutor;
-    private Duration windowSize;
-    private Duration windowSlide;
-    private WindowPolicy windowPolicy;
-    private WindowFactory windowFactory;
-    private boolean graceful;
+    private OracleComparator comparator;
 
     AbstractOracleTest(File inputStream, File queryResults, File output,
             CommandLine cli)
@@ -59,20 +53,8 @@ abstract class AbstractOracleTest implements OracleTest {
         return cli;
     }
 
-    protected OracleResultsWriter getOracleResultsWriter() {
-        return oracleResultsWriter;
-    }
-
-    protected EngineResultsReader getQueryResultsReader() {
-        return queryResultsReader;
-    }
-
     protected Map<String, String> getVars() {
         return vars;
-    }
-
-    protected WindowPolicy getWindowPolicy() {
-        return windowPolicy;
     }
 
     protected static Option[] getExpectedOptions() {
@@ -108,19 +90,23 @@ abstract class AbstractOracleTest implements OracleTest {
 
     @Override
     public void init() throws Exception {
-        windowSize = TimeUtils.parseDuration(getCommandLine()
+        final Duration windowSize = TimeUtils.parseDuration(getCommandLine()
                 .getOptionValue(ARG_WINDOWSIZE));
-        windowSlide = TimeUtils.parseDuration(getCommandLine()
+        final Duration windowSlide = TimeUtils.parseDuration(getCommandLine()
                 .getOptionValue(ARG_WINDOWSLIDE));
-        graceful = Boolean.parseBoolean(getCommandLine()
+        final boolean graceful = Boolean.parseBoolean(getCommandLine()
                 .getOptionValue(ARG_GRACEFUL, ARG_GRACEFUL_DEFAULT));
-        windowPolicy = WindowPolicy.valueOf(getCommandLine()
+        final WindowPolicy windowPolicy = WindowPolicy.valueOf(getCommandLine()
                 .getOptionValue(ARG_WINDOWPOLICY).toUpperCase());
 
-        getQueryResultsReader().initialize(windowSize);
+        queryResultsReader.initialize(windowSize);
 
-        queryExecutor = new QueryExecutor(loadQueryTemplate(), vars);
-        windowFactory = new WindowFactory(windowSize, windowSlide);
+        final QueryExecutor queryExecutor = new QueryExecutor(loadQueryTemplate(), vars);
+        final WindowFactory windowFactory = new WindowFactory(windowSize, windowSlide);
+        comparator = new OracleComparatorBuilder(
+                inputStreamReader, queryResultsReader, windowFactory,
+                queryExecutor, oracleResultsWriter, graceful)
+                .newComparator(windowPolicy);
     }
 
     @Override
@@ -140,22 +126,6 @@ abstract class AbstractOracleTest implements OracleTest {
 
     @Override
     public void compare() throws IOException {
-        OracleComparator comparator = null;
-        switch (windowPolicy) {
-            case ONWINDOWCLOSE:
-                comparator = new OnWindowCloseComparator(
-                        inputStreamReader, queryResultsReader, windowFactory,
-                        queryExecutor, oracleResultsWriter, graceful);
-                break;
-            case ONCONTENTCHANGE:
-                comparator = new OnContentChangeComparator(
-                        inputStreamReader, queryResultsReader, windowFactory,
-                        queryExecutor);
-                break;
-            default:
-                throw new UnsupportedOperationException(
-                        "Given window policy is not supported!");
-        }
         comparator.compare();
     }
 }
