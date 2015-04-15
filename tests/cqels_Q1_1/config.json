@@ -4,23 +4,16 @@
         "engine": "yabench-cqels/target/yabench-cqels-1.0-SNAPSHOT-jar-with-dependencies.jar",
         "oracle": "yabench-oracle/target/yabench-oracle-1.0-SNAPSHOT-jar-with-dependencies.jar"
     },
-  "query": "query",
   "generator": "SG1",
-  "oracle_test": "TestQ1",
   "duration": "5m",
   "seed": "123123123",
-  "window": {
-      "policy": "oncontentchange",
-      "size": "60s",
-      "slide": "60s"
-  },
   "vars": {
     "TEMP": "50.0",
     "WSIZE": "60s",
-    "WSLIDE": "60s"
+    "WSLIDE": "60s",
+    "WPOLICY": "oncontentchange"
   },
   "stations": "10",
-  "temp": "50.0",
   "tests": [
     {
       "name": "1",

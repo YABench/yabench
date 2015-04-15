@@ -1,7 +1,5 @@
 package io.github.yabench.engines.commons;
 
-import java.io.IOException;
-
 public abstract class AbstractQuery implements Query {
 
     private final String query;

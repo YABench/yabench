@@ -12,16 +12,16 @@ import io.github.yabench.commons.NodeUtils;
 import io.github.yabench.oracle.sparql.AccAvg;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 public class QueryExecutor {
 
     private final Query query;
 
-    public QueryExecutor(final String template, final Map<String, String> variables) {
+    public QueryExecutor(final String template, final Properties variables) {
         this.query = QueryFactory.create(resolveVars(template, variables));
     }
-    
+
     static {
         registerCustomAggregates();
     }
@@ -38,15 +38,14 @@ public class QueryExecutor {
         }
     }
 
-    private String resolveVars(final String template,
-            final Map<String, String> vars) {
+    private String resolveVars(final String template, final Properties vars) {
         String result = new String(template);
-        for (String key : vars.keySet()) {
-            result = result.replaceAll(key, vars.get(key));
+        for (String key : vars.stringPropertyNames()) {
+            result = result.replaceAll("\\$\\{" + key + "\\}", vars.getProperty(key));
         }
         return result;
     }
-    
+
     private static void registerCustomAggregates() {
         AggregateRegistry.register("http://yabench/avg", new AccAvg.Factory());
     }

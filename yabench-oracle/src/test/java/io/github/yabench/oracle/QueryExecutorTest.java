@@ -6,8 +6,8 @@ import io.github.yabench.commons.TemporalTriple;
 import io.github.yabench.commons.tests.TestUtils;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class QueryExecutorTest {
         final String TEST_PREFIX = "testAvgOneVar/";
         QueryExecutor qexec = new QueryExecutor(
                 utils.readToString(TEST_PREFIX + "query.template"),
-                new HashMap<String, String>() {
+                new Properties() {
                     {
                         put("%TEMP%", "50.0");
                     }
@@ -43,7 +43,7 @@ public class QueryExecutorTest {
         final String TEST_PREFIX = "testAvgTwoVar/";
         QueryExecutor qexec = new QueryExecutor(
                 utils.readToString(TEST_PREFIX + "query.template"),
-                new HashMap<String, String>() {
+                new Properties() {
                     {
                         put("%TEMP%", "50.0");
                     }

@@ -1,11 +1,11 @@
-PREFIX om-owl: <http://knoesis.wright.edu/ssw/ont/sensor-observation.owl#> 
+PREFIX om-owl: <http://knoesis.wright.edu/ssw/ont/sensor-observation.owl#>
 PREFIX weather: <http://knoesis.wright.edu/ssw/ont/weather.owl#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT (<http://yabench/avg>(?value) AS ?avg) { 
+SELECT (AVG(?value) AS ?avg) {
     ?obs om-owl:observedProperty weather:_AirTemperature ;
-        om-owl:procedure ?sensor ;  
+        om-owl:procedure ?sensor ;
         om-owl:result ?res .
     ?res om-owl:floatValue ?value .
-    FILTER(?value > %TEMP%)
+    FILTER(?value > ${TEMP})
 }

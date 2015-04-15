@@ -22,6 +22,8 @@ class Unbuffered(object):
 import sys
 sys.stdout = Unbuffered(sys.stdout)
 
+QUERY_4_ENGINE='engine.query'
+QUERY_4_ORACLE='oracle.query'
 INPUTSTREAM_PREFIX = 'SG_'
 QUERYRESULTS_PREFIX = 'QR_'
 PERFORMANCERESULTS_PREFIX = 'P_'
@@ -73,7 +75,7 @@ def runGenerator(resultsDir, config):
 def runEngine(testDir, resultsDir, config):
     run_args = ["java", "-jar", config['exec']['engine']]
     run_args.extend(["-dest", "{}/{}{}".format(resultsDir, QUERYRESULTS_PREFIX, config['name'])])
-    run_args.extend(["-query", prepare_query(resultsDir, config, "{}/{}".format(testDir, config['query']))])
+    run_args.extend(["-query", prepare_query(resultsDir, config, "{}/{}".format(testDir, QUERY_4_ENGINE))])
     run_args.extend(["-source", "{}/{}{}".format(resultsDir, INPUTSTREAM_PREFIX, config['name'])])
 
     print(run_args)
@@ -94,20 +96,16 @@ def runEngine(testDir, resultsDir, config):
     return True
     #return subprocess.check_call(run_args)
 
-def runOracle(resultsDir, config):
+def runOracle(testDir, resultsDir, config):
     run_args = ["java", "-jar", config['exec']['oracle']]
-    run_args.extend(["-queryresults", "{}/{}{}".format(resultsDir, QUERYRESULTS_PREFIX, config['name'])])
-    run_args.extend(["-output", "{}/{}{}".format(resultsDir, ORACLE_OUTPUT_PREFIX, config['name'])])
-    run_args.extend(["-inputstream", "{}/{}{}".format(resultsDir, INPUTSTREAM_PREFIX, config['name'])])
-    run_args.extend(["-test", config['oracle_test']])
-    run_args.extend(["-windowsize", config['window']['size']])
-    run_args.extend(["-windowslide", config['window']['slide']])
-    run_args.extend(["-windowpolicy", config['window']['policy']])
+    run_args.extend(["--queryresults", "{}/{}{}".format(resultsDir, QUERYRESULTS_PREFIX, config['name'])])
+    run_args.extend(["--output", "{}/{}{}".format(resultsDir, ORACLE_OUTPUT_PREFIX, config['name'])])
+    run_args.extend(["--inputstream", "{}/{}{}".format(resultsDir, INPUTSTREAM_PREFIX, config['name'])])
+    run_args.extend(["--query", "{}/{}".format(testDir, QUERY_4_ORACLE)])
+    for key in config['vars']:
+        run_args.extend(["-P" + key + "=" + config['vars'][key]])
     if 'graceful' in config:
         run_args.extend(["-graceful", config['graceful']])
-
-    #Test specific arguments
-    run_args.extend(["-temp", config['temp']])
 
     print(run_args)
     return subprocess.check_call(run_args)
@@ -137,12 +135,12 @@ def main():
                 new_config = gen_test_config(config, test_config)
                 if (args.test and args.test == new_config['name']) or not args.test:
                     if args.onlyoracle:
-                        runOracle(resultsDir, new_config)
+                        runOracle(args.testDir, resultsDir, new_config)
                     else:
                         runGenerator(resultsDir, new_config)
                         runEngine(args.testDir, resultsDir, new_config)
                         if not args.withoutoracle:
-                            runOracle(resultsDir, new_config)
+                            runOracle(args.testDir, resultsDir, new_config)
                 else:
                     continue;
     except IOError:

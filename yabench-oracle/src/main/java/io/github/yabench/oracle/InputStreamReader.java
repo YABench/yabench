@@ -15,7 +15,7 @@ public class InputStreamReader implements Closeable {
     private final RDFStreamReader reader;
     private List<TemporalTriple> content = new ArrayList<>();
 
-    public InputStreamReader(Reader reader) throws IOException {
+    public InputStreamReader(Reader reader) {
         this.reader = new RDFStreamReader(reader);
     }
 
