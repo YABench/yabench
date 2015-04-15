@@ -1,5 +1,6 @@
 package io.github.yabench.oracle.tests.comparators;
 
+import com.hp.hpl.jena.sparql.core.Var;
 import com.hp.hpl.jena.sparql.engine.binding.Binding;
 import io.github.yabench.commons.TemporalGraph;
 import io.github.yabench.commons.TemporalTriple;
@@ -17,6 +18,7 @@ import io.github.yabench.oracle.WindowFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +36,7 @@ public class OnContentChangeComparator implements OracleComparator {
 
     OnContentChangeComparator(InputStreamReader inputStreamReader,
             EngineResultsReader queryResultsReader,
-            WindowFactory windowFactory, QueryExecutor queryExecutor, 
+            WindowFactory windowFactory, QueryExecutor queryExecutor,
             OracleResultsWriter oracleResultsWriter) {
         this.inputStreamReader = inputStreamReader;
         this.queryResultsReader = queryResultsReader;
@@ -51,17 +53,17 @@ public class OnContentChangeComparator implements OracleComparator {
             if (actual != null) {
                 final BindingWindow expected = nextExpectedResult();
                 if (expected != null) {
-//                        logger.debug("Window #{}. {}", i, expected.toString());
+//                    logger.debug("#{} {}", i, expected.toString());
                     final FMeasure fMeasure = new FMeasure();
                     fMeasure.updateScores(expected.getBindings().toArray(),
                             actual.getBindings().toArray());
 
                     if (!fMeasure.getNotFound().isEmpty()) {
-                        logger.info("Window #{} [{}:{}]. Missing triples:\n{}",
-                                i, expected.getStart(), expected.getEnd(),
+                        logger.info("#{} Window [{}:{}]. Missing triples:\n{}",
+                                i, expected.getStart(), expected.getEnd(), 
                                 fMeasure.getNotFound());
                     }
-                    
+
                     final OracleResult result = oracleResultBuilder
                             .fMeasure(fMeasure)
                             .resultSize(expected, actual)
@@ -87,13 +89,18 @@ public class OnContentChangeComparator implements OracleComparator {
                         inputGraph.getTime());
                 final TripleWindow inputWindow = inputStreamReader
                         .nextTripleWindow(window, NO_DELAY);
+                
+//                logger.debug(previousInputWindow == null ? "[empty]" : previousInputWindow.toString());
+//                logger.debug(inputWindow.toString());
 
                 final BindingWindow previous = previousInputWindow != null
                         ? queryExecutor
                         .executeSelect(filter(previousInputWindow, window))
                         : null;
+                
                 final BindingWindow current = queryExecutor
                         .executeSelect(inputWindow);
+                
                 expected = difference(previous, current);
 
                 previousInputWindow = inputWindow;
@@ -105,12 +112,8 @@ public class OnContentChangeComparator implements OracleComparator {
     }
 
     private BindingWindow difference(BindingWindow one, BindingWindow two) {
-        if (one == null) {
-            if (two.getBindings().isEmpty()) {
-                return null;
-            } else {
-                return two;
-            }
+        if(isEmpty(two)) {
+            return null;
         } else if (one.equals(two)) {
             return null;
         } else {
@@ -119,6 +122,28 @@ public class OnContentChangeComparator implements OracleComparator {
             return rest.isEmpty()
                     ? null
                     : new BindingWindow(rest, two.getStart(), two.getEnd());
+        }
+    }
+    
+    private boolean isEmpty(BindingWindow window) {
+        if(window.getBindings().isEmpty()) {
+            return true;
+        } else if(window.getBindings().size() == 1) {
+            final Binding binding = window.getBindings().get(0);
+            if(binding.isEmpty()) {
+                return true;
+            } else {
+                Iterator<Var> vars = binding.vars();
+                while (vars.hasNext()) {
+                    final Var next = vars.next();
+                    if(binding.get(next) != null) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        } else {
+            return false;
         }
     }
 

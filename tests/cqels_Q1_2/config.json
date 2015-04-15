@@ -1,31 +1,30 @@
 {
-  "exec" : {
-    "stream-generator": "stream-generator/target/stream-generator-1.0-SNAPSHOT-jar-with-dependencies.jar",
-    "engine": "yabench-cqels/target/yabench-cqels-1.0-SNAPSHOT-jar-with-dependencies.jar",
-    "oracle": "yabench-oracle/target/yabench-oracle-1.0-SNAPSHOT-jar-with-dependencies.jar"
-  },
-  "query": "query",
-  "generator": "SG1",
-  "oracle_test": "TestQ1",
-  "duration": "20s",
-  "seed": "123123123",
-  "window": {
-      "policy": "oncontentchange",
-    "size": "5s",
-    "slide": "5s"
-  },
-  "vars": {
-    "TEMP": "50.0",
-    "WSIZE": "5s",
-    "WSLIDE": "5s"
-  },
-  "stations": "1",
-  "temp": "50.0",
-  "tests": [
-    {
-      "name": "1",
-      "interval": "2s",
-      "graceful": "false"
-    }
-  ]
+    "exec" : {
+        "stream-generator": "stream-generator/target/stream-generator-1.0-SNAPSHOT-jar-with-dependencies.jar",
+        "engine": "yabench-cqels/target/yabench-cqels-1.0-SNAPSHOT-jar-with-dependencies.jar",
+        "oracle": "yabench-oracle/target/yabench-oracle-1.0-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "query": "query",
+    "generator": "SG1",
+    "oracle_test": "TestQ1",
+    "duration": "20s",
+    "seed": "123123123",
+    "window": {
+        "policy": "oncontentchange",
+        "size": "5s",
+        "slide": "5s"
+    },
+    "vars": {
+        "TEMP": "50.0",
+        "WSIZE": "5s",
+        "WSLIDE": "5s"
+    },
+    "stations": "1",
+    "temp": "50.0",
+    "tests": [
+        {
+            "name": "1",
+            "interval": "2s"
+        }
+    ]
 }

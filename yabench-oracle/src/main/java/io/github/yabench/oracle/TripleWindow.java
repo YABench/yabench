@@ -8,8 +8,8 @@ import java.util.List;
 public class TripleWindow extends Window {
 
     private final List<TemporalTriple> triples;
-    
-    public TripleWindow(final Window window, 
+
+    public TripleWindow(final Window window,
             final List<TemporalTriple> triples) {
         super(window.getStart(), window.getEnd());
         this.triples = triples;
@@ -34,18 +34,30 @@ public class TripleWindow extends Window {
     }
 
     @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder(super.toString())
+                .append(" Triples:\n");
+        
+        triples.stream().forEachOrdered((t) -> {
+            builder.append(t).append("\n");
+        });
+        
+        return builder.toString();
+    }
+
+    @Override
     public int hashCode() {
         return triples.hashCode() + super.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == this) {
+        if (obj == this) {
             return true;
         }
         if (obj instanceof TripleWindow) {
             TripleWindow that = (TripleWindow) obj;
-            if(that.getTriples() == null) {
+            if (that.getTriples() == null) {
                 return this.triples == null;
             }
             if (!this.triples.equals(that.getTriples())) {

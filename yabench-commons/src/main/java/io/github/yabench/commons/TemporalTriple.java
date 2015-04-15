@@ -22,6 +22,12 @@ public class TemporalTriple {
     }
 
     @Override
+    public String toString() {
+        return new StringBuilder(String.valueOf(time))
+                .append(" : ").append(stmt.asTriple().toString()).toString();
+    }
+
+    @Override
     public int hashCode() {
         return stmt.hashCode() + ((Long)time).hashCode();
     }

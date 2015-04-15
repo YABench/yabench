@@ -29,7 +29,7 @@ public class BindingWindow extends Window {
     @Override
     public String toString() {
         return new StringBuilder(super.toString())
-                .append(" Triples:\n").append(bindings).toString();
+                .append(". Bindings:\n").append(bindings).toString();
     }
 
     @Override

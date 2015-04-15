@@ -7,7 +7,9 @@ import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.sparql.engine.binding.Binding;
+import com.hp.hpl.jena.sparql.expr.aggregate.AggregateRegistry;
 import io.github.yabench.commons.NodeUtils;
+import io.github.yabench.oracle.sparql.AccAvg;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,10 @@ public class QueryExecutor {
 
     public QueryExecutor(final String template, final Map<String, String> variables) {
         this.query = QueryFactory.create(resolveVars(template, variables));
+    }
+    
+    static {
+        registerCustomAggregates();
     }
 
     public BindingWindow executeSelect(final TripleWindow input) {
@@ -39,6 +45,10 @@ public class QueryExecutor {
             result = result.replaceAll(key, vars.get(key));
         }
         return result;
+    }
+    
+    private static void registerCustomAggregates() {
+        AggregateRegistry.register("http://yabench/avg", new AccAvg.Factory());
     }
 
 }
