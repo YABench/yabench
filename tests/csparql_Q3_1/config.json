@@ -18,7 +18,7 @@
     "tests": [
         {
         "name": "1",
-        "interval": "3m"
+        "interval": "30s"
         }
     ]
 }
