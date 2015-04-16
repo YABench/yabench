@@ -31,7 +31,7 @@ public class CQELSResultListenerProxy implements ContinuousListener {
     public void update(Mapping mapping) {
         final List<String> variables = new ArrayList<>();
         final BindingMap binding = BindingFactory.create();
-
+        
         for (Iterator<Var> vars = mapping.vars(); vars.hasNext();) {
             final Var var = vars.next();
             variables.add(var.getVarName());
@@ -44,7 +44,7 @@ public class CQELSResultListenerProxy implements ContinuousListener {
                 binding.add(var, null);
             }
         }
-
+        
         listener.update(variables.toArray(new String[]{}),
                 new ArrayList<Binding>() {
                     {

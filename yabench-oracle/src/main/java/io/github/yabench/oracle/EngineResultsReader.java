@@ -18,6 +18,7 @@ public class EngineResultsReader implements AutoCloseable, Closeable {
     private String[] variables;
     private long currentTimestamp;
     private long windowSize;
+    private boolean empty = false;
 
     public EngineResultsReader(final Reader reader) {
         this.reader = new BufferedReader(reader);
@@ -26,11 +27,21 @@ public class EngineResultsReader implements AutoCloseable, Closeable {
     public void initialize(final Duration windowSize) throws IOException {
         this.windowSize = windowSize.toMillis();
         initialTimestamp = Long.parseLong(reader.readLine());
-        variables = reader.readLine().split(TAB);
-        currentTimestamp = Long.parseLong(reader.readLine());
+        
+        String tmp;
+        if ((tmp = reader.readLine()) != null) {
+            variables = tmp.split(TAB);
+            currentTimestamp = Long.parseLong(reader.readLine());
+        } else {
+            empty = true;
+        }
     }
 
     public BindingWindow nextBindingWindow() throws IOException {
+        if(empty) {
+            return null;
+        }
+        
         final long windowEndTimestamp = currentTimestamp - initialTimestamp;
         final long windowStartTimestamp = windowEndTimestamp - windowSize > 0
                 ? windowEndTimestamp - windowSize : 0;

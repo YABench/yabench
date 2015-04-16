@@ -1,0 +1,24 @@
+{
+    "exec" : {
+        "stream-generator": "stream-generator/target/stream-generator-1.0-SNAPSHOT-jar-with-dependencies.jar",
+        "engine": "yabench-cqels/target/yabench-cqels-1.0-SNAPSHOT-jar-with-dependencies.jar",
+        "oracle": "yabench-oracle/target/yabench-oracle-1.0-SNAPSHOT-jar-with-dependencies.jar"
+    },
+    "generator": "SG1",
+    "duration": "5m",
+    "seed": "123123123",
+    "vars": {
+        "TEMP": "50.0",
+        "WSIZE": "60s",
+        "WSLIDE": "60s",
+        "WPOLICY": "oncontentchange",
+        "VARIATION_THRESHOLD": "0.0"
+    },
+    "stations": "10",
+    "tests": [
+        {
+            "name": "1",
+            "interval": "3m"
+        }
+    ]
+}
