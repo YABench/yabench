@@ -9,7 +9,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.io.IOUtils;
 import io.github.yabench.StreamGenerator;
-import io.github.yabench.commons.TimeUtils;
+import io.github.yabench.commons.utils.TimeUtils;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;

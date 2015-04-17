@@ -3,7 +3,7 @@ package io.github.yabench.commons;
 import com.hp.hpl.jena.rdf.model.Statement;
 import java.util.Objects;
 
-public class TemporalTriple {
+public class TemporalTriple implements Comparable<TemporalTriple> {
 
     private final Statement stmt;
     private final long time;
@@ -29,7 +29,7 @@ public class TemporalTriple {
 
     @Override
     public int hashCode() {
-        return stmt.hashCode() + ((Long)time).hashCode();
+        return stmt.hashCode() + ((Long) time).hashCode();
     }
 
     @Override
@@ -46,5 +46,20 @@ public class TemporalTriple {
         }
         return this.time == other.time;
     }
-    
+
+    @Override
+    public int compareTo(TemporalTriple o) {
+        if (o == null) {
+            throw new NullPointerException();
+        }
+        if (this.time > o.time) {
+            return 1;
+        }
+        if (this.time < o.time) {
+            return -1;
+        }
+        return equals(o) ? 0
+                : new StatementComparator().compare(this.stmt, o.stmt);
+    }
+
 }

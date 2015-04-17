@@ -7,6 +7,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -15,22 +16,23 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RDFStreamReader implements AutoCloseable {
+public class TemporalRDFReader implements Closeable, AutoCloseable {
 
     // s,p,o + timestamp/interval = 4
     private static final int TUPLE_SIZE = 4;
+    private static final String SPACE = " ";
     private final BufferedReader reader;
     private TemporalTriple lastTriple = null;
 
-    public RDFStreamReader(File stream) throws IOException {
+    public TemporalRDFReader(File stream) throws IOException {
         this(stream.toPath());
     }
 
-    public RDFStreamReader(Path stream) throws IOException {
+    public TemporalRDFReader(Path stream) throws IOException {
         this(Files.newBufferedReader(stream));
     }
 
-    public RDFStreamReader(Reader reader) {
+    public TemporalRDFReader(Reader reader) {
         this.reader = new BufferedReader(reader);
     }
 
@@ -41,7 +43,7 @@ public class RDFStreamReader implements AutoCloseable {
     public TemporalTriple readNextTriple() throws IOException {
         final String line = reader.readLine();
         if (line != null) {
-            String[] tuple = line.split(" ", TUPLE_SIZE + 1);
+            String[] tuple = line.split(SPACE, TUPLE_SIZE + 1);
             Resource subject = ResourceFactory.createResource(
                     tuple[0].substring(1, tuple[0].length() - 1));
             Property predicate = ResourceFactory.createProperty(

@@ -1,7 +1,7 @@
 package io.github.yabench.oracle;
 
 import com.hp.hpl.jena.sparql.core.Var;
-import io.github.yabench.commons.RDFStreamReader;
+import io.github.yabench.commons.TemporalRDFReader;
 import io.github.yabench.commons.TemporalTriple;
 import io.github.yabench.commons.tests.TestUtils;
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class QueryExecutorTest {
                 utils.readToString(TEST_PREFIX + "query.template"),
                 new Properties() {
                     {
-                        put("%TEMP%", "50.0");
+                        put("TEMP", "50.0");
                     }
                 });
 
@@ -45,7 +45,7 @@ public class QueryExecutorTest {
                 utils.readToString(TEST_PREFIX + "query.template"),
                 new Properties() {
                     {
-                        put("%TEMP%", "50.0");
+                        put("TEMP", "50.0");
                     }
                 });
 
@@ -62,7 +62,7 @@ public class QueryExecutorTest {
 
     private TripleWindow readToTripleWindow(String fileName, long start, long end)
             throws IOException {
-        RDFStreamReader reader = new RDFStreamReader(utils.readToReader(fileName));
+        TemporalRDFReader reader = new TemporalRDFReader(utils.readToReader(fileName));
 
         List<TemporalTriple> triples = new ArrayList<>();
         TemporalTriple triple;

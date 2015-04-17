@@ -7,5 +7,5 @@ SELECT (<http://yabench/avg>(?value) AS ?avg) {
         om-owl:procedure ?sensor ;  
         om-owl:result ?res .
     ?res om-owl:floatValue ?value .
-    FILTER(?value > %TEMP%)
+    FILTER(?value > ${TEMP})
 }

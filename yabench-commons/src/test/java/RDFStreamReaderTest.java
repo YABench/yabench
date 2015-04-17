@@ -1,7 +1,7 @@
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import io.github.yabench.commons.RDFStreamReader;
+import io.github.yabench.commons.TemporalRDFReader;
 import java.io.IOException;
 import java.io.StringReader;
 import org.junit.Test;
@@ -17,7 +17,7 @@ public class RDFStreamReaderTest {
                 + "15.0^^<http://www.w3.org/2001/XMLSchema#float> \"0\" .";
 
         StringReader input = new StringReader(stream);
-        RDFStreamReader reader = new RDFStreamReader(input);
+        TemporalRDFReader reader = new TemporalRDFReader(input);
 
         assertEquals(ResourceFactory.createTypedLiteral("15.0", XSDDatatype.XSDfloat),
                 reader.readNextTriple().getStatement().getObject().asLiteral());

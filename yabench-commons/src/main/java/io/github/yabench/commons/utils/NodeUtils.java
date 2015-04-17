@@ -1,4 +1,4 @@
-package io.github.yabench.commons;
+package io.github.yabench.commons.utils;
 
 import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.graph.Node;

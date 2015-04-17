@@ -5,9 +5,9 @@ import com.hp.hpl.jena.sparql.engine.binding.Binding;
 import io.github.yabench.commons.TemporalGraph;
 import io.github.yabench.commons.TemporalTriple;
 import io.github.yabench.oracle.BindingWindow;
-import io.github.yabench.oracle.EngineResultsReader;
+import io.github.yabench.oracle.readers.EngineResultsReader;
 import io.github.yabench.oracle.FMeasure;
-import io.github.yabench.oracle.InputStreamReader;
+import io.github.yabench.oracle.readers.BufferedTWReader;
 import io.github.yabench.oracle.OracleResult;
 import io.github.yabench.oracle.OracleResultBuilder;
 import io.github.yabench.oracle.OracleResultsWriter;
@@ -15,6 +15,7 @@ import io.github.yabench.oracle.QueryExecutor;
 import io.github.yabench.oracle.TripleWindow;
 import io.github.yabench.oracle.Window;
 import io.github.yabench.oracle.WindowFactory;
+import io.github.yabench.oracle.readers.TripleWindowReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,14 +28,14 @@ public class OnContentChangeComparator implements OracleComparator {
 
     private static final Logger logger = LoggerFactory.getLogger(
             OnContentChangeComparator.class);
-    private final InputStreamReader inputStreamReader;
+    private final TripleWindowReader inputStreamReader;
     private final EngineResultsReader queryResultsReader;
     private final WindowFactory windowFactory;
     private final QueryExecutor queryExecutor;
     private final OracleResultsWriter oracleResultsWriter;
     private TripleWindow previousInputWindow;
 
-    OnContentChangeComparator(InputStreamReader inputStreamReader,
+    OnContentChangeComparator(BufferedTWReader inputStreamReader,
             EngineResultsReader queryResultsReader,
             WindowFactory windowFactory, QueryExecutor queryExecutor,
             OracleResultsWriter oracleResultsWriter) {
@@ -82,12 +83,12 @@ public class OnContentChangeComparator implements OracleComparator {
         BindingWindow expected = null;
         do {
             final TemporalGraph inputGraph = inputStreamReader
-                    .nextGraph();
+                    .readNextGraph();
             if (inputGraph != null) {
                 final Window window = windowFactory.nextWindow(
                         inputGraph.getTime());
                 final TripleWindow inputWindow = inputStreamReader
-                        .nextTripleWindow(window, NO_DELAY);
+                        .readNextWindow(window);
 
                 final BindingWindow previous = previousInputWindow != null
                         ? queryExecutor

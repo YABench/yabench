@@ -1,7 +1,7 @@
 package io.github.yabench.oracle.tests;
 
 import com.google.common.io.Files;
-import io.github.yabench.commons.TimeUtils;
+import io.github.yabench.commons.utils.TimeUtils;
 import io.github.yabench.oracle.WindowPolicy;
 import java.io.File;
 import java.io.IOException;

@@ -1,6 +1,6 @@
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Node;
-import io.github.yabench.commons.NodeUtils;
+import io.github.yabench.commons.utils.NodeUtils;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

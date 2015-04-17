@@ -18,6 +18,19 @@ public class Window {
         return end;
     }
 
+    /**
+     *
+     * @param shift
+     * @return
+     */
+    public Window withShiftToRight(long shift) {
+        if (shift > 0) {
+            return new Window(start + shift, end + shift);
+        } else {
+            return this;
+        }
+    }
+
     @Override
     public String toString() {
         return new StringBuilder("Window [")
@@ -37,7 +50,7 @@ public class Window {
     }
 
     /**
-     * @return 
+     * @return
      */
     @Override
     public int hashCode() {

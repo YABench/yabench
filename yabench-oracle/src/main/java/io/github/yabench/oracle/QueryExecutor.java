@@ -8,7 +8,7 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.sparql.engine.binding.Binding;
 import com.hp.hpl.jena.sparql.expr.aggregate.AggregateRegistry;
-import io.github.yabench.commons.NodeUtils;
+import io.github.yabench.commons.utils.NodeUtils;
 import io.github.yabench.oracle.sparql.AccAvg;
 import java.util.ArrayList;
 import java.util.List;

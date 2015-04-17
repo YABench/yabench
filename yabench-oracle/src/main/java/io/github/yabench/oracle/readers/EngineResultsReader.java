@@ -1,7 +1,8 @@
-package io.github.yabench.oracle;
+package io.github.yabench.oracle.readers;
 
 import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import io.github.yabench.commons.NodeUtils;
+import io.github.yabench.commons.utils.NodeUtils;
+import io.github.yabench.oracle.BindingWindow;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;

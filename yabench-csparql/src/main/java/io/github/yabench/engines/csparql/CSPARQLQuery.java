@@ -2,7 +2,7 @@ package io.github.yabench.engines.csparql;
 
 import java.io.IOException;
 import java.time.Duration;
-import io.github.yabench.commons.TimeUtils;
+import io.github.yabench.commons.utils.TimeUtils;
 import io.github.yabench.engines.commons.AbstractQuery;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

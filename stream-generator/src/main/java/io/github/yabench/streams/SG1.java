@@ -10,7 +10,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 
 import io.github.yabench.RSPTest;
-import io.github.yabench.commons.TimeUtils;
+import io.github.yabench.commons.utils.TimeUtils;
 
 import java.time.Duration;
 import java.util.List;

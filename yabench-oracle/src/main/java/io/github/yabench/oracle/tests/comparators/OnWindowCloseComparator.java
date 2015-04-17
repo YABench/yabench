@@ -1,15 +1,16 @@
 package io.github.yabench.oracle.tests.comparators;
 
 import io.github.yabench.oracle.BindingWindow;
-import io.github.yabench.oracle.EngineResultsReader;
+import io.github.yabench.oracle.readers.EngineResultsReader;
 import io.github.yabench.oracle.FMeasure;
-import io.github.yabench.oracle.InputStreamReader;
+import io.github.yabench.oracle.readers.BufferedTWReader;
 import io.github.yabench.oracle.OracleResultBuilder;
 import io.github.yabench.oracle.OracleResultsWriter;
 import io.github.yabench.oracle.QueryExecutor;
 import io.github.yabench.oracle.TripleWindow;
 import io.github.yabench.oracle.Window;
 import io.github.yabench.oracle.WindowFactory;
+import io.github.yabench.oracle.readers.TripleWindowReader;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,14 +19,14 @@ public class OnWindowCloseComparator implements OracleComparator {
 
     private static final Logger logger = LoggerFactory.getLogger(
             OnWindowCloseComparator.class);
-    private final InputStreamReader inputStreamReader;
+    private final TripleWindowReader inputStreamReader;
     private final EngineResultsReader queryResultsReader;
     private final WindowFactory windowFactory;
     private final QueryExecutor queryExecutor;
     private final OracleResultsWriter oracleResultsWriter;
     private final boolean graceful;
 
-    OnWindowCloseComparator(InputStreamReader inputStreamReader,
+    OnWindowCloseComparator(BufferedTWReader inputStreamReader,
             EngineResultsReader queryResultsReader,
             WindowFactory windowFactory, QueryExecutor queryExecutor,
             OracleResultsWriter oracleResultsWriter, boolean graceful) {
@@ -46,7 +47,7 @@ public class OnWindowCloseComparator implements OracleComparator {
             if (actual != null) {
                 final long delay = calculateDelay(window, actual);
                 final TripleWindow inputWindow = inputStreamReader
-                        .nextTripleWindow(window, delay);
+                        .readNextWindow(window.withShiftToRight(delay));
 
                 if (inputWindow != null) {
                     final BindingWindow expected = queryExecutor

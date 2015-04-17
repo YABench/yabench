@@ -2,7 +2,7 @@ package io.github.yabench.engines.commons;
 
 import com.google.common.io.Files;
 import io.github.yabench.commons.AbstractLauncher;
-import io.github.yabench.commons.RDFStreamReader;
+import io.github.yabench.commons.TemporalRDFReader;
 import io.github.yabench.commons.TemporalTriple;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -53,7 +53,7 @@ public abstract class AbstractEngineLauncher extends AbstractLauncher {
             final File dest = new File(cli.getOptionValue(ARG_DEST));
             query = new QueryFactory().create(queryString);
 
-            try (final RDFStreamReader reader = new RDFStreamReader(source);
+            try (final TemporalRDFReader reader = new TemporalRDFReader(source);
                     final Writer writer = new BufferedWriter(new FileWriter(dest))) {
                 logger.info("initialize engine");
                 EngineFactory engineFactory = new EngineFactory();

@@ -1,4 +1,4 @@
-package io.github.yabench.commons;
+package io.github.yabench.commons.utils;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;

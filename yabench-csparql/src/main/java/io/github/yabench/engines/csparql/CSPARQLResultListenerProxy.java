@@ -3,7 +3,7 @@ package io.github.yabench.engines.csparql;
 import com.hp.hpl.jena.sparql.engine.binding.Binding;
 import eu.larkc.csparql.common.RDFTable;
 import eu.larkc.csparql.core.ResultFormatter;
-import io.github.yabench.commons.NodeUtils;
+import io.github.yabench.commons.utils.NodeUtils;
 import io.github.yabench.engines.commons.ResultListener;
 import java.util.ArrayList;
 import java.util.List;

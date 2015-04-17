@@ -1,8 +1,9 @@
 package io.github.yabench.oracle;
 
+import io.github.yabench.oracle.readers.BufferedTWReader;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import io.github.yabench.commons.RDFStreamReader;
+import io.github.yabench.commons.TemporalRDFReader;
 import io.github.yabench.commons.TemporalTriple;
 import java.io.IOException;
 import java.io.Reader;
@@ -58,39 +59,40 @@ public class TripleWindowFactoryTest {
         final long delay = 0;
 
         final WindowFactory windowFactory = new WindowFactory(windowSize, windowSlide);
-        final InputStreamReader tripleWindowFactory = new InputStreamReader(reader);
+        final BufferedTWReader tripleWindowFactory = new BufferedTWReader(reader);
 
         //#1
         Window window = windowFactory.nextWindow();
-        TripleWindow actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        TripleWindow actual = tripleWindowFactory.readNextWindow(
+                window.withShiftToRight(delay));
         assertNotNull(actual);
         TripleWindow expected = load(testPrefix + "1.window", 0, 30000);
         assertEquals(expected, actual);
 
         //#2
         window = windowFactory.nextWindow();
-        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        actual = tripleWindowFactory.readNextWindow(window.withShiftToRight(delay));
         assertNotNull(actual);
         expected = load(testPrefix +  "2.window", 0, 60000);
         assertEquals(expected, actual);
 
         //#3
         window = windowFactory.nextWindow();
-        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        actual = tripleWindowFactory.readNextWindow(window.withShiftToRight(delay));
         assertNotNull(actual);
         expected = load(testPrefix +  "3.window", 30000, 90000);
         assertEquals(expected, actual);
 
         //#4
         window = windowFactory.nextWindow();
-        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        actual = tripleWindowFactory.readNextWindow(window.withShiftToRight(delay));
         assertNotNull(actual);
         expected = load(testPrefix + "4.window", 60000, 120000);
         assertEquals(expected, actual);
 
         //#5
         window = windowFactory.nextWindow();
-        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        actual = tripleWindowFactory.readNextWindow(window.withShiftToRight(delay));
         assertNotNull(actual);
         expected = load(testPrefix + "5.window", 90000, 150000);
         assertEquals(expected, actual);
@@ -98,13 +100,13 @@ public class TripleWindowFactoryTest {
         //#6 This window already doesn't contains new triple from 
         //the input stream, but a subset of the previous one.
         window = windowFactory.nextWindow();
-        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        actual = tripleWindowFactory.readNextWindow(window.withShiftToRight(delay));
         assertNotNull(actual);
         expected = load(testPrefix + "6.window", 120000, 180000);
         assertEquals(expected, actual);
 
         window = windowFactory.nextWindow();
-        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        actual = tripleWindowFactory.readNextWindow(window.withShiftToRight(delay));
         assertNull(actual);
     }
     
@@ -119,12 +121,13 @@ public class TripleWindowFactoryTest {
         final long delay = 0;
 
         final WindowFactory windowFactory = new WindowFactory(windowSize, windowSlide);
-        final InputStreamReader tripleWindowFactory = new InputStreamReader(reader);
+        final BufferedTWReader tripleWindowFactory = new BufferedTWReader(reader);
 
         //#1
         long contentTimestamp = 0;
         Window window = windowFactory.nextWindow(contentTimestamp);
-        TripleWindow actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        TripleWindow actual = tripleWindowFactory.readNextWindow(
+                window.withShiftToRight(delay));
         assertNotNull(actual);
         TripleWindow expected = load(testPrefix + "1.window", 0, contentTimestamp);
         assertEquals(expected, actual);
@@ -132,7 +135,8 @@ public class TripleWindowFactoryTest {
         //#2
         contentTimestamp = 32434;
         window = windowFactory.nextWindow(contentTimestamp);
-        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        actual = tripleWindowFactory.readNextWindow(
+                window.withShiftToRight(delay));
         assertNotNull(actual);
         expected = load(testPrefix + "2.window", 0, contentTimestamp);
         assertEquals(expected, actual);
@@ -140,7 +144,8 @@ public class TripleWindowFactoryTest {
         //#3
         contentTimestamp = 34125;
         window = windowFactory.nextWindow(contentTimestamp);
-        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        actual = tripleWindowFactory.readNextWindow(
+                window.withShiftToRight(delay));
         assertNotNull(actual);
         expected = load(testPrefix + "3.window", 0, contentTimestamp);
         assertEquals(expected, actual);
@@ -148,7 +153,8 @@ public class TripleWindowFactoryTest {
         //#4
         contentTimestamp = 37047;
         window = windowFactory.nextWindow(contentTimestamp);
-        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        actual = tripleWindowFactory.readNextWindow(
+                window.withShiftToRight(delay));
         assertNotNull(actual);
         expected = load(testPrefix + "4.window", 0, contentTimestamp);
         assertEquals(expected, actual);
@@ -156,7 +162,8 @@ public class TripleWindowFactoryTest {
         //#5
         contentTimestamp = 42365;
         window = windowFactory.nextWindow(contentTimestamp);
-        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        actual = tripleWindowFactory.readNextWindow(
+                window.withShiftToRight(delay));
         assertNotNull(actual);
         expected = load(testPrefix + "5.window", 0, contentTimestamp);
         assertEquals(expected, actual);
@@ -164,7 +171,8 @@ public class TripleWindowFactoryTest {
         //#6
         contentTimestamp = 62434;
         window = windowFactory.nextWindow(contentTimestamp);
-        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        actual = tripleWindowFactory.readNextWindow(
+                window.withShiftToRight(delay));
         assertNotNull(actual);
         expected = load(testPrefix + "6.window", 30000, contentTimestamp);
         assertEquals(expected, actual);
@@ -172,20 +180,22 @@ public class TripleWindowFactoryTest {
         //#7
         contentTimestamp = 94125;
         window = windowFactory.nextWindow(contentTimestamp);
-        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        actual = tripleWindowFactory.readNextWindow(
+                window.withShiftToRight(delay));
         assertNotNull(actual);
         expected = load(testPrefix + "7.window", 60000, contentTimestamp);
         assertEquals(expected, actual);
 
         contentTimestamp = 160000; //Random number
         window = windowFactory.nextWindow(contentTimestamp);
-        actual = tripleWindowFactory.nextTripleWindow(window, delay);
+        actual = tripleWindowFactory.readNextWindow(
+                window.withShiftToRight(delay));
         assertNull(actual);
     }
 
     private TripleWindow load(String fileName, long start, long end)
             throws IOException {
-        RDFStreamReader reader = new RDFStreamReader(
+        TemporalRDFReader reader = new TemporalRDFReader(
                 new StringReader(IOUtils.toString(
                                 this.getClass().getResourceAsStream(PREFIX + fileName))));
 

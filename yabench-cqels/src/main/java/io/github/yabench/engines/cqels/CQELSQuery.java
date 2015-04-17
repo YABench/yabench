@@ -1,6 +1,6 @@
 package io.github.yabench.engines.cqels;
 
-import io.github.yabench.commons.TimeUtils;
+import io.github.yabench.commons.utils.TimeUtils;
 import io.github.yabench.engines.commons.AbstractQuery;
 import java.time.Duration;
 import java.util.regex.Matcher;
