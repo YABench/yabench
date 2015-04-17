@@ -10,7 +10,7 @@ public class FMeasureTest {
     @Test
     public void equalEmptyArrays() {
         FMeasure fm = new FMeasure();
-        fm.updateScores(new String[]{}, new String[]{});
+        fm.calculateScores(new String[]{}, new String[]{});
 
         assertEquals(0.0, fm.getRecallScore(), DELTA);
         assertEquals(0.0, fm.getPrecisionScore(), DELTA);
@@ -20,14 +20,14 @@ public class FMeasureTest {
     @Test
     public void equalArraysWithOneItem() {
         FMeasure fm = new FMeasure();
-        fm.updateScores(new String[]{"1"}, new String[]{"1"});
+        fm.calculateScores(new String[]{"1"}, new String[]{"1"});
 
         assertEquals(1.0, fm.getRecallScore(), DELTA);
         assertEquals(1.0, fm.getPrecisionScore(), DELTA);
         System.out.println(fm);
 
         fm = new FMeasure();
-        fm.updateScores(new Integer[]{1}, new Integer[]{1});
+        fm.calculateScores(new Integer[]{1}, new Integer[]{1});
 
         assertEquals(1.0, fm.getRecallScore(), DELTA);
         assertEquals(1.0, fm.getPrecisionScore(), DELTA);
@@ -37,7 +37,7 @@ public class FMeasureTest {
     @Test
     public void equalArraysWithMoreItems() {
         FMeasure fm = new FMeasure();
-        fm.updateScores(new String[]{"1", "1", "1", "1", "1", "1", "1", "1", "1"},
+        fm.calculateScores(new String[]{"1", "1", "1", "1", "1", "1", "1", "1", "1"},
                 new String[]{"1", "1", "1", "1", "1", "1", "1", "1", "1"});
 
         assertEquals(1.0, fm.getRecallScore(), DELTA);
@@ -45,7 +45,7 @@ public class FMeasureTest {
         System.out.println(fm);
 
         fm = new FMeasure();
-        fm.updateScores(new Integer[]{1, 1, 1, 1, 1, 1, 1, 1, 1},
+        fm.calculateScores(new Integer[]{1, 1, 1, 1, 1, 1, 1, 1, 1},
                 new Integer[]{1, 1, 1, 1, 1, 1, 1, 1, 1});
 
         assertEquals(1.0, fm.getRecallScore(), DELTA);
@@ -58,7 +58,7 @@ public class FMeasureTest {
         FMeasure fm = new FMeasure();
         Integer[] a = fillByRange(new Integer[1000], 0, 1000);
         Integer[] b = fillByRange(new Integer[1000], 0, 1000);
-        fm.updateScores(a, b);
+        fm.calculateScores(a, b);
 
         assertEquals(1.0, fm.getRecallScore(), DELTA);
         assertEquals(1.0, fm.getPrecisionScore(), DELTA);
@@ -70,7 +70,7 @@ public class FMeasureTest {
         FMeasure fm = new FMeasure();
         Integer[] a = fillByRange(new Integer[1000], 1, 1001);
         Integer[] b = fillByRange(new Integer[1000], 0, 1000);
-        fm.updateScores(a, b);
+        fm.calculateScores(a, b);
 
         assertEquals(0.999, fm.getRecallScore(), DELTA);
         assertEquals(0.999, fm.getPrecisionScore(), DELTA);
@@ -82,7 +82,7 @@ public class FMeasureTest {
         FMeasure fm = new FMeasure();
         Integer[] a = fillByRange(new Integer[900], 0, 1000);
         Integer[] b = fillByRange(new Integer[1000], 0, 1000);
-        fm.updateScores(a, b);
+        fm.calculateScores(a, b);
 
         assertEquals(1.0, fm.getRecallScore(), DELTA);
         assertEquals(0.9, fm.getPrecisionScore(), DELTA);
@@ -94,7 +94,7 @@ public class FMeasureTest {
         FMeasure fm = new FMeasure();
         Integer[] a = fillByRange(new Integer[1000], 500, 1500);
         Integer[] b = fillByRange(new Integer[1000], 0, 1000);
-        fm.updateScores(a, b);
+        fm.calculateScores(a, b);
 
         assertEquals(0.5, fm.getRecallScore(), DELTA);
         assertEquals(0.5, fm.getPrecisionScore(), DELTA);

@@ -53,15 +53,13 @@ public class OnContentChangeComparator implements OracleComparator {
             if (actual != null) {
                 final BindingWindow expected = nextExpectedResult();
                 if (expected != null) {
-//                    logger.debug("#{} {}", i, expected.toString());
-                    final FMeasure fMeasure = new FMeasure();
-                    fMeasure.updateScores(expected.getBindings().toArray(),
-                            actual.getBindings().toArray());
+                    final FMeasure fMeasure = new FMeasure().calculateScores(
+                            expected.getBindings(), actual.getBindings());
 
-                    if (!fMeasure.getNotFound().isEmpty()) {
+                    if (!fMeasure.getNotFoundReferences().isEmpty()) {
                         logger.info("#{} Window [{}:{}]. Missing triples:\n{}",
-                                i, expected.getStart(), expected.getEnd(), 
-                                fMeasure.getNotFound());
+                                i, expected.getStart(), expected.getEnd(),
+                                fMeasure.getNotFoundReferences());
                     }
 
                     final OracleResult result = oracleResultBuilder
@@ -70,7 +68,8 @@ public class OnContentChangeComparator implements OracleComparator {
                             .build();
                     oracleResultsWriter.write(result);
                 } else {
-                    throw new IllegalStateException();
+                    throw new IllegalStateException(
+                            "Actual results have more windows then expected!");
                 }
             } else {
                 break;
@@ -89,9 +88,6 @@ public class OnContentChangeComparator implements OracleComparator {
                         inputGraph.getTime());
                 final TripleWindow inputWindow = inputStreamReader
                         .nextTripleWindow(window, NO_DELAY);
-                
-//                logger.debug(previousInputWindow == null ? "[empty]" : previousInputWindow.toString());
-//                logger.debug(inputWindow.toString());
 
                 final BindingWindow previous = previousInputWindow != null
                         ? queryExecutor
@@ -125,7 +121,7 @@ public class OnContentChangeComparator implements OracleComparator {
         }
     }
     
-    private boolean isEmpty(BindingWindow window) {
+    private boolean isEmpty(final BindingWindow window) {
         if(window.getBindings().isEmpty()) {
             return true;
         } else if(window.getBindings().size() == 1) {
@@ -133,7 +129,7 @@ public class OnContentChangeComparator implements OracleComparator {
             if(binding.isEmpty()) {
                 return true;
             } else {
-                Iterator<Var> vars = binding.vars();
+                final Iterator<Var> vars = binding.vars();
                 while (vars.hasNext()) {
                     final Var next = vars.next();
                     if(binding.get(next) != null) {
@@ -147,8 +143,17 @@ public class OnContentChangeComparator implements OracleComparator {
         }
     }
 
-    private TripleWindow filter(final TripleWindow tripleWindow, final Window window) {
-        List<TemporalTriple> triples = new ArrayList<>(Arrays.asList(
+    /**
+     * Removes triples from the given triple window which are out of 
+     * the given window scope.
+     * 
+     * @param tripleWindow a triple window
+     * @param window new window scope
+     * @return 
+     */
+    private TripleWindow filter(final TripleWindow tripleWindow, 
+            final Window window) {
+        final List<TemporalTriple> triples = new ArrayList<>(Arrays.asList(
                 tripleWindow.getTriples().stream()
                 .filter((triple) -> triple.getTime() >= (window.getStart()))
                 .toArray(TemporalTriple[]::new)));

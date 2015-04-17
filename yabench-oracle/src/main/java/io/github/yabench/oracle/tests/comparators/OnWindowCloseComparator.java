@@ -52,14 +52,13 @@ public class OnWindowCloseComparator implements OracleComparator {
                     final BindingWindow expected = queryExecutor
                             .executeSelect(inputWindow);
 
-                    FMeasure fMeasure = new FMeasure();
-                    fMeasure.updateScores(expected.getBindings().toArray(),
-                            actual.getBindings().toArray());
+                    final FMeasure fMeasure = new FMeasure().calculateScores(
+                            expected.getBindings(),actual.getBindings());
 
-                    if (!fMeasure.getNotFound().isEmpty()) {
+                    if (!fMeasure.getNotFoundReferences().isEmpty()) {
                         logger.info("Window #{} [{}:{}]. Missing triples:\n{}",
                                 i, inputWindow.getStart(), inputWindow.getEnd(),
-                                fMeasure.getNotFound());
+                                fMeasure.getNotFoundReferences());
                     }
                     
                     oracleResultsWriter.write(oracleResultBuilder
@@ -69,7 +68,8 @@ public class OnWindowCloseComparator implements OracleComparator {
                             .expectedInputSize(inputWindow.getTriples().size())
                             .build());
                 } else {
-                    throw new IllegalStateException();
+                    throw new IllegalStateException(
+                            "Actual results have more windows then expected!");
                 }
             } else {
                 break;

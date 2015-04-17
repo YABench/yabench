@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 class OracleTestImpl implements OracleTest {
 
     private static final Logger logger = LoggerFactory.getLogger(OracleTestImpl.class);
-    private static final String QUERY_TEMPLATE_NAME = "query.template";
     private final InputStreamReader inputStreamReader;
     private final OracleResultsWriter oracleResultsWriter;
     private final EngineResultsReader queryResultsReader;

@@ -31,7 +31,10 @@ public final class FMeasure {
      */
     private long truePositive;
     
-    private List<Object> notFound = new ArrayList<>();
+    /**
+     * Storing list of references which haven't been found in predictions.
+     */
+    private final List<Object> notFoundReferences = new ArrayList<>();
 
     /**
      * Retrieves the arithmetic mean of the precision scores calculated for each
@@ -71,8 +74,8 @@ public final class FMeasure {
         }
     }
     
-    public List<Object> getNotFound() {
-        return notFound;
+    public List<Object> getNotFoundReferences() {
+        return notFoundReferences;
     }
 
     /**
@@ -81,23 +84,20 @@ public final class FMeasure {
      *
      * @param references the provided references
      * @param predictions the predicted spans
+     * @return 
      */
-    public void updateScores(final Object[] references, final Object[] predictions) {
-
+    public FMeasure calculateScores(final Object[] references, 
+            final Object[] predictions) {
         truePositive += countTruePositives(references, predictions);
         selected += predictions.length;
         target += references.length;
+        return this;
     }
-
-    /**
-     * Merge results into fmeasure metric.
-     *
-     * @param measure the fmeasure
-     */
-    public void mergeInto(final FMeasure measure) {
-        this.selected += measure.selected;
-        this.target += measure.target;
-        this.truePositive += measure.truePositive;
+    
+    public FMeasure calculateScores(final List<?> references, 
+            final List<?> predictions) {
+        calculateScores(references.toArray(), predictions.toArray());
+        return this;
     }
 
     /**
@@ -121,8 +121,9 @@ public final class FMeasure {
      * @param predictions the predictions
      * @return number of true positives
      */
-    private int countTruePositives(final Object[] references, final Object[] predictions) {
-        notFound.clear();
+    private int countTruePositives(final Object[] references, 
+            final Object[] predictions) {
+        notFoundReferences.clear();
         
         final List<Object> predListSpans = new ArrayList<>(predictions.length);
         Collections.addAll(predListSpans, predictions);
@@ -142,7 +143,7 @@ public final class FMeasure {
                 
                 matchedItem = null;
             } else {
-                notFound.add(referenceName);
+                notFoundReferences.add(referenceName);
             }
         }
         return truePositives;
