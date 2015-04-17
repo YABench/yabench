@@ -35,7 +35,7 @@ public class OnContentChangeComparator implements OracleComparator {
     private final OracleResultsWriter oracleResultsWriter;
     private TripleWindow previousInputWindow;
 
-    OnContentChangeComparator(BufferedTWReader inputStreamReader,
+    OnContentChangeComparator(TripleWindowReader inputStreamReader,
             EngineResultsReader queryResultsReader,
             WindowFactory windowFactory, QueryExecutor queryExecutor,
             OracleResultsWriter oracleResultsWriter) {
