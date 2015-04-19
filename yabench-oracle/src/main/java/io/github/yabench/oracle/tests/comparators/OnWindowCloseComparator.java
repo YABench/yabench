@@ -26,7 +26,7 @@ public class OnWindowCloseComparator implements OracleComparator {
     private final OracleResultsWriter oracleResultsWriter;
     private final boolean graceful;
 
-    OnWindowCloseComparator(BufferedTWReader inputStreamReader,
+    OnWindowCloseComparator(TripleWindowReader inputStreamReader,
             EngineResultsReader queryResultsReader,
             WindowFactory windowFactory, QueryExecutor queryExecutor,
             OracleResultsWriter oracleResultsWriter, boolean graceful) {
@@ -45,9 +45,9 @@ public class OnWindowCloseComparator implements OracleComparator {
             final Window window = windowFactory.nextWindow();
             final BindingWindow actual = queryResultsReader.next();
             if (actual != null) {
-                final long delay = calculateDelay(window, actual);
+                final long delay = 0;
                 final TripleWindow inputWindow = inputStreamReader
-                        .readNextWindow(window.withShiftToRight(delay));
+                        .readNextWindow(window);
 
                 if (inputWindow != null) {
                     final BindingWindow expected = queryExecutor

@@ -29,7 +29,7 @@ public class OnContentChangeComparator implements OracleComparator {
     private final boolean graceful;
     private TripleWindow previousInputWindow;
 
-    OnContentChangeComparator(BufferedTWReader inputStreamReader,
+    OnContentChangeComparator(TripleWindowReader inputStreamReader,
             EngineResultsReader queryResultsReader,
             WindowFactory windowFactory, QueryExecutor queryExecutor,
             OracleResultsWriter oracleResultsWriter, boolean graceful) {

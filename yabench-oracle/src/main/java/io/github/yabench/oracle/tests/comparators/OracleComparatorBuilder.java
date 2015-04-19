@@ -2,6 +2,7 @@ package io.github.yabench.oracle.tests.comparators;
 
 import io.github.yabench.oracle.readers.EngineResultsReader;
 import io.github.yabench.oracle.readers.BufferedTWReader;
+import io.github.yabench.oracle.readers.TripleWindowReader;
 import io.github.yabench.oracle.OracleResultsWriter;
 import io.github.yabench.oracle.QueryExecutor;
 import io.github.yabench.oracle.WindowFactory;
@@ -9,14 +10,14 @@ import io.github.yabench.oracle.WindowPolicy;
 
 public class OracleComparatorBuilder {
     
-    private final BufferedTWReader inputStreamReader;
+    private final TripleWindowReader inputStreamReader;
     private final EngineResultsReader queryResultsReader;
     private final WindowFactory windowFactory;
     private final QueryExecutor queryExecutor;
     private final OracleResultsWriter oracleResultsWriter;
     private final boolean graceful;
 
-    public OracleComparatorBuilder(BufferedTWReader inputStreamReader,
+    public OracleComparatorBuilder(TripleWindowReader inputStreamReader,
             EngineResultsReader queryResultsReader,
             WindowFactory windowFactory, QueryExecutor queryExecutor,
             OracleResultsWriter oracleResultsWriter, boolean graceful) {

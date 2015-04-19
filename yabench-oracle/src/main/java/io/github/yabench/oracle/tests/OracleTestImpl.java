@@ -4,16 +4,19 @@ import io.github.yabench.oracle.tests.comparators.OracleComparator;
 import io.github.yabench.oracle.tests.comparators.OracleComparatorBuilder;
 import io.github.yabench.oracle.QueryExecutor;
 import io.github.yabench.oracle.readers.EngineResultsReader;
+import io.github.yabench.oracle.readers.TripleWindowReader;
 import io.github.yabench.oracle.OracleResultsWriter;
 import io.github.yabench.oracle.readers.BufferedTWReader;
 import io.github.yabench.oracle.WindowFactory;
 import io.github.yabench.oracle.WindowPolicy;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Properties;
+
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +24,7 @@ import org.slf4j.LoggerFactory;
 class OracleTestImpl implements OracleTest {
 
     private static final Logger logger = LoggerFactory.getLogger(OracleTestImpl.class);
-    private final BufferedTWReader inputStreamReader;
+    private final TripleWindowReader inputStreamReader;
     private final OracleResultsWriter oracleResultsWriter;
     private final EngineResultsReader queryResultsReader;
     private final Duration windowSize;
@@ -36,7 +39,7 @@ class OracleTestImpl implements OracleTest {
             WindowPolicy windowPolicy, boolean graceful, Properties properties, 
             String queryTemplate) 
             throws IOException {
-        this.inputStreamReader = new BufferedTWReader(new FileReader(inputStream));
+        this.inputStreamReader = new TripleWindowReader(new FileReader(inputStream));
         this.oracleResultsWriter = new OracleResultsWriter(new FileWriter(output));
         this.queryResultsReader = new EngineResultsReader(new FileReader(queryResults));
         this.windowSize = windowSize;
