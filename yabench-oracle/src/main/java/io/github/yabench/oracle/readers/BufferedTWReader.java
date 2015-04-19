@@ -21,6 +21,10 @@ public class BufferedTWReader extends TripleWindowReader {
     public BufferedTWReader(TemporalRDFReader reader) {
         super(reader);
     }
+    
+    public BufferedTWReader(TripleWindowReader reader) {
+        super(reader.getReader());
+    }
 
     @Override
     public TripleWindow readNextWindow(final Window window)

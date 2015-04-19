@@ -1,7 +1,6 @@
 package io.github.yabench.oracle.tests.comparators;
 
 import io.github.yabench.oracle.readers.EngineResultsReader;
-import io.github.yabench.oracle.readers.BufferedTWReader;
 import io.github.yabench.oracle.readers.TripleWindowReader;
 import io.github.yabench.oracle.OracleResultsWriter;
 import io.github.yabench.oracle.QueryExecutor;

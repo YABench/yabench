@@ -24,6 +24,10 @@ public class TripleWindowReader implements Closeable, AutoCloseable {
     public TripleWindowReader(TemporalRDFReader reader) {
         this.reader = reader;
     }
+    
+    protected TemporalRDFReader getReader() {
+        return reader;
+    }
 
     public TripleWindow readNextWindow(final Window window) throws IOException {
         content = new ArrayList<>(Arrays.asList(content.stream()

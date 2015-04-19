@@ -10,6 +10,7 @@ import io.github.yabench.oracle.QueryExecutor;
 import io.github.yabench.oracle.TripleWindow;
 import io.github.yabench.oracle.Window;
 import io.github.yabench.oracle.WindowFactory;
+import io.github.yabench.oracle.readers.TripleWindowReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +34,7 @@ public class OnContentChangeComparator implements OracleComparator {
             EngineResultsReader queryResultsReader,
             WindowFactory windowFactory, QueryExecutor queryExecutor,
             OracleResultsWriter oracleResultsWriter, boolean graceful) {
-        this.isReader = inputStreamReader;
+        this.isReader = new BufferedTWReader(inputStreamReader);
         this.qrReader = queryResultsReader;
         this.windowFactory = windowFactory;
         this.qexec = queryExecutor;
@@ -59,7 +60,7 @@ public class OnContentChangeComparator implements OracleComparator {
                 if (actual != null) {
                     if (!actual.equalsByContent(expected)) {
                         if (graceful && !tryOnceMore) {
-                            logger.debug("========Trying in graceful mode========");
+//                            logger.debug("========Trying in graceful mode========");
                             final List<BindingWindow> results
                                     = tryToFindExpectedResult(expected, actual);
                             tryOnceMore = true;
