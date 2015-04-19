@@ -37,7 +37,7 @@ public class OracleComparatorBuilder {
             case ONCONTENTCHANGE:
                 return new OnContentChangeComparator(
                         inputStreamReader, queryResultsReader, windowFactory,
-                        queryExecutor, oracleResultsWriter);
+                        queryExecutor, oracleResultsWriter, graceful);
             default:
                 throw new UnsupportedOperationException(
                         "Can't build oracle comparator for the given window policy!");

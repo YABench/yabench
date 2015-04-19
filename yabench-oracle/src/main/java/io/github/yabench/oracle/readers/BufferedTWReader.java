@@ -1,5 +1,6 @@
 package io.github.yabench.oracle.readers;
 
+import io.github.yabench.commons.TemporalRDFReader;
 import io.github.yabench.commons.TemporalTriple;
 import io.github.yabench.oracle.TripleWindow;
 import io.github.yabench.oracle.Window;
@@ -7,14 +8,17 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 
 public class BufferedTWReader extends TripleWindowReader {
 
-    private Set<TemporalTriple> buffer = new TreeSet<>();
+    private TreeSet<TemporalTriple> buffer = new TreeSet<>();
 
     public BufferedTWReader(Reader reader) {
+        super(new TemporalRDFReader(reader));
+    }
+
+    public BufferedTWReader(TemporalRDFReader reader) {
         super(reader);
     }
 
@@ -36,6 +40,29 @@ public class BufferedTWReader extends TripleWindowReader {
                 .toArray(TemporalTriple[]::new));
 
         return new TripleWindow(window, triples);
+    }
+
+    public TripleWindow prevWindow(final Window window) {
+        TemporalTriple triple = buffer.lower(
+                new TemporalTriple(null, window.getStart()));
+
+        if (triple != null) {
+            List<TemporalTriple> triples = Arrays.asList(
+                    buffer.stream()
+                    .filter((TemporalTriple t) -> {
+                        return isBetween(
+                                t.getTime(), triple.getTime(), window.getEnd());
+                    })
+                    .toArray(TemporalTriple[]::new));
+
+            return new TripleWindow(triples, triple.getTime(), window.getEnd());
+        } else {
+            return null;
+        }
+    }
+
+    private boolean isBetween(long it, long start, long end) {
+        return it >= start && it <= end;
     }
 
     /**

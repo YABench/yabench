@@ -43,7 +43,7 @@ public class OnWindowCloseComparator implements OracleComparator {
         final OracleResultBuilder oracleResultBuilder = new OracleResultBuilder();
         for (int i = 1;; i++) {
             final Window window = windowFactory.nextWindow();
-            final BindingWindow actual = queryResultsReader.nextBindingWindow();
+            final BindingWindow actual = queryResultsReader.next();
             if (actual != null) {
                 final long delay = calculateDelay(window, actual);
                 final TripleWindow inputWindow = inputStreamReader

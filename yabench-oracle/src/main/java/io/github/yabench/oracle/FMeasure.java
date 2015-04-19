@@ -99,6 +99,11 @@ public final class FMeasure {
         calculateScores(references.toArray(), predictions.toArray());
         return this;
     }
+    
+    public FMeasure calculateScores(BindingWindow expected, BindingWindow actual) {
+        calculateScores(expected.getBindings(), actual.getBindings());
+        return this;
+    } 
 
     /**
      * Creates a human read-able {@link String} representation.

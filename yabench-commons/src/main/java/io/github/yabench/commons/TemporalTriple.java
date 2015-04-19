@@ -58,8 +58,16 @@ public class TemporalTriple implements Comparable<TemporalTriple> {
         if (this.time < o.time) {
             return -1;
         }
-        return equals(o) ? 0
-                : new StatementComparator().compare(this.stmt, o.stmt);
+        if(equals(o)) {
+            return 0;
+        }
+        if(this.stmt == null) {
+            return -1;
+        }
+        if(o.stmt == null) {
+            return 1;
+        }
+        return new StatementComparator().compare(this.stmt, o.stmt);
     }
 
 }

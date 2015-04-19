@@ -14,10 +14,11 @@ import java.util.List;
 public class EngineResultsReader implements AutoCloseable, Closeable {
 
     private static final String TAB = "\t";
+    private static final int NOT_FOUND = -1;
     private final BufferedReader reader;
     private long initialTimestamp;
     private String[] variables;
-    private long currentTimestamp;
+    private long currentTimestamp = NOT_FOUND;
     private long windowSize;
     private boolean empty = false;
 
@@ -37,8 +38,12 @@ public class EngineResultsReader implements AutoCloseable, Closeable {
             empty = true;
         }
     }
+    
+    public boolean hasNext() {
+        return currentTimestamp == NOT_FOUND;
+    }
 
-    public BindingWindow nextBindingWindow() throws IOException {
+    public BindingWindow next() throws IOException {
         if(empty) {
             return null;
         }
@@ -61,6 +66,7 @@ public class EngineResultsReader implements AutoCloseable, Closeable {
             return new BindingWindow(content, windowStartTimestamp, 
                     windowEndTimestamp);
         } else {
+            currentTimestamp = NOT_FOUND;
             return null;
         }
     }
