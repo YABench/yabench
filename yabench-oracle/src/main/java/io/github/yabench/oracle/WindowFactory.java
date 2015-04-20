@@ -32,4 +32,18 @@ public class WindowFactory {
 
         return new Window(numberOfSlides * slide.toMillis(), windowEnd);
     }
+
+	/**
+	 * @return the size
+	 */
+	public Duration getSize() {
+		return size;
+	}
+
+	/**
+	 * @return the slide
+	 */
+	public Duration getSlide() {
+		return slide;
+	}
 }

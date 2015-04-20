@@ -21,32 +21,36 @@ public class OracleResultsWriter implements Closeable {
                 .append(SEPARATOR)
                 .append(result.getRecall())
                 .append(SEPARATOR)
-                .append(result.getDelay())
-                .append(SEPARATOR)
                 .append(result.getActualResultSize())
                 .append(SEPARATOR)
                 .append(result.getExpectedResultSize())
                 .append(SEPARATOR)
                 .append(result.getExpectedInputSize())
+                .append(SEPARATOR)
+                .append(result.getStartshift())
+                .append(SEPARATOR)
+                .append(result.getEndshift())
                 .append(NEWLINE)
                 .toString());
     }
     
     public void write(final double precision, final double recall, 
-            final long delay, final int actualSize, final int expectedSize, 
-            final int windowSize) throws IOException {
+            final int actualSize, final int expectedSize, 
+            final int windowSize, final long startshift, final long endshift) throws IOException {
         writer.write(new StringBuilder()
                 .append(precision)
                 .append(SEPARATOR)
                 .append(recall)
-                .append(SEPARATOR)
-                .append(delay)
                 .append(SEPARATOR)
                 .append(actualSize)
                 .append(SEPARATOR)
                 .append(expectedSize)
                 .append(SEPARATOR)
                 .append(windowSize)
+                .append(SEPARATOR)
+                .append(startshift)
+                .append(SEPARATOR)
+                .append(endshift)
                 .append(NEWLINE)
                 .toString());
     }

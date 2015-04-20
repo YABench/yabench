@@ -7,7 +7,8 @@ public class OracleResultBuilder {
     private static final int DEFAULT_INT = -1;
     private double precision = DEFAULT_DOUBLE;
     private double recall = DEFAULT_DOUBLE;
-    private long delay = DEFAULT_LONG;
+    private long startshift = DEFAULT_LONG;
+    private long endshift = DEFAULT_LONG;
     private int actualResultSize = DEFAULT_INT;
     private int expectedResultSize = DEFAULT_INT;
     private int expectedInputSize = DEFAULT_INT;
@@ -30,9 +31,14 @@ public class OracleResultBuilder {
         this.recall = fMeasure.getRecallScore();
         return this;
     }
+
+    public OracleResultBuilder startshift(final long startshift) {
+        this.startshift = startshift;
+        return this;
+    }
     
-    public OracleResultBuilder delay(final long delay) {
-        this.delay = delay;
+    public OracleResultBuilder endshift(final long endshift) {
+        this.endshift = endshift;
         return this;
     }
 
@@ -62,10 +68,11 @@ public class OracleResultBuilder {
         final OracleResult result = new OracleResult();
         result.setPrecision(precision);
         result.setRecall(recall);
-        result.setDelay(delay);
         result.setActualResultSize(actualResultSize);
         result.setExpectedResultSize(expectedResultSize);
         result.setExpectedInputSize(expectedInputSize);
+        result.setStartshift(startshift);
+        result.setEndshift(endshift);
         return result;
     }
     

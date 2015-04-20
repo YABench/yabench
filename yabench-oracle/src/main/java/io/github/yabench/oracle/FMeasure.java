@@ -88,6 +88,9 @@ public final class FMeasure {
      */
     public FMeasure calculateScores(final Object[] references, 
             final Object[] predictions) {
+    	truePositive = 0;
+    	selected = 0;
+    	target = 0;
         truePositive += countTruePositives(references, predictions);
         selected += predictions.length;
         target += references.length;
