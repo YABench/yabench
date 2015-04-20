@@ -40,16 +40,15 @@ public class OnWindowCloseComparator implements OracleComparator {
 		this.graceful = graceful;
 	}
 
-    @Override
-    public void compare() throws IOException {
-        final OracleResultBuilder oracleResultBuilder = new OracleResultBuilder();
-        for (int i = 1;; i++) {
-            final Window window = windowFactory.nextWindow();
-            final BindingWindow actual = queryResultsReader.next();
-            if (actual != null) {
-                final long delay = 0;
-                final TripleWindow inputWindow = inputStreamReader
-                        .readNextWindow(window);
+	@Override
+	public void compare() throws IOException {
+		final OracleResultBuilder oracleResultBuilder = new OracleResultBuilder();
+		for (int i = 1;; i++) {
+			final Window window = windowFactory.nextWindow();
+			final BindingWindow actual = queryResultsReader.next();
+			if (actual != null) {
+				inputStreamReader.purge(window.getStart());
+				final TripleWindow inputWindow = inputStreamReader.readNextWindow(window);
 
 				if (inputWindow != null) {
 					BindingWindow expected = queryExecutor.executeSelect(inputWindow);
@@ -57,42 +56,89 @@ public class OnWindowCloseComparator implements OracleComparator {
 					final FMeasure fMeasure = new FMeasure().calculateScores(expected.getBindings(), actual.getBindings());
 
 					FMeasure prevfMeasure = fMeasure;
+
+					if (!prevfMeasure.getNotFoundReferences().isEmpty()) {
+						logger.info("Window #{} [{}:{}]. Missing triples in loop:\n{}", i, window.getStart(), window.getEnd(),
+								prevfMeasure.getNotFoundReferences());
+					}
+
 					long startshift = 0;
-					if (prevfMeasure.getRecallScore() < 1) {
-						for (long ts : inputWindow.getTimestampsExceptFirst()) {
-							Window shiftWin = new Window(ts, (i - 1) * this.windowFactory.getSize().toMillis());
-							TripleWindow startShiftWindow = inputStreamReader.readFromBuffer(shiftWin);
+					long endshift = 0;
+					if (graceful) {
+						if (prevfMeasure.getRecallScore() < 1) {
+							for (long ts : inputWindow.getTimestampsExceptFirst()) {
+								Window shiftWin = new Window(ts, (i - 1) * this.windowFactory.getSize().toMillis());
+								TripleWindow startShiftWindow = inputStreamReader.readFromBuffer(shiftWin);
+								BindingWindow expectedShift = queryExecutor.executeSelect(startShiftWindow);
+								final FMeasure newfMeasure = new FMeasure().calculateScores(expectedShift.getBindings(),
+										actual.getBindings());
+
+								if (!newfMeasure.getNotFoundReferences().isEmpty()) {
+									logger.info("Window #{} [{}:{}]. Missing triples in loop:\n{}", i, ts, this.windowFactory.getSize()
+											.toMillis(), newfMeasure.getNotFoundReferences());
+								}
+								if (newfMeasure.getRecallScore() < prevfMeasure.getRecallScore()) {
+									logger.info("break because recall got lower");
+									break;
+								} else if (newfMeasure.getRecallScore() == 1) {
+									logger.info("break because recall == 1");
+									startshift = ts;
+									prevfMeasure = newfMeasure;
+									break;
+								} else if (newfMeasure.getRecallScore() >= prevfMeasure.getRecallScore()) {
+									startshift = ts;
+									logger.info("try again...");
+									prevfMeasure = newfMeasure;
+								}
+							}
+						}
+
+						while (prevfMeasure.getPrecisionScore() < 1) {
+							j++;
+							long endts = inputStreamReader.readTimestampOfNextGraph();
+
+							Window shiftWin = new Window(startshift, endts);
+							TripleWindow startShiftWindow = inputStreamReader.readNextWindow(shiftWin);
 							BindingWindow expectedShift = queryExecutor.executeSelect(startShiftWindow);
+
 							final FMeasure newfMeasure = new FMeasure().calculateScores(expectedShift.getBindings(), actual.getBindings());
 
 							if (!newfMeasure.getNotFoundReferences().isEmpty()) {
-								logger.info("Window #{} [{}:{}]. Missing triples in loop:\n{}", i, ts, this.windowFactory.getSize()
-										.toMillis(), newfMeasure.getNotFoundReferences());
+								logger.info("Window #{} [{}:{}]. Missing triples in loop:\n{}", i, startshift, endts,
+										newfMeasure.getNotFoundReferences());
 							}
-
-							if (newfMeasure.getRecallScore() <= prevfMeasure.getRecallScore()) {
-								logger.info("break because recall is lower or equal");
+							if (newfMeasure.getPrecisionScore() < prevfMeasure.getPrecisionScore()) {
+								logger.info("break because precision got lower");
 								break;
-							} else if (newfMeasure.getRecallScore() == 1) {
-								logger.info("break because recall == 1");
-								startshift = ts;
+							} else if (newfMeasure.getPrecisionScore() == 1) {
+								logger.info("break because precision == 1");
+								endshift = endts;
 								prevfMeasure = newfMeasure;
 								break;
-							} else if (newfMeasure.getRecallScore() > prevfMeasure.getRecallScore()) {
-								startshift = ts;
+							} else if (newfMeasure.getPrecisionScore() >= prevfMeasure.getPrecisionScore()) {
+								endshift = endts;
 								logger.info("try again...");
 								prevfMeasure = newfMeasure;
 							}
 						}
+
 					}
+
+					// todo: what if triple in the middle is missing? not
+					// covered currently, because we assume that only triples at
+					// window borders (start/end) can be missing
 
 					if (!prevfMeasure.getNotFoundReferences().isEmpty()) {
 						logger.info("Window #{} [{}:{}]. Missing triples:\n{}", i, inputWindow.getStart(), inputWindow.getEnd(),
 								prevfMeasure.getNotFoundReferences());
 					}
 
+					startshift = startshift != 0 ? (startshift - ((i * windowFactory.getSlide().toMillis()) - windowFactory.getSize()
+							.toMillis())) : startshift;
+					endshift = endshift != 0 ? (endshift - (i * windowFactory.getSlide().toMillis())) : endshift;
+
 					oracleResultsWriter.write(oracleResultBuilder.fMeasure(prevfMeasure).resultSize(expected, actual)
-							.expectedInputSize(inputWindow.getTriples().size()).startshift(startshift).endshift(0).build());
+							.expectedInputSize(inputWindow.getTriples().size()).startshift(startshift).endshift(endshift).build());
 				} else {
 					throw new IllegalStateException("Actual results have more windows than expected!");
 				}

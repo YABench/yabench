@@ -1,9 +1,11 @@
 package io.github.yabench.oracle.readers;
 
+import io.github.yabench.commons.TemporalGraph;
 import io.github.yabench.commons.TemporalRDFReader;
 import io.github.yabench.commons.TemporalTriple;
 import io.github.yabench.oracle.TripleWindow;
 import io.github.yabench.oracle.Window;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
@@ -63,6 +65,20 @@ public class TripleWindowReader implements Closeable, AutoCloseable {
         } else {
             return NOT_FOUND;
         }
+    }
+    
+    public long readTimestampOfNextGraph() throws IOException {
+        TemporalGraph graph= reader.readNextGraph();
+        long retTime = NOT_FOUND;
+        if (graph != null) {	
+        	for (TemporalTriple triple : graph.getTriples()) {
+        		content.add(triple);
+        		retTime = triple.getTime();
+        	}
+        } else {
+            return retTime;
+        }
+        return retTime;
     }
 
     @Override

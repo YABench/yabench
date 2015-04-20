@@ -13,7 +13,6 @@ public class TripleWindow extends Window {
 
     private final List<TemporalTriple> triples;
     private TreeSet<Long> timestamps = new TreeSet<Long>();
-    //private final long[] timestamps;
 
     public TripleWindow(final Window window,
             final List<TemporalTriple> triples) {
