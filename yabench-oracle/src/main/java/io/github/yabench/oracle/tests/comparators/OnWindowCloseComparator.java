@@ -40,15 +40,16 @@ public class OnWindowCloseComparator implements OracleComparator {
 		this.graceful = graceful;
 	}
 
-	@Override
-	public void compare() throws IOException {
-		final OracleResultBuilder oracleResultBuilder = new OracleResultBuilder();
-		for (int i = 1;; i++) {
-			final Window window = windowFactory.nextWindow();
-			final BindingWindow actual = queryResultsReader.nextBindingWindow();
-			if (actual != null) {
-				final long delay = 0;
-				final TripleWindow inputWindow = inputStreamReader.readNextWindow(window);
+    @Override
+    public void compare() throws IOException {
+        final OracleResultBuilder oracleResultBuilder = new OracleResultBuilder();
+        for (int i = 1;; i++) {
+            final Window window = windowFactory.nextWindow();
+            final BindingWindow actual = queryResultsReader.next();
+            if (actual != null) {
+                final long delay = 0;
+                final TripleWindow inputWindow = inputStreamReader
+                        .readNextWindow(window);
 
 				if (inputWindow != null) {
 					BindingWindow expected = queryExecutor.executeSelect(inputWindow);

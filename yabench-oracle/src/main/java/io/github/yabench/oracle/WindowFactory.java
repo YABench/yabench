@@ -12,6 +12,10 @@ public class WindowFactory {
         this.size = windowSize;
         this.slide = windowSlide;
     }
+    
+    public Duration getWindowSize() {
+        return size;
+    }
 
     public Window nextWindow() {
         numberOfSlides++;

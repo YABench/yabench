@@ -4,39 +4,39 @@ import io.github.yabench.commons.TemporalRDFReader;
 import io.github.yabench.commons.TemporalTriple;
 import io.github.yabench.oracle.TripleWindow;
 import io.github.yabench.oracle.Window;
-import java.io.File;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class TripleWindowReader extends TemporalRDFReader {
-    
-    private List<TemporalTriple> content = new ArrayList<>();
-    
-    public TripleWindowReader(final File stream) 
-            throws IOException {
-        super(stream);
-    }
+public class TripleWindowReader implements Closeable, AutoCloseable {
 
-    public TripleWindowReader(Path stream) throws IOException {
-        super(stream);
-    }
+    private static final int NOT_FOUND = -1;
+    private final TemporalRDFReader reader;
+    private List<TemporalTriple> content = new ArrayList<>();
 
     public TripleWindowReader(Reader reader) {
-        super(reader);
+        this.reader = new TemporalRDFReader(reader);
+    }
+
+    public TripleWindowReader(TemporalRDFReader reader) {
+        this.reader = reader;
     }
     
+    protected TemporalRDFReader getReader() {
+        return reader;
+    }
+
     public TripleWindow readNextWindow(final Window window) throws IOException {
         content = new ArrayList<>(Arrays.asList(content.stream()
-                .filter((triple) -> triple.getTime() >= (window.getStart()))
+                .filter((triple) -> triple.getTime() >= window.getStart())
                 .toArray(TemporalTriple[]::new)));
 
         TemporalTriple triple;
-        while ((triple = readNextTriple()) != null) {
-            if (triple.getTime() <= (window.getEnd())) {
+        while ((triple = reader.readNextTriple()) != null) {
+            if (triple.getTime() <= window.getEnd()) {
                 content.add(triple);
             } else {
                 break;
@@ -54,5 +54,20 @@ public class TripleWindowReader extends TemporalRDFReader {
 
         return w;
     }
-    
+
+    public long readTimestampOfNextTriple() throws IOException {
+        TemporalTriple triple = reader.readNextTriple();
+        if (triple != null) {
+            content.add(triple);
+            return triple.getTime();
+        } else {
+            return NOT_FOUND;
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        reader.close();
+    }
+
 }

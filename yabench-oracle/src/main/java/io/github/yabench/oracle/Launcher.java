@@ -132,6 +132,7 @@ public class Launcher extends AbstractLauncher {
         opt.addOption(output);
         opt.addOption(query);
         opt.addOption(variables);
+        opt.addOption(graceful);
         opt.addOption(help);
         opt.addOption(graceful);
         return opt;

@@ -1,7 +1,6 @@
 package io.github.yabench.oracle.tests.comparators;
 
 import io.github.yabench.oracle.readers.EngineResultsReader;
-import io.github.yabench.oracle.readers.BufferedTWReader;
 import io.github.yabench.oracle.readers.TripleWindowReader;
 import io.github.yabench.oracle.OracleResultsWriter;
 import io.github.yabench.oracle.QueryExecutor;
@@ -38,7 +37,7 @@ public class OracleComparatorBuilder {
             case ONCONTENTCHANGE:
                 return new OnContentChangeComparator(
                         inputStreamReader, queryResultsReader, windowFactory,
-                        queryExecutor, oracleResultsWriter);
+                        queryExecutor, oracleResultsWriter, graceful);
             default:
                 throw new UnsupportedOperationException(
                         "Can't build oracle comparator for the given window policy!");
