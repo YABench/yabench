@@ -45,25 +45,27 @@ public class OnContentChangeComparator implements OracleComparator {
     @Override
     public void compare() throws IOException {
         final OracleResultBuilder orBuilder = new OracleResultBuilder();
-        boolean tryOnceMore = false;
+        boolean tryExpectedOnceMore = false;
+        boolean tryActualOnceMore = false;
         BindingWindow expected = null;
         BindingWindow actual = null;
         for (int i = 1;; i++) {
-            if (!tryOnceMore) {
+            if (!tryExpectedOnceMore) {
                 expected = nextExpectedResult();
             }
 //            logger.debug("Ideal expected: {}", expected);
             if (expected != null) {
-                if (!tryOnceMore) {
+                if (!tryExpectedOnceMore && !tryActualOnceMore) {
                     actual = qrReader.next();
+                    tryActualOnceMore = false;
                 }
                 if (actual != null) {
                     if (!actual.equalsByContent(expected)) {
-                        if (graceful && !tryOnceMore) {
+                        if (graceful && !tryExpectedOnceMore) {
 //                            logger.debug("========Trying in graceful mode========");
                             final List<BindingWindow> results
                                     = tryToFindExpectedResult(expected, actual);
-                            tryOnceMore = true;
+                            tryExpectedOnceMore = true;
                             final int numberOfResults = results.size();
                             for (int j = 0; j < numberOfResults; j++) {
                                 final BindingWindow found = actual.equals(results);
@@ -86,7 +88,10 @@ public class OnContentChangeComparator implements OracleComparator {
                                 }
                             }
                         } else {
-                            tryOnceMore = false;
+                            if(tryExpectedOnceMore) {
+                                tryActualOnceMore = true;
+                            }
+                            tryExpectedOnceMore = false;
                             logger.debug("Missing result: {}", expected);
                             orWriter.write(orBuilder
                                     .precision(0)
@@ -95,7 +100,8 @@ public class OnContentChangeComparator implements OracleComparator {
                         }
                     } else {
 //                        logger.debug("Found in ideal: {}", expected);
-                        tryOnceMore = false;
+                        tryActualOnceMore = false;
+                        tryExpectedOnceMore = false;
                         orWriter.write(orBuilder.precision(1.0).recall(1.0)
                                 .build());
                     }
@@ -129,9 +135,17 @@ public class OnContentChangeComparator implements OracleComparator {
                 }
 
                 final BindingWindow current = qexec.executeSelect(inputWindow);
+//                logger.debug("Ideal previous: {}", previous);
+//                logger.debug("Ideal current: {}", current);
 
-                expected = current.isEmpty() ? null : current.remove(previous);
-
+                if(!current.isEmpty()) {
+                    expected = current.remove(previous);
+                    if(expected == null || expected.isEmpty()) {
+                       expected = null; 
+                    }
+                } else {
+                    expected = null;
+                }
                 previousInputWindow = inputWindow;
             } else {
                 break;
@@ -161,10 +175,17 @@ public class OnContentChangeComparator implements OracleComparator {
                     }
                     prevWindow = niw;
                 } else {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException ex) {
+                        
+                    }
+                    ne = null;
                     break;
                 }
             } while (ne == null);
-
+//            logger.debug("Trying: {}", ne);
+//            logger.debug("Actual: {}", actual);
             if (ne != null) {
                 results = ne.splitByOneBinding();
                 if (actual.equals(results) != null) { break; }

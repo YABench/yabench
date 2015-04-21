@@ -47,7 +47,7 @@ public class BufferedTWReader extends TripleWindowReader {
     }
 
     public TripleWindow prevWindow(final Window window) {
-        TemporalTriple triple = buffer.lower(
+        final TemporalTriple triple = buffer.lower(
                 new TemporalTriple(null, window.getStart()));
 
         if (triple != null) {
