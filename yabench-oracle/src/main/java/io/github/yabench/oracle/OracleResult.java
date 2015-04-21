@@ -4,7 +4,8 @@ public class OracleResult {
 
     private double precision;
     private double recall;
-    private long delay;
+    private long startshift;
+    private long endshift;
     private int actualResultSize;
     private int expectedResultSize;
     private int expectedInputSize;
@@ -23,14 +24,6 @@ public class OracleResult {
 
     public void setRecall(double recall) {
         this.recall = recall;
-    }
-
-    public long getDelay() {
-        return delay;
-    }
-
-    public void setDelay(long delay) {
-        this.delay = delay;
     }
 
     public int getActualResultSize() {
@@ -56,5 +49,33 @@ public class OracleResult {
     public void setExpectedInputSize(int expectedInputSize) {
         this.expectedInputSize = expectedInputSize;
     }
+
+	/**
+	 * @return the startshift
+	 */
+	public long getStartshift() {
+		return startshift;
+	}
+
+	/**
+	 * @param startshift the startshift to set
+	 */
+	public void setStartshift(long startshift) {
+		this.startshift = startshift;
+	}
+
+	/**
+	 * @return the endshift
+	 */
+	public long getEndshift() {
+		return endshift;
+	}
+
+	/**
+	 * @param endshift the endshift to set
+	 */
+	public void setEndshift(long endshift) {
+		this.endshift = endshift;
+	}
 
 }

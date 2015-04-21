@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 class OracleTestImpl implements OracleTest {
 
     private static final Logger logger = LoggerFactory.getLogger(OracleTestImpl.class);
-    private final TripleWindowReader inputStreamReader;
+    private final BufferedTWReader inputStreamReader;
     private final OracleResultsWriter oracleResultsWriter;
     private final EngineResultsReader queryResultsReader;
     private final Duration windowSize;
@@ -39,7 +39,7 @@ class OracleTestImpl implements OracleTest {
             WindowPolicy windowPolicy, boolean graceful, Properties properties, 
             String queryTemplate) 
             throws IOException {
-        this.inputStreamReader = new TripleWindowReader(new FileReader(inputStream));
+        this.inputStreamReader = new BufferedTWReader(new FileReader(inputStream));
         this.oracleResultsWriter = new OracleResultsWriter(new FileWriter(output));
         this.queryResultsReader = new EngineResultsReader(new FileReader(queryResults));
         this.windowSize = windowSize;

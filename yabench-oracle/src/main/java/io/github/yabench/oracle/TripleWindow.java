@@ -2,23 +2,38 @@ package io.github.yabench.oracle;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+
 import io.github.yabench.commons.TemporalTriple;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 public class TripleWindow extends Window {
 
     private final List<TemporalTriple> triples;
+    private TreeSet<Long> timestamps = new TreeSet<Long>();
 
     public TripleWindow(final Window window,
             final List<TemporalTriple> triples) {
         super(window.getStart(), window.getEnd());
         this.triples = triples;
+        
+        for (TemporalTriple temporalTriple : this.triples) {
+        	this.timestamps.add(temporalTriple.getTime());
+        }
+ 
+
     }
 
     public TripleWindow(final List<TemporalTriple> triples,
             final long start, final long end) {
         super(start, end);
         this.triples = triples;
+        
+        for (TemporalTriple temporalTriple : this.triples) {
+        	this.timestamps.add(temporalTriple.getTime());
+        }
     }
 
     public Model getModel() {
@@ -67,5 +82,19 @@ public class TripleWindow extends Window {
         }
         return false;
     }
+
+	/**
+	 * @return the timestamps
+	 */
+	public TreeSet<Long> getTimestamps() {
+		return timestamps;
+	}
+	
+	public TreeSet<Long> getTimestampsExceptFirst() {
+		TreeSet<Long> tempTimestamps = this.timestamps;
+		tempTimestamps.pollFirst();
+		return tempTimestamps;
+
+	}
 
 }
