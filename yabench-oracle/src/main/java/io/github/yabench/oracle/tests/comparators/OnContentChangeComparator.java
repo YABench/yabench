@@ -75,6 +75,8 @@ public class OnContentChangeComparator implements OracleComparator {
                                     orWriter.write(orBuilder
                                             .precision(1.0)
                                             .recall(1.0)
+                                            .startshift(found.getStart())
+                                            .endshift(found.getEnd())
                                             .build());
                                     if ((actual = qrReader.next()) == null) {
                                         throw new IllegalStateException();
@@ -96,13 +98,19 @@ public class OnContentChangeComparator implements OracleComparator {
                             orWriter.write(orBuilder
                                     .precision(0)
                                     .recall(0)
+                                    .startshift(expected.getStart())
+                                    .endshift(expected.getEnd())
                                     .build());
                         }
                     } else {
 //                        logger.debug("Found in ideal: {}", expected);
                         tryActualOnceMore = false;
                         tryExpectedOnceMore = false;
-                        orWriter.write(orBuilder.precision(1.0).recall(1.0)
+                        orWriter.write(orBuilder
+                                .precision(1.0)
+                                .recall(1.0)
+                                .startshift(expected.getStart())
+                                .endshift(expected.getEnd())
                                 .build());
                     }
                 } else {
