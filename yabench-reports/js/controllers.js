@@ -27,23 +27,7 @@
                 series: [],
                 yAxis: {title: {text: 'Percentage (%)'}, max: 100}
             };
-            $scope.chartD = {
-                options: {
-                    chart: {type: 'line'},
-                    plotOptions: {line: {dataLabels: {enabled: true}}},
-                    tooltip: {
-                        shared: true, crosshairs: true, valueSuffix: 'ms'
-                    }
-                },
-                title: {text: 'Delay'},
-                series: [],
-                yAxis: [
-                    {
-                        labels: {format: '{value}ms'},
-                        title: {text: 'Delay (ms)'}
-                    }
-                ]
-            };
+
             $scope.chartW = {
                 options: {
                     chart: {type: 'line'},
@@ -138,9 +122,6 @@
                     {name: 'Precision', data: []},
                     {name: 'Recall', data: []}
                 ];
-                var seriesD = [
-                    {name: 'Delay', data: []}
-                ];
                 var seriesW = [
                     {name: 'Result size (actual)', data: []},
                     {name: 'Result size (expected)', data: []},
@@ -159,21 +140,18 @@
                     var values = points.split(',').map(function (item) {
                         return parseFloat(item);
                     });
-                    if (values.length > 5) {
+                    if (values.length > 6) {
                         seriesRP[0].data.push(values[0] * 100);
                         seriesRP[1].data.push(values[1] * 100);
 
-                        seriesD[0].data.push(values[2]);
-
-                        seriesW[0].data.push(values[3]);
-                        seriesW[1].data.push(values[4]);
-                        seriesW[2].data.push(values[5]);
+                        seriesW[0].data.push(values[2]);
+                        seriesW[1].data.push(values[3]);
+                        seriesW[2].data.push(values[4]);
                     }
                 });
                 $scope.chartRP.series = seriesRP;
                 $scope.chartRP.xAxis = xAxis;
-                $scope.chartD.series = seriesD;
-                $scope.chartD.xAxis = xAxis;
+
                 $scope.chartW.series = seriesW;
                 $scope.chartW.xAxis = xAxis;
             };
@@ -264,10 +242,6 @@
                         prevtime = values[0];
                         first = false;
                         
-                        /*seriesP[0].data.push(values[1]);
-                        seriesP[1].data.push(values[3]);
-                        seriesP[2].data.push(values[2]);
-                        seriesP[3].data.push(values[4]); */
                     }
                 });
 
