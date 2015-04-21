@@ -62,65 +62,78 @@ public class OnWindowCloseComparator implements OracleComparator {
 								prevfMeasure.getNotFoundReferences());
 					}
 
-					long startshift = 0;
-					long endshift = 0;
-					if (graceful) {
-						if (prevfMeasure.getRecallScore() < 1) {
-							for (long ts : inputWindow.getTimestampsExceptFirst()) {
-								Window shiftWin = new Window(ts, (i - 1) * this.windowFactory.getSize().toMillis());
-								TripleWindow startShiftWindow = inputStreamReader.readFromBuffer(shiftWin);
+					long startshift = (i * windowFactory.getSlide().toMillis()) - windowFactory.getSize().toMillis();
+					long endshift = (i * windowFactory.getSlide().toMillis());
+					logger.info("expected bindings size: " + String.valueOf(expected.getBindings().size()));
+					logger.info("actual bindings size: " + String.valueOf(actual.getBindings().size()));
+					if (!(expected.getBindings().size() == 0 && actual.getBindings().size() == 0)) {
+						if (graceful) {
+							if (prevfMeasure.getRecallScore() < 1) {
+								for (long ts : inputWindow.getTimestampsExceptFirst()) {
+									Window shiftWin = new Window(ts, (i - 1) * this.windowFactory.getSize().toMillis());
+									TripleWindow startShiftWindow = inputStreamReader.readFromBuffer(shiftWin);
+									BindingWindow expectedShift = queryExecutor.executeSelect(startShiftWindow);
+									final FMeasure newfMeasure = new FMeasure().calculateScores(expectedShift.getBindings(),
+											actual.getBindings());
+
+									if (!newfMeasure.getNotFoundReferences().isEmpty()) {
+										logger.info("Window #{} [{}:{}]. Missing triples in loop:\n{}", i, ts, this.windowFactory.getSize()
+												.toMillis(), newfMeasure.getNotFoundReferences());
+									}
+
+									logger.info("precision: " + newfMeasure.getPrecisionScore());
+									logger.info("recall: " + newfMeasure.getRecallScore());
+									if (newfMeasure.getRecallScore() < prevfMeasure.getRecallScore()) {
+										logger.info("break because recall got lower");
+										break;
+									} else if (newfMeasure.getRecallScore() == 1) {
+										logger.info("break because recall == 1");
+										startshift = ts;
+										prevfMeasure = newfMeasure;
+										break;
+									} else if (newfMeasure.getRecallScore() >= prevfMeasure.getRecallScore()) {
+										startshift = ts;
+										logger.info("try again...");
+										prevfMeasure = newfMeasure;
+									}
+
+								}
+							}
+
+							while (prevfMeasure.getPrecisionScore() < 1) {
+								long endts = inputStreamReader.readTimestampOfNextGraph();
+
+								Window shiftWin = new Window(startshift, endts);
+								TripleWindow startShiftWindow = inputStreamReader.readNextWindow(shiftWin);
 								BindingWindow expectedShift = queryExecutor.executeSelect(startShiftWindow);
+
 								final FMeasure newfMeasure = new FMeasure().calculateScores(expectedShift.getBindings(),
 										actual.getBindings());
 
 								if (!newfMeasure.getNotFoundReferences().isEmpty()) {
-									logger.info("Window #{} [{}:{}]. Missing triples in loop:\n{}", i, ts, this.windowFactory.getSize()
-											.toMillis(), newfMeasure.getNotFoundReferences());
+									logger.info("Window #{} [{}:{}]. Missing triples in loop:\n{}", i, startshift, endts,
+											newfMeasure.getNotFoundReferences());
 								}
-								if (newfMeasure.getRecallScore() < prevfMeasure.getRecallScore()) {
-									logger.info("break because recall got lower");
+								if (newfMeasure.getPrecisionScore() < prevfMeasure.getPrecisionScore()) {
+									logger.info("break because precision got lower");
 									break;
-								} else if (newfMeasure.getRecallScore() == 1) {
-									logger.info("break because recall == 1");
-									startshift = ts;
+								} else if (newfMeasure.getPrecisionScore() == 1) {
+									logger.info("break because precision == 1");
+									endshift = endts;
 									prevfMeasure = newfMeasure;
 									break;
-								} else if (newfMeasure.getRecallScore() >= prevfMeasure.getRecallScore()) {
-									startshift = ts;
+								} else if (newfMeasure.getPrecisionScore() >= prevfMeasure.getPrecisionScore()) {
+									endshift = endts;
 									logger.info("try again...");
 									prevfMeasure = newfMeasure;
 								}
+
 							}
+
 						}
 
-						while (prevfMeasure.getPrecisionScore() < 1) {
-							long endts = inputStreamReader.readTimestampOfNextGraph();
-
-							Window shiftWin = new Window(startshift, endts);
-							TripleWindow startShiftWindow = inputStreamReader.readNextWindow(shiftWin);
-							BindingWindow expectedShift = queryExecutor.executeSelect(startShiftWindow);
-
-							final FMeasure newfMeasure = new FMeasure().calculateScores(expectedShift.getBindings(), actual.getBindings());
-
-							if (!newfMeasure.getNotFoundReferences().isEmpty()) {
-								logger.info("Window #{} [{}:{}]. Missing triples in loop:\n{}", i, startshift, endts,
-										newfMeasure.getNotFoundReferences());
-							}
-							if (newfMeasure.getPrecisionScore() < prevfMeasure.getPrecisionScore()) {
-								logger.info("break because precision got lower");
-								break;
-							} else if (newfMeasure.getPrecisionScore() == 1) {
-								logger.info("break because precision == 1");
-								endshift = endts;
-								prevfMeasure = newfMeasure;
-								break;
-							} else if (newfMeasure.getPrecisionScore() >= prevfMeasure.getPrecisionScore()) {
-								endshift = endts;
-								logger.info("try again...");
-								prevfMeasure = newfMeasure;
-							}
-						}
-
+					} else {
+						logger.info("0 bindings!");
 					}
 
 					// todo: what if triple in the middle is missing? not
@@ -132,9 +145,7 @@ public class OnWindowCloseComparator implements OracleComparator {
 								prevfMeasure.getNotFoundReferences());
 					}
 
-					startshift = startshift != 0 ? (startshift - ((i * windowFactory.getSlide().toMillis()) - windowFactory.getSize()
-							.toMillis())) : startshift;
-					endshift = endshift != 0 ? (endshift - (i * windowFactory.getSlide().toMillis())) : endshift;
+					startshift = startshift < 0 ? 0 : startshift;
 
 					oracleResultsWriter.write(oracleResultBuilder.fMeasure(prevfMeasure).resultSize(expected, actual)
 							.expectedInputSize(inputWindow.getTriples().size()).startshift(startshift).endshift(endshift).build());

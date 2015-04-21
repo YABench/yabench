@@ -91,9 +91,15 @@ public final class FMeasure {
     	truePositive = 0;
     	selected = 0;
     	target = 0;
-        truePositive += countTruePositives(references, predictions);
-        selected += predictions.length;
-        target += references.length;
+    	if (references.length == 0 && predictions.length == 0) {
+        	truePositive = 1;
+        	selected = 1;
+        	target = 1;
+    	} else {
+            truePositive += countTruePositives(references, predictions);
+            selected += predictions.length;
+            target += references.length;
+    	}
         return this;
     }
     
