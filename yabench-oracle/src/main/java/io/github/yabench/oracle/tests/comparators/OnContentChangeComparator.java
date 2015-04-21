@@ -2,6 +2,7 @@ package io.github.yabench.oracle.tests.comparators;
 
 import io.github.yabench.commons.TemporalTriple;
 import io.github.yabench.oracle.BindingWindow;
+import io.github.yabench.oracle.OracleResult;
 import io.github.yabench.oracle.readers.EngineResultsReader;
 import io.github.yabench.oracle.readers.BufferedTWReader;
 import io.github.yabench.oracle.OracleResultBuilder;
@@ -12,6 +13,7 @@ import io.github.yabench.oracle.Window;
 import io.github.yabench.oracle.WindowFactory;
 import io.github.yabench.oracle.readers.TripleWindowReader;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +28,7 @@ public class OnContentChangeComparator implements OracleComparator {
     private final EngineResultsReader qrReader;
     private final WindowFactory windowFactory;
     private final QueryExecutor qexec;
-    private final OracleResultsWriter orWriter;
+    private final OCCORWriter orWriter;
     private final boolean graceful;
     private TripleWindow previousInputWindow;
 
@@ -38,7 +40,9 @@ public class OnContentChangeComparator implements OracleComparator {
         this.qrReader = queryResultsReader;
         this.windowFactory = windowFactory;
         this.qexec = queryExecutor;
-        this.orWriter = oracleResultsWriter;
+        this.orWriter = new OCCORWriter(oracleResultsWriter,
+                windowFactory.getSlide().toMillis(),
+                windowFactory.getSize().toMillis());
         this.graceful = graceful;
     }
 
@@ -77,20 +81,29 @@ public class OnContentChangeComparator implements OracleComparator {
                                             .recall(1.0)
                                             .startshift(found.getStart())
                                             .endshift(found.getEnd())
+                                            .actualResultSize(actual.getBindings().size())
+                                            .expectedResultSize(found.getBindings().size())
                                             .build());
                                     if ((actual = qrReader.next()) == null) {
                                         throw new IllegalStateException();
                                     }
                                 } else {
-                                    logger.debug("[Graceful Mode] Missing results: {}", results);
-                                    orWriter.write(orBuilder
-                                            .precision(0)
-                                            .recall(0)
-                                            .build());
+                                    logger.debug("[Graceful Mode] Missing results: {}",
+                                            results);
+                                    for (BindingWindow w : results) {
+                                        orWriter.write(orBuilder
+                                                .precision(0)
+                                                .recall(0)
+                                                .startshift(w.getStart())
+                                                .endshift(w.getEnd())
+                                                .actualResultSize(actual.getBindings().size())
+                                                .expectedResultSize(w.getBindings().size())
+                                                .build());
+                                    }
                                 }
                             }
                         } else {
-                            if(tryExpectedOnceMore) {
+                            if (tryExpectedOnceMore) {
                                 tryActualOnceMore = true;
                             }
                             tryExpectedOnceMore = false;
@@ -100,6 +113,8 @@ public class OnContentChangeComparator implements OracleComparator {
                                     .recall(0)
                                     .startshift(expected.getStart())
                                     .endshift(expected.getEnd())
+                                    .actualResultSize(actual.getBindings().size())
+                                    .expectedResultSize(expected.getBindings().size())
                                     .build());
                         }
                     } else {
@@ -111,18 +126,24 @@ public class OnContentChangeComparator implements OracleComparator {
                                 .recall(1.0)
                                 .startshift(expected.getStart())
                                 .endshift(expected.getEnd())
+                                .actualResultSize(actual.getBindings().size())
+                                .expectedResultSize(expected.getBindings().size())
                                 .build());
                     }
                 } else {
                     throw new IllegalStateException();
                 }
             } else {
-                if (qrReader.hasNext()) {
-                    throw new IllegalStateException();
-                } else {
+                orWriter.flush();
+                if (qrReader.next() == null) {
                     break;
+                } else {
+                    throw new IllegalStateException();
                 }
             }
+            isReader.purge(expected != null
+                    ? (expected.getStart() - windowFactory.getSize().toMillis() * 2)
+                    : 0);
         }
     }
 
@@ -146,10 +167,10 @@ public class OnContentChangeComparator implements OracleComparator {
 //                logger.debug("Ideal previous: {}", previous);
 //                logger.debug("Ideal current: {}", current);
 
-                if(!current.isEmpty()) {
+                if (!current.isEmpty()) {
                     expected = current.remove(previous);
-                    if(expected == null || expected.isEmpty()) {
-                       expected = null; 
+                    if (expected == null || expected.isEmpty()) {
+                        expected = null;
                     }
                 } else {
                     expected = null;
@@ -186,7 +207,7 @@ public class OnContentChangeComparator implements OracleComparator {
                     try {
                         Thread.sleep(500);
                     } catch (InterruptedException ex) {
-                        
+
                     }
                     ne = null;
                     break;
@@ -196,7 +217,9 @@ public class OnContentChangeComparator implements OracleComparator {
 //            logger.debug("Actual: {}", actual);
             if (ne != null) {
                 results = ne.splitByOneBinding();
-                if (actual.equals(results) != null) { break; }
+                if (actual.equals(results) != null) {
+                    break;
+                }
             } else {
                 break;
             }
@@ -221,4 +244,104 @@ public class OnContentChangeComparator implements OracleComparator {
         return new TripleWindow(window, triples);
     }
 
+    private class OCCORWriter extends OracleResultsWriter {
+
+        private static final int FIRST = 0;
+        private final OracleResultBuilder builder = new OracleResultBuilder();
+        private final List<OracleResult> results = new ArrayList<>();
+        private final long windowSize;
+        private final long windowSlide;
+        private int currentWindowNumber = FIRST;
+
+        public OCCORWriter(OracleResultsWriter writer, long windowSlide, long windowSize) {
+            this(writer.getWriter(), windowSlide, windowSize);
+        }
+
+        public OCCORWriter(Writer writer, long windowSlide, long windowSize) {
+            super(writer);
+            this.windowSlide = windowSlide;
+            this.windowSize = windowSize;
+        }
+
+        @Override
+        public void write(OracleResult result) throws IOException {
+            int numberOfSlides = 0;
+            while ((numberOfSlides + 1) * windowSlide <= result.getEndshift()) {
+                numberOfSlides++;
+            }
+
+            if (numberOfSlides == currentWindowNumber
+                    || currentWindowNumber == FIRST) {
+                results.add(result);
+
+                writeEmptyWindows(currentWindowNumber, numberOfSlides);
+
+                currentWindowNumber = numberOfSlides;
+            } else {
+                if (numberOfSlides - currentWindowNumber > 1) {
+                    writeEmptyWindows(currentWindowNumber + 1, numberOfSlides);
+                }
+
+                if (!results.isEmpty()) {
+                    super.write(merge(results));
+                }
+
+                //Clean the buffer to collect results for the next window
+                results.clear();
+                results.add(result);
+                currentWindowNumber = numberOfSlides;
+            }
+        }
+
+        private void writeEmptyWindows(int current, int slides)
+                throws IOException {
+            for (int i = current; i < slides; i++) {
+                super.write(builder
+                        .precision(1.0)
+                        .recall(1.0)
+                        .startshift(currentWindowNumber * windowSlide)
+                        .endshift(currentWindowNumber * windowSlide + windowSize)
+                        .build());
+            }
+        }
+
+        private OracleResult merge(List<OracleResult> rs) {
+            double precision = 0;
+            double recall = 0;
+            int actualRS = 0;
+            int expectedRS = 0;
+            long windowStart = Long.MAX_VALUE;
+            long windowEnd = Long.MIN_VALUE;
+
+            for (OracleResult r : results) {
+                precision += r.getPrecision();
+                recall += r.getRecall();
+                actualRS += r.getActualResultSize();
+                expectedRS += r.getExpectedResultSize();
+                if (r.getStartshift() < windowStart) {
+                    windowStart = r.getStartshift();
+                }
+                if (r.getEndshift() > windowEnd) {
+                    windowEnd = r.getEndshift();
+                }
+            }
+
+            final OracleResult windowResult = builder
+                    .precision(precision / results.size())
+                    .recall(recall / results.size())
+                    .startshift(windowStart)
+                    .endshift(windowEnd)
+                    .expectedResultSize(expectedRS)
+                    .actualResultSize(actualRS)
+                    .build();
+            return windowResult;
+        }
+
+        public void flush() throws IOException {
+            final OracleResult windowResult = merge(results);
+
+            super.write(windowResult);
+        }
+
+    }
 }

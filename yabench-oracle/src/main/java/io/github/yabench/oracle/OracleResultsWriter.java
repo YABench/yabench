@@ -15,6 +15,10 @@ public class OracleResultsWriter implements Closeable {
         this.writer = writer;
     }
     
+    public Writer getWriter() {
+        return writer;
+    }
+    
     public void write(final OracleResult result) throws IOException {
         writer.write(new StringBuilder()
                 .append(result.getPrecision())
