@@ -94,7 +94,6 @@ public class OnWindowCloseComparator implements OracleComparator {
 						}
 
 						while (prevfMeasure.getPrecisionScore() < 1) {
-							j++;
 							long endts = inputStreamReader.readTimestampOfNextGraph();
 
 							Window shiftWin = new Window(startshift, endts);
