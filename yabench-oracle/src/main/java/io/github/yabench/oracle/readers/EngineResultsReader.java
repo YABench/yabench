@@ -40,7 +40,7 @@ public class EngineResultsReader implements AutoCloseable, Closeable {
     }
     
     public boolean hasNext() {
-        return currentTimestamp == NOT_FOUND;
+        return currentTimestamp != NOT_FOUND;
     }
 
     public BindingWindow next() throws IOException {
