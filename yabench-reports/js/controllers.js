@@ -19,7 +19,7 @@
                                     tooltip += prev === point.point.name ? '' 
                                             : '<b>Window ' + point.point.name + '</b>'
                                                 + '<br/>\ttime: [ ' + from + ' : ' + to + ' ]<br/>';
-                                    tooltip += '\t' + point.series.name + ': ' + point.y + ' %<br/>';
+                                    tooltip += '\t' + point.series.name + ': <b>' + point.y + ' %</b><br/>';
                                     prev = point.point.name;
                                 } else {
                                     //Area chart
@@ -98,9 +98,9 @@
                     plotOptions: {line: {dataLabels: {enabled: true}}},
                     tooltip: {shared: true, crosshairs: true}
                 },
-                title: {text: 'Window and Result size (num of triples)'},
+                title: {text: 'Window and Result size (# of triples)'},
                 series: [],
-                yAxis: [{title: {text: 'Number of triples'}}]
+                yAxis: [{title: {text: '# of triples'}}]
             };
 
             $scope.chartP = {

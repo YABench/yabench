@@ -301,6 +301,9 @@ public class OnContentChangeComparator implements OracleComparator {
                         .recall(1.0)
                         .startshift(currentWindowNumber * windowSlide)
                         .endshift(currentWindowNumber * windowSlide + windowSize)
+                        .expectedInputSize(0)
+                        .expectedResultSize(0)
+                        .actualResultSize(0)
                         .build());
             }
         }
