@@ -15,9 +15,9 @@
     
     <modules>
         <module>yabench-commons</module>
-        <module>stream-generator</module>
         <module>yabench-oracle</module>
         <module>yabench-csparql</module>
         <module>yabench-cqels</module>
+        <module>yabench-generator</module>
     </modules>
 </project>

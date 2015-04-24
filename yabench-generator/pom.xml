@@ -7,8 +7,8 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     
-    <artifactId>stream-generator</artifactId>
-    <name>stream-generator</name>
+    <artifactId>yabench-generator</artifactId>
+    <name>yabench-generator</name>
     <packaging>jar</packaging>
     
     <build>

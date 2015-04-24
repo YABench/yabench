@@ -1,6 +1,6 @@
 {
     "exec" : {
-        "stream-generator": "stream-generator/target/stream-generator-1.0-SNAPSHOT-jar-with-dependencies.jar",
+        "stream-generator": "yabench-generator/target/yabench-generator-1.0-SNAPSHOT-jar-with-dependencies.jar",
         "engine": "yabench-csparql/target/yabench-csparql-1.0-SNAPSHOT-jar-with-dependencies.jar",
         "oracle": "yabench-oracle/target/yabench-oracle-1.0-SNAPSHOT-jar-with-dependencies.jar"
      },
