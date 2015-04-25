@@ -1,5 +1,6 @@
 package io.github.yabench.utils;
 
+import com.google.common.collect.Lists;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -7,8 +8,10 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import io.github.yabench.commons.StatementComparator;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import org.apache.jena.riot.RDFDataMgr;
 
 public class CSRBenchToYABenchConverter {
@@ -29,11 +32,12 @@ public class CSRBenchToYABenchConverter {
             final Model graphs = dataset.getNamedModel(
                     "http://www.streamreasoning.org/schema/benchmark#graphsList");
 
-            final StmtIterator graphsIter = graphs.listStatements(
-                    null, ResourceFactory.createProperty(hasTimestamp), (RDFNode) null);
+            final List<Statement> graphsList = Lists.newArrayList(
+                    graphs.listStatements(null, ResourceFactory.createProperty(hasTimestamp), (RDFNode) null));
+            graphsList.sort(new StatementComparator());
+            
             try (FileWriter writer = new FileWriter(outputFileName)) {
-                while (graphsIter.hasNext()) {
-                    final Statement graphStmt = graphsIter.nextStatement();
+                for(Statement graphStmt : graphsList) {
                     final long timestamp = graphStmt.getLong();
                     final String graphName = graphStmt.getSubject().getURI();
 
