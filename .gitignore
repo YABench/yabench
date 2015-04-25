@@ -7,3 +7,5 @@
 **/tests/**/results
 __pycache__
 **/cqels_home
+pom.xml.tag
+pom.xml.releaseBackup
