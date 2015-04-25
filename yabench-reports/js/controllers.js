@@ -9,24 +9,42 @@
                     tooltip: {
                         formatter: function() {
                             var tooltip = '';
+                            var tempTooltip = '';
                             var prev;
                             angular.forEach(this.points, function(point) {
-                                var from, to;
+                                var from, to, fromNext, toNext;
                                 if(point.point.x1 || point.point.x1 === 0) {
                                     //Line chart
                                     from = point.point.x1;
                                     to = point.point.x2;
                                     tooltip += prev === point.point.name ? '' 
                                             : '<b>Window ' + point.point.name + '</b>'
-                                                + '<br/>\ttime: [ ' + from + ' : ' + to + ' ]<br/>';
+                                                + '<br/>\ttime: <b>[' + from + ':' + to + ']</b><br/>';
                                     tooltip += '\t' + point.series.name + ': <b>' + point.y + ' %</b><br/>';
                                     prev = point.point.name;
                                 } else {
                                     //Area chart
+                                    console.log(point);
                                     from = Math.min(point.point.x, point.point.x2);
                                     to = Math.max(point.point.x, point.point.x2);
+                                    var i = point.point.index;
+                                    //check if the point is a window end point
+                                    if (to == point.point.x) {
+                                        console.log('end');
+                                        var nextPoint = point.series.data[i+2];
+                                        //check if start point of next window equals end point of this window
+                                        if ((typeof nextPoint !== "undefined") && (nextPoint.x == to)) {
+                                            fromNext = nextPoint.x;
+                                            toNext = nextPoint.x2;
+                                            //create tooltip
+                                            tempTooltip += '<b>Window ' + nextPoint.name + '</b>'
+                                            + '<br/>\ttime: <b>[' + fromNext + ':' + toNext + ']</b><br/>';
+                                        }
+                                    }
+                                    
                                     tooltip += '<b>Window ' + point.point.name + '</b>'
-                                            + '<br/>\ttime: [ ' + from + ' : ' + to + ' ]<br/>';
+                                            + '<br/>\ttime: <b>[' + from + ':' + to + ']</b><br/>';
+                                    tooltip += tempTooltip;
                                 }
                             });
                             return tooltip; 
@@ -80,12 +98,14 @@
                                 return this.value < 0? '' : this.value;
                             }
                         },
+                        tickPositions: [-25, 0, 25, 50, 75,100],
                         max: 100, min: -25
                     },
                     {
                         title: {text: ''},
                         labels: {enabled: false},
                         opposite: true,
+                        tickPositions: [0,1,2,3,4,5],
                         max: 3
                     }
                 ],
@@ -202,7 +222,7 @@
                         return parseFloat(item);
                     });
                     if (values.length > 6) {
-                        var windowCenter = values[5] + (values[6] - values[5]) / 2;
+                        var windowCenter = (values[5] + (values[6] - values[5]) / 2) + 5;
                         var windowName = '#' + (index + 1);
                         //Recall and Precision
                         seriesRP[2].push({
