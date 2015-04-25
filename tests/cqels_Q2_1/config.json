@@ -1,9 +1,8 @@
 {
-    "exec" : {
-        "stream-generator": "yabench-generator/target/yabench-generator-1.0-SNAPSHOT-jar-with-dependencies.jar",
-        "engine": "yabench-cqels/target/yabench-cqels-1.0-SNAPSHOT-jar-with-dependencies.jar",
-        "oracle": "yabench-oracle/target/yabench-oracle-1.0-SNAPSHOT-jar-with-dependencies.jar"
-    },
+"exec.generator": "yabench-generator/target/yabench-generator-1.0-SNAPSHOT-jar-with-dependencies.jar",
+"exec.engine": "yabench-cqels/target/yabench-cqels-1.0-SNAPSHOT-jar-with-dependencies.jar",
+"exec.oracle": "yabench-oracle/target/yabench-oracle-1.0-SNAPSHOT-jar-with-dependencies.jar",
+
     "generator": "SG1",
     "duration": "5m",
     "seed": "123123123",

@@ -22,8 +22,12 @@ public class StreamGeneratorFactory {
     public StreamGenerator createTest(String testName, CommandLine cliOptions) throws Exception {
         Class<?> testClass = findTest(testName);
         if(testClass != null) {
-            final Path testDest = 
-                    Files.createFile(destination.toPath());
+            final Path testDest;
+            if(!Files.exists(destination.toPath())) {
+                testDest = Files.createFile(destination.toPath());
+            } else {
+                testDest = destination.toPath();
+            }
             return (StreamGenerator) testClass
                     .getConstructor(Path.class, CommandLine.class)
                     .newInstance(testDest, cliOptions);

@@ -1,9 +1,8 @@
 {
-  "exec" : {
-    "stream-generator": "yabench-generator/target/yabench-generator-1.0-SNAPSHOT-jar-with-dependencies.jar",
-    "engine": "yabench-csparql/target/yabench-csparql-1.0-SNAPSHOT-jar-with-dependencies.jar",
-    "oracle": "yabench-oracle/target/yabench-oracle-1.0-SNAPSHOT-jar-with-dependencies.jar"
-  },
+"exec.generator": "yabench-generator/target/yabench-generator-1.0-SNAPSHOT-jar-with-dependencies.jar",
+"exec.engine": "yabench-csparql/target/yabench-csparql-1.0-SNAPSHOT-jar-with-dependencies.jar",
+"exec.oracle": "yabench-oracle/target/yabench-oracle-1.0-SNAPSHOT-jar-with-dependencies.jar",
+
   "generator": "SG1",
   "duration": "1h",
   "seed": "101010",
