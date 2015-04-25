@@ -57,7 +57,7 @@ public class OnContentChangeComparator implements OracleComparator {
             if (!tryExpectedOnceMore) {
                 expected = nextExpectedResult();
             }
-            logger.debug("Ideal expected: {}", expected);
+//            logger.debug("Ideal expected: {}", expected);
             if (expected != null) {
                 if (!tryExpectedOnceMore && !tryActualOnceMore) {
                     actual = qrReader.next();
@@ -74,7 +74,7 @@ public class OnContentChangeComparator implements OracleComparator {
                             for (int j = 0; j < numberOfResults; j++) {
                                 final BindingWindow found = actual.equals(results);
                                 if (found != null) {
-                                    logger.debug("Found in graceful: {}", found);
+//                                    logger.debug("Found in graceful: {}", found);
                                     results.remove(found);
                                     orWriter.write(orBuilder
                                             .precision(1.0)
@@ -118,7 +118,7 @@ public class OnContentChangeComparator implements OracleComparator {
                                     .build());
                         }
                     } else {
-                        logger.debug("Found in ideal: {}", expected);
+//                        logger.debug("Found in ideal: {}", expected);
                         tryActualOnceMore = false;
                         tryExpectedOnceMore = false;
                         orWriter.write(orBuilder
