@@ -5,24 +5,22 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import io.github.yabench.commons.TemporalTriple;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
 public class TripleWindow extends Window {
 
     private final List<TemporalTriple> triples;
-    private TreeSet<Long> timestamps = new TreeSet<Long>();
+    private final TreeSet<Long> timestamps = new TreeSet<>();
 
     public TripleWindow(final Window window,
             final List<TemporalTriple> triples) {
         super(window.getStart(), window.getEnd());
         this.triples = triples;
-        
+
         for (TemporalTriple temporalTriple : this.triples) {
-        	this.timestamps.add(temporalTriple.getTime());
+            this.timestamps.add(temporalTriple.getTime());
         }
- 
 
     }
 
@@ -30,17 +28,17 @@ public class TripleWindow extends Window {
             final long start, final long end) {
         super(start, end);
         this.triples = triples;
-        
+
         for (TemporalTriple temporalTriple : this.triples) {
-        	this.timestamps.add(temporalTriple.getTime());
+            this.timestamps.add(temporalTriple.getTime());
         }
     }
 
     public Model getModel() {
         Model model = ModelFactory.createDefaultModel();
-        triples.stream().forEach((triple) -> {
+        for (TemporalTriple triple : this.triples) {
             model.add(triple.getStatement());
-        });
+        }
         return model;
     }
 
@@ -52,11 +50,11 @@ public class TripleWindow extends Window {
     public String toString() {
         final StringBuilder builder = new StringBuilder(super.toString())
                 .append(" Triples:\n");
-        
+
         triples.stream().forEachOrdered((t) -> {
             builder.append(t).append("\n");
         });
-        
+
         return builder.toString();
     }
 
@@ -83,18 +81,18 @@ public class TripleWindow extends Window {
         return false;
     }
 
-	/**
-	 * @return the timestamps
-	 */
-	public TreeSet<Long> getTimestamps() {
-		return timestamps;
-	}
-	
-	public TreeSet<Long> getTimestampsExceptFirst() {
-		TreeSet<Long> tempTimestamps = this.timestamps;
-		tempTimestamps.pollFirst();
-		return tempTimestamps;
+    /**
+     * @return the timestamps
+     */
+    public TreeSet<Long> getTimestamps() {
+        return timestamps;
+    }
 
-	}
+    public TreeSet<Long> getTimestampsExceptFirst() {
+        TreeSet<Long> tempTimestamps = this.timestamps;
+        tempTimestamps.pollFirst();
+        return tempTimestamps;
+
+    }
 
 }

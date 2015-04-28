@@ -11,6 +11,7 @@ import io.github.yabench.oracle.QueryExecutor;
 import io.github.yabench.oracle.TripleWindow;
 import io.github.yabench.oracle.Window;
 import io.github.yabench.oracle.WindowFactory;
+import io.github.yabench.oracle.WindowUtils;
 import io.github.yabench.oracle.readers.TripleWindowReader;
 import java.io.IOException;
 import java.io.Writer;
@@ -48,106 +49,115 @@ public class OnContentChangeComparator implements OracleComparator {
 
     @Override
     public void compare() throws IOException {
-        final OracleResultBuilder orBuilder = new OracleResultBuilder();
-        boolean tryExpectedOnceMore = false;
-        boolean tryActualOnceMore = false;
-        BindingWindow expected = null;
         BindingWindow actual = null;
-        for (int i = 1;; i++) {
-            if (!tryExpectedOnceMore) {
-                expected = nextExpectedResult();
-            }
-//            logger.debug("Ideal expected: {}", expected);
-            if (expected != null) {
-                if (!tryExpectedOnceMore && !tryActualOnceMore) {
+        for (;;) {
+            final List<BindingWindow> expected = nextExpectedResult();
+            if (expected != null && !expected.isEmpty()) {
+                /**
+                 * Remove from the buffer input triples which won't be used
+                 * anymore.
+                 */
+                isReader.purge(expected.get(0).getStart()
+                        - windowFactory.getSize().toMillis() * 2);
+
+//                logger.debug("Expected: {}", expected);
+                if (actual == null) {
                     actual = qrReader.next();
-                    tryActualOnceMore = false;
                 }
+//                logger.debug("Actual: {}", actual);
                 if (actual != null) {
-                    if (!actual.equalsByContent(expected)) {
-                        if (graceful && !tryExpectedOnceMore) {
-//                            logger.debug("========Trying in graceful mode========");
-                            final List<BindingWindow> results
-                                    = tryToFindExpectedResult(expected, actual);
-                            tryExpectedOnceMore = true;
-                            final int numberOfResults = results.size();
-                            for (int j = 0; j < numberOfResults; j++) {
-                                final BindingWindow found = actual.equals(results);
-                                if (found != null) {
-//                                    logger.debug("Found in graceful: {}", found);
-                                    results.remove(found);
-                                    orWriter.write(orBuilder
-                                            .precision(1.0)
-                                            .recall(1.0)
-                                            .startshift(found.getStart())
-                                            .endshift(found.getEnd())
-                                            .actualResultSize(actual.getBindings().size())
-                                            .expectedResultSize(found.getBindings().size())
-                                            .build());
-                                    if ((actual = qrReader.next()) == null) {
-                                        throw new IllegalStateException();
-                                    }
+                    if (actual.equals(expected) != null) {
+                        actual = find(expected, actual);
+                    } else {
+                        if (graceful) {
+                            logger.debug("Expected haven't found, so trying graceful mode!");
+                            final List<BindingWindow> expectedInGraceful
+                                    = tryToFindExpectedResult(
+                                            WindowUtils.join(expected),
+                                            actual);
+                            actual = find(expectedInGraceful, actual);
+
+                            if (actual == null) {
+                                actual = qrReader.next();
+                            }
+
+                            if (actual != null) {
+                                BindingWindow found;
+                                if ((found = actual.equals(expected)) != null) {
+//                                    logger.debug("Found: {}", found);
+
+                                    orWriter.writeFound(found, actual);
+
+                                    actual = null;
                                 } else {
-                                    logger.debug("[Graceful Mode] Missing results: {}",
-                                            results);
-                                    for (BindingWindow w : results) {
-                                        orWriter.write(orBuilder
-                                                .precision(0)
-                                                .recall(0)
-                                                .startshift(w.getStart())
-                                                .endshift(w.getEnd())
-                                                .actualResultSize(actual.getBindings().size())
-                                                .expectedResultSize(w.getBindings().size())
-                                                .build());
-                                    }
+//                                    logger.debug("It was again: {}", actual);
                                 }
                             }
                         } else {
-                            if (tryExpectedOnceMore) {
-                                tryActualOnceMore = true;
-                            }
-                            tryExpectedOnceMore = false;
-                            logger.debug("Missing result: {}", expected);
-                            orWriter.write(orBuilder
-                                    .precision(0)
-                                    .recall(0)
-                                    .startshift(expected.getStart())
-                                    .endshift(expected.getEnd())
-                                    .actualResultSize(actual.getBindings().size())
-                                    .expectedResultSize(expected.getBindings().size())
-                                    .build());
+                            logger.debug("Expected, but haven't found: {}", expected);
+                            orWriter.writeMissing(expected, actual);
+
+                            actual = null;
                         }
-                    } else {
-//                        logger.debug("Found in ideal: {}", expected);
-                        tryActualOnceMore = false;
-                        tryExpectedOnceMore = false;
-                        orWriter.write(orBuilder
-                                .precision(1.0)
-                                .recall(1.0)
-                                .startshift(expected.getStart())
-                                .endshift(expected.getEnd())
-                                .actualResultSize(actual.getBindings().size())
-                                .expectedResultSize(expected.getBindings().size())
-                                .build());
                     }
                 } else {
-                    throw new IllegalStateException();
+                    logger.debug("It was expected more actual results!");
+
+                    orWriter.writeMissingActual(expected);
                 }
             } else {
-                orWriter.flush();
-                if (qrReader.next() == null) {
-                    break;
-                } else {
-                    throw new IllegalStateException();
+                /**
+                 * If still there are actual query results, then write results
+                 * with lowest precision/recall.
+                 */
+                if ((actual = qrReader.next()) != null) {
+                    logger.warn("There are still actual query results!");
+                    do {
+                        orWriter.writeMissingExpected(actual);
+
+                        logger.debug("{}", actual);
+                    } while ((actual = qrReader.next()) != null);
                 }
+
+                orWriter.flush();
+
+                break;
             }
-            isReader.purge(expected != null
-                    ? (expected.getStart() - windowFactory.getSize().toMillis() * 2)
-                    : 0);
         }
     }
 
-    private BindingWindow nextExpectedResult() throws IOException {
+    private BindingWindow find(List<BindingWindow> results, BindingWindow actual)
+            throws IOException {
+        final int numberOfResults = results.size();
+        for (int i = 0; i < numberOfResults; i++) {
+            final BindingWindow found = actual.equals(results);
+            if (found != null) {
+//                logger.debug("Found: {}", found);
+
+                results.remove(found);
+
+                orWriter.writeFound(found, actual);
+                if ((results.size() > 0)
+                        && (actual = qrReader.next()) == null) {
+                    logger.warn("Expected more actual results! {}", results);
+
+                    orWriter.writeMissingActual(results);
+
+                    return null;
+                }
+            } else {
+                logger.debug("Expected, but haven't found: {}", results);
+//                logger.debug("It was: {}", actual);
+                orWriter.writeMissing(results, actual);
+
+                return actual;
+            }
+        }
+
+        return null;
+    }
+
+    private List<BindingWindow> nextExpectedResult() throws IOException {
         BindingWindow expected = null;
         do {
             final long nextTime = isReader.readTimestampOfNextTriple();
@@ -180,7 +190,7 @@ public class OnContentChangeComparator implements OracleComparator {
                 break;
             }
         } while (expected == null);
-        return expected;
+        return expected == null ? null : expected.splitByOneBinding();
     }
 
     private List<BindingWindow> tryToFindExpectedResult(BindingWindow previous,
@@ -193,6 +203,8 @@ public class OnContentChangeComparator implements OracleComparator {
         do {
             do {
                 final TripleWindow niw = isReader.prevWindow(prevWindow);
+//                logger.debug("{}", niw.getModel().listStatements(null, null, 
+//                        ResourceFactory.createTypedLiteral("97", XSDDatatype.XSDfloat)).toList());
                 if (niw != null) {
 //                    logger.debug("Previous: {}", nePrev.toString());
                     BindingWindow cbw = qexec.executeSelect(niw);
@@ -213,8 +225,8 @@ public class OnContentChangeComparator implements OracleComparator {
                     break;
                 }
             } while (ne == null);
-//            logger.debug("Trying: {}", ne);
-//            logger.debug("Actual: {}", actual);
+            logger.debug("Trying: {}", ne);
+            logger.debug("Actual: {}", actual);
             if (ne != null) {
                 results = ne.splitByOneBinding();
                 if (actual.equals(results) != null) {
@@ -246,6 +258,8 @@ public class OnContentChangeComparator implements OracleComparator {
 
     private class OCCORWriter extends OracleResultsWriter {
 
+        private static final double ONE = 1.0;
+        private static final double ZERO = 0.0;
         private static final int FIRST = 0;
         private final OracleResultBuilder builder = new OracleResultBuilder();
         private final List<OracleResult> results = new ArrayList<>();
@@ -261,6 +275,59 @@ public class OnContentChangeComparator implements OracleComparator {
             super(writer);
             this.windowSlide = windowSlide;
             this.windowSize = windowSize;
+        }
+
+        public void writeMissingActual(List<BindingWindow> expected) throws IOException {
+            for (BindingWindow e : expected) {
+                writeMissingActual(e);
+            }
+        }
+
+        public void writeMissingActual(BindingWindow expected) throws IOException {
+            write(builder
+                    .precision(ZERO)
+                    .recall(ZERO)
+                    .expectedResultSize(expected.getBindings().size())
+                    .build());
+        }
+
+        public void writeMissingExpected(BindingWindow actual) throws IOException {
+            write(builder
+                    .precision(ZERO)
+                    .recall(ZERO)
+                    .actualResultSize(actual.getBindings().size())
+                    .build());
+        }
+
+        public void writeMissing(List<BindingWindow> expected, BindingWindow actual)
+                throws IOException {
+            for (BindingWindow e : expected) {
+                writeMissing(e, actual);
+            }
+        }
+
+        public void writeMissing(BindingWindow expected, BindingWindow actual)
+                throws IOException {
+            write(builder
+                    .precision(0.0)
+                    .recall(0.0)
+                    .startshift(expected.getStart())
+                    .endshift(expected.getEnd())
+                    .actualResultSize(actual.getBindings().size())
+                    .expectedResultSize(expected.getBindings().size())
+                    .build());
+        }
+
+        public void writeFound(BindingWindow expected, BindingWindow actual)
+                throws IOException {
+            write(builder
+                    .precision(1.0)
+                    .recall(1.0)
+                    .startshift(expected.getStart())
+                    .endshift(expected.getEnd())
+                    .actualResultSize(actual.getBindings().size())
+                    .expectedResultSize(expected.getBindings().size())
+                    .build());
         }
 
         @Override

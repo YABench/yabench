@@ -58,8 +58,19 @@ def arg_to_dict(arg, separator='='):
 
 def gen_test_config(config, test_config, cli_config):
     new_dict = config.copy()
+    if 'vars' in config:
+        new_vars = config['vars'].copy()
+    else:
+        new_vars = dict()
+
     del new_dict['tests']
+    del new_dict['vars']
+
     new_dict.update(test_config)
+    if 'vars' in test_config:
+        new_vars.update(test_config['vars'])
+    new_dict['vars'] = new_vars
+
     if cli_config is not None:
         for c in cli_config:
             new_dict.update(c)
@@ -204,6 +215,8 @@ def main():
 
                 if (args.test and args.test == new_config['name']) or not args.test:
                     if args.onlyoracle:
+                        if 'inputstream' not in new_config:
+                            new_config['inputstream'] = "{}/{}".format(resultsDir, INPUTSTREAM_PREFIX + new_config['name'])
                         runOracle(args.testDir, resultsDir, new_config)
                     else:
                         if 'inputstream' not in new_config:
