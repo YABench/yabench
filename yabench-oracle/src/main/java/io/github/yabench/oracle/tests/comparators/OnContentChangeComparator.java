@@ -216,11 +216,6 @@ public class OnContentChangeComparator implements OracleComparator {
                     }
                     prevWindow = niw;
                 } else {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException ex) {
-
-                    }
                     ne = null;
                     break;
                 }
