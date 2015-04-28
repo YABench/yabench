@@ -75,23 +75,30 @@ public class OnContentChangeComparator implements OracleComparator {
                                     = tryToFindExpectedResult(
                                             WindowUtils.join(expected),
                                             actual);
-                            actual = find(expectedInGraceful, actual);
+                            if (expectedInGraceful != null) {
+                                actual = find(expectedInGraceful, actual);
 
-                            if (actual == null) {
-                                actual = qrReader.next();
-                            }
+                                if (actual == null) {
+                                    actual = qrReader.next();
+                                }
 
-                            if (actual != null) {
-                                BindingWindow found;
-                                if ((found = actual.equals(expected)) != null) {
+                                if (actual != null) {
+                                    BindingWindow found;
+                                    if ((found = actual.equals(expected)) != null) {
 //                                    logger.debug("Found: {}", found);
 
-                                    orWriter.writeFound(found, actual);
+                                        orWriter.writeFound(found, actual);
 
-                                    actual = null;
-                                } else {
+                                        actual = null;
+                                    } else {
 //                                    logger.debug("It was again: {}", actual);
+                                    }
                                 }
+                            } else {
+                                logger.debug("Graceful mode hasn't helped!");
+                                orWriter.writeMissing(expected, actual);
+
+                                actual = null;
                             }
                         } else {
                             logger.debug("Expected, but haven't found: {}", expected);
@@ -220,8 +227,8 @@ public class OnContentChangeComparator implements OracleComparator {
                     break;
                 }
             } while (ne == null);
-            logger.debug("Trying: {}", ne);
-            logger.debug("Actual: {}", actual);
+//            logger.debug("Trying: {}", ne);
+//            logger.debug("Actual: {}", actual);
             if (ne != null) {
                 results = ne.splitByOneBinding();
                 if (actual.equals(results) != null) {
