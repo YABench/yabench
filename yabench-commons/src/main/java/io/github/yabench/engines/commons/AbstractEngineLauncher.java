@@ -73,11 +73,9 @@ public abstract class AbstractEngineLauncher extends AbstractLauncher {
 						if (graph.getTime() == 0)
 							t2 = System.nanoTime();
 
-						if (!(time == graph.getTime())) {
-							t1 = (System.nanoTime() - t2) / 1000000;
-							Thread.sleep(graph.getTime() - time - t1);
-							t2 = System.nanoTime();
-						}
+						t1 = (System.nanoTime() - t2) / 1000000;
+						Thread.sleep(graph.getTime() - time - t1);
+						t2 = System.nanoTime();
 
 						for (TemporalTriple triple : graph.getTriples()) {
 							engine.stream(triple.getStatement());
