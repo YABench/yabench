@@ -58,7 +58,7 @@ public class OnWindowCloseComparator implements OracleComparator {
 					FMeasure prevfMeasure = fMeasure;
 
 					if (!prevfMeasure.getNotFoundReferences().isEmpty()) {
-						logger.info("Window #{} [{}:{}]. Missing triples in loop:\n{}", i, window.getStart(), window.getEnd(),
+						logger.info("Window #{} [{}:{}]. Missing triples:\n{}", i, window.getStart(), window.getEnd(),
 								prevfMeasure.getNotFoundReferences());
 					}
 
@@ -66,6 +66,7 @@ public class OnWindowCloseComparator implements OracleComparator {
 					long endshift = (i * windowFactory.getSlide().toMillis());
 					logger.info("expected bindings size: " + String.valueOf(expected.getBindings().size()));
 					logger.info("actual bindings size: " + String.valueOf(actual.getBindings().size()));
+					
 					if (!(expected.getBindings().size() == 0 && actual.getBindings().size() == 0)) {
 						if (graceful) {
 							if (prevfMeasure.getRecallScore() < 1) {
