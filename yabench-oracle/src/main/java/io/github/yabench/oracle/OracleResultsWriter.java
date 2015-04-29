@@ -34,13 +34,15 @@ public class OracleResultsWriter implements Closeable {
                 .append(result.getStartshift())
                 .append(SEPARATOR)
                 .append(result.getEndshift())
+                .append(SEPARATOR)
+                .append(result.getDelay())
                 .append(NEWLINE)
                 .toString());
     }
     
     public void write(final double precision, final double recall, 
             final int actualSize, final int expectedSize, 
-            final int windowSize, final long startshift, final long endshift) throws IOException {
+            final int windowSize, final long startshift, final long endshift, final long delay) throws IOException {
         writer.write(new StringBuilder()
                 .append(precision)
                 .append(SEPARATOR)
@@ -55,6 +57,8 @@ public class OracleResultsWriter implements Closeable {
                 .append(startshift)
                 .append(SEPARATOR)
                 .append(endshift)
+                .append(SEPARATOR)
+                .append(delay)
                 .append(NEWLINE)
                 .toString());
     }

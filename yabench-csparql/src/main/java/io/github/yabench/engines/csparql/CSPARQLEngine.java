@@ -1,22 +1,27 @@
 package io.github.yabench.engines.csparql;
 
 import com.hp.hpl.jena.rdf.model.Statement;
+
 import eu.larkc.csparql.cep.api.RdfQuadruple;
 import eu.larkc.csparql.cep.api.RdfStream;
 import eu.larkc.csparql.core.engine.CsparqlEngine;
 import eu.larkc.csparql.core.engine.CsparqlEngineImpl;
 import eu.larkc.csparql.core.engine.CsparqlQueryResultProxy;
 import io.github.yabench.engines.commons.AbstractEngine;
+import io.github.yabench.engines.commons.AbstractEngineLauncher;
 import io.github.yabench.engines.commons.Query;
 import io.github.yabench.engines.commons.ResultListener;
+
 import java.text.ParseException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CSPARQLEngine extends AbstractEngine {
 
     private static final String STREAM_URI = "http://ex.org/streams/test";
-    private final CsparqlEngine engine;
+    private CsparqlEngine engine;
     private final RdfStream stream;
-
     private CsparqlQueryResultProxy csparqlProxy;
 
     public CSPARQLEngine() {
@@ -35,6 +40,7 @@ public class CSPARQLEngine extends AbstractEngine {
         engine.unregisterQuery(csparqlProxy.getId());
         engine.unregisterStream(stream.getIRI());
         engine.destroy();
+        engine = null;
     }
 
     @Override

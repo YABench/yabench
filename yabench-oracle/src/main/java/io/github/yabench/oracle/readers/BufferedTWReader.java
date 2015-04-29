@@ -4,15 +4,21 @@ import io.github.yabench.commons.TemporalRDFReader;
 import io.github.yabench.commons.TemporalTriple;
 import io.github.yabench.oracle.TripleWindow;
 import io.github.yabench.oracle.Window;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class BufferedTWReader extends TripleWindowReader {
 
     private TreeSet<TemporalTriple> buffer = new TreeSet<>();
+	private static final Logger logger = LoggerFactory.getLogger(BufferedTWReader.class);
+
 
     public BufferedTWReader(Reader reader) {
         super(new TemporalRDFReader(reader));
@@ -44,6 +50,10 @@ public class BufferedTWReader extends TripleWindowReader {
                 .toArray(TemporalTriple[]::new));
 
         return new TripleWindow(window, triples);
+    }
+    
+    public int getBufferSize() {
+    	return this.buffer.size();
     }
 
     public TripleWindow readWindowWithoutFirstGraph(Window window) {

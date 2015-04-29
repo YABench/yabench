@@ -9,6 +9,7 @@ public class OracleResultBuilder {
     private double recall = DEFAULT_DOUBLE;
     private long startshift = DEFAULT_LONG;
     private long endshift = DEFAULT_LONG;
+    private long delay = DEFAULT_LONG;
     private int actualResultSize = DEFAULT_INT;
     private int expectedResultSize = DEFAULT_INT;
     private int expectedInputSize = DEFAULT_INT;
@@ -42,6 +43,11 @@ public class OracleResultBuilder {
         return this;
     }
 
+    public OracleResultBuilder delay(final long delay) {
+        this.delay = delay;
+        return this;
+    }
+    
     public OracleResultBuilder actualResultSize(int actualResultSize) {
         this.actualResultSize = actualResultSize;
         return this;
@@ -73,6 +79,7 @@ public class OracleResultBuilder {
         result.setExpectedInputSize(expectedInputSize);
         result.setStartshift(startshift);
         result.setEndshift(endshift);
+        result.setDelay(delay);
         return result;
     }
     

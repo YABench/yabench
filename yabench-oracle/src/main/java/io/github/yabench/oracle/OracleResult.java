@@ -6,6 +6,7 @@ public class OracleResult {
     private double recall;
     private long startshift;
     private long endshift;
+    private long delay;
     private int actualResultSize;
     private int expectedResultSize;
     private int expectedInputSize;
@@ -76,6 +77,21 @@ public class OracleResult {
 	 */
 	public void setEndshift(long endshift) {
 		this.endshift = endshift;
+	}
+	
+
+	/**
+	 * @return the endshift
+	 */
+	public long getDelay() {
+		return delay;
+	}
+
+	/**
+	 * @param endshift the endshift to set
+	 */
+	public void setDelay(long delay) {
+		this.delay = delay;
 	}
 
 }
