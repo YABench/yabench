@@ -12,8 +12,8 @@ public class FMeasureTest {
         FMeasure fm = new FMeasure();
         fm.calculateScores(new String[]{}, new String[]{});
 
-        assertEquals(0.0, fm.getRecallScore(), DELTA);
-        assertEquals(0.0, fm.getPrecisionScore(), DELTA);
+        assertEquals(1.0, fm.getRecallScore(), DELTA);
+        assertEquals(1.0, fm.getPrecisionScore(), DELTA);
         System.out.println(fm);
     }
 
