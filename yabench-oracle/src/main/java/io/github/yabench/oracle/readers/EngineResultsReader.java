@@ -25,7 +25,7 @@ public class EngineResultsReader implements AutoCloseable, Closeable {
     public EngineResultsReader(final Reader reader) {
         this.reader = new BufferedReader(reader);
     }
-
+    
     public void initialize(final Duration windowSize) throws IOException {
         this.windowSize = windowSize.toMillis();
         initialTimestamp = Long.parseLong(reader.readLine());

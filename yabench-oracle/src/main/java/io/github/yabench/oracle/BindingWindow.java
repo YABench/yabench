@@ -36,7 +36,7 @@ public class BindingWindow extends Window {
         return bindings;
     }
 
-    public List<BindingWindow> splitByOneBinding() {
+    public List<BindingWindow> split() {
         final List<BindingWindow> newBindings = new ArrayList<>(bindings.size());
         bindings.stream().forEach((b) -> {
             newBindings.add(new BindingWindow(b, getStart(), getEnd()));
@@ -111,15 +111,6 @@ public class BindingWindow extends Window {
 
     public boolean equalsByContent(BindingWindow other) {
         return this.bindings.equals(other.getBindings());
-    }
-
-    public BindingWindow equals(final List<BindingWindow> bindingWindows) {
-        for (BindingWindow bw : bindingWindows) {
-            if (this.equalsByContent(bw)) {
-                return bw;
-            }
-        }
-        return null;
     }
 
 }
