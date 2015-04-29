@@ -70,9 +70,11 @@ public class OnWindowCloseComparator implements OracleComparator {
 					logger.info("precision: " + prevfMeasure.getPrecisionScore());
 					logger.info("recall: " + prevfMeasure.getRecallScore());
 					logger.info("wsize: " + inputWindow.getTriples().size());
+					long delay = actual.getEnd() - expected.getEnd();
 
 					if (!(expected.getBindings().size() == 0 && actual.getBindings().size() == 0)) {
 						if (graceful) {
+							delay = -1;
 							if (prevfMeasure.getRecallScore() < 1) {
 								TreeSet<Long> tslist = inputWindow.getTimestampsExceptFirst();
 								for (long ts : tslist) {
@@ -158,7 +160,7 @@ public class OnWindowCloseComparator implements OracleComparator {
 					startshift = startshift < 0 ? 0 : startshift;
 
 					oracleResultsWriter.write(oracleResultBuilder.fMeasure(prevfMeasure).resultSize(expected, actual)
-							.expectedInputSize(inputWindow.getTriples().size()).startshift(startshift).endshift(endshift).build());
+							.expectedInputSize(inputWindow.getTriples().size()).startshift(startshift).endshift(endshift).delay(delay).build());
 				} else {
 					throw new IllegalStateException("Actual results have more windows than expected!");
 				}

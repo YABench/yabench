@@ -61,14 +61,11 @@ public abstract class AbstractEngineLauncher extends AbstractLauncher {
                 EngineFactory engineFactory = new EngineFactory();
                 try (Engine engine = engineFactory.create()) {
                     engine.initialize();
-
                     final ResultSerializer serializer = new ResultSerializer(writer);
-
-                    serializer.initialize();
-
                     TemporalGraph graph;
                     long t1 = 0, t2 = 0, time = 0;
                     engine.registerQuery(query, serializer);
+                    serializer.initialize();
                     logger.info("started sending triples at {}", Instant.now());
                     while ((graph = reader.readNextGraph()) != null) {
                         t1 = (System.nanoTime() - t2) / 1000000;
