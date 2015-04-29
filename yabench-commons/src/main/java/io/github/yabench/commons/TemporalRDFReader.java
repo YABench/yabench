@@ -16,12 +16,16 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class TemporalRDFReader implements Closeable, AutoCloseable {
 
     // s,p,o + timestamp/interval = 4
     private static final int TUPLE_SIZE = 4;
     private static final String SPACE = " ";
     private final BufferedReader reader;
+	private static final Logger logger = LoggerFactory.getLogger(TemporalRDFReader.class);
     private TemporalTriple lastTriple = null;
 
     public TemporalRDFReader(File stream) throws IOException {
@@ -63,9 +67,10 @@ public class TemporalRDFReader implements Closeable, AutoCloseable {
 
     public TemporalGraph readNextGraph() throws IOException {
         final List<TemporalTriple> triples = new ArrayList<>();
-        if (lastTriple != null) {
-            triples.add(lastTriple);
-        }
+        //following lines commented out, because last triple is added already in #85 now
+        //if (lastTriple != null) {
+        //    triples.add(lastTriple);
+        //}
         for (;;) {
             final TemporalTriple triple = readNextTriple();
             if (triple != null) {
@@ -77,6 +82,7 @@ public class TemporalRDFReader implements Closeable, AutoCloseable {
                         triples.add(triple);
                         lastTriple = triple;
                     } else {
+                    	triples.add(triple);
                         lastTriple = triple;
                         break;
                     }
