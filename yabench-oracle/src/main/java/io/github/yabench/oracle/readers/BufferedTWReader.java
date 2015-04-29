@@ -21,7 +21,7 @@ public class BufferedTWReader extends TripleWindowReader {
     public BufferedTWReader(TemporalRDFReader reader) {
         super(reader);
     }
-    
+
     public BufferedTWReader(TripleWindowReader reader) {
         super(reader.getReader());
     }
@@ -46,20 +46,38 @@ public class BufferedTWReader extends TripleWindowReader {
         return new TripleWindow(window, triples);
     }
 
-    public TripleWindow prevWindow(final Window window) {
-        final TemporalTriple triple = buffer.lower(
-                new TemporalTriple(null, window.getStart()));
+    public TripleWindow readWindowWithoutFirstGraph(Window window) {
+        long afterFirst = buffer.higher(
+                new TemporalTriple(null, window.getStart() + 1)).getTime();
+        System.out.println(afterFirst);
+        List<TemporalTriple> triples = Arrays.asList(buffer.stream()
+                .filter((t) -> {
+                    return isBetween(t.getTime(), afterFirst, window.getEnd());
+                })
+                .toArray(TemporalTriple[]::new));
+        return new TripleWindow(triples, afterFirst, window.getEnd());
+    }
 
-        if (triple != null) {
+    public TripleWindow prevWindow(final Window winwow) {
+        return prevWindow(winwow, false);
+    }
+
+    public TripleWindow prevWindow(final Window window, boolean inclusive) {
+        final TemporalTriple tripleStart = buffer.lower(
+                new TemporalTriple(null, window.getStart()));
+        final long end = inclusive ? window.getEnd() : buffer.lower(
+                new TemporalTriple(null, window.getEnd())).getTime();
+
+        if (tripleStart != null) {
             List<TemporalTriple> triples = Arrays.asList(
                     buffer.stream()
                     .filter((TemporalTriple t) -> {
-                        return isBetween(
-                                t.getTime(), triple.getTime(), window.getEnd());
+                        return isBetween(t.getTime(),
+                                tripleStart.getTime(), end);
                     })
                     .toArray(TemporalTriple[]::new));
 
-            return new TripleWindow(triples, triple.getTime(), window.getEnd());
+            return new TripleWindow(triples, tripleStart.getTime(), window.getEnd());
         } else {
             return null;
         }

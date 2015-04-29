@@ -12,7 +12,7 @@ public class WindowFactory {
         this.size = windowSize;
         this.slide = windowSlide;
     }
-    
+
     public Duration getWindowSize() {
         return size;
     }
@@ -34,20 +34,35 @@ public class WindowFactory {
             numberOfSlides++;
         }
 
+        if (numberOfSlides - 1 > 0) {
+            numberOfSlides--;
+        } else {
+            numberOfSlides = 0;
+        }
+
         return new Window(numberOfSlides * slide.toMillis(), windowEnd);
     }
 
-	/**
-	 * @return the size
-	 */
-	public Duration getSize() {
-		return size;
-	}
+    public Window nextWindow(Window previous, long nextContentTimestamp) {
+        Window newWindow = nextWindow(nextContentTimestamp);
+        
+        if(newWindow.getStart() < previous.getStart()) {
+            return new Window(previous.getStart(), newWindow.getEnd());
+        }
+        return newWindow;
+    }
 
-	/**
-	 * @return the slide
-	 */
-	public Duration getSlide() {
-		return slide;
-	}
+    /**
+     * @return the size
+     */
+    public Duration getSize() {
+        return size;
+    }
+
+    /**
+     * @return the slide
+     */
+    public Duration getSlide() {
+        return slide;
+    }
 }
