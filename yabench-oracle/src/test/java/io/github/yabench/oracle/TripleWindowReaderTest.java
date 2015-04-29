@@ -111,7 +111,7 @@ public class TripleWindowReaderTest {
         assertNull(actual);
     }
 
-    //@Test
+    @Test
     public void testWindowFactoryOnContentChange() throws IOException {
         final String testPrefix = "testOnContentChange/";
         final Reader reader = new StringReader(

@@ -113,7 +113,8 @@ public class OnContentChangeComparator implements OracleComparator {
                                         } else {
                                             if (tryPreviousWindow) {
                                                 logger.debug("Missing triples: {}", expected);
-                                                orWriter.writeMissing(expected, actual);
+                                                orWriter.writeMissing(
+                                                        inputWindow, expected, actual);
 
                                                 expected.clear();
                                                 j--; //get back one actual result
@@ -186,15 +187,15 @@ public class OnContentChangeComparator implements OracleComparator {
                     List<BindingWindow> expected = WindowUtils
                             .diff(current, previous).split();
                     if (!expected.isEmpty()) {
-                        logger.debug("Expected: {}", expected);
+//                        logger.debug("Expected: {}", expected);
 
                         if (actual == null) {
                             actual = qrReader.next();
                         }
-                        logger.debug("Actual: {}", actual);
+//                        logger.debug("Actual: {}", actual);
 
                         if (actual != null) {
-                            actual = find(expected, actual);
+                            actual = find(inputWindow, expected, actual);
                         } else {
                             logger.debug(
                                     "Expected, but there are no actual results anymore: {}",
@@ -222,17 +223,18 @@ public class OnContentChangeComparator implements OracleComparator {
         orWriter.flush();
     }
 
-    private BindingWindow find(List<BindingWindow> results, BindingWindow actual)
+    private BindingWindow find(TripleWindow inputWindow, 
+            List<BindingWindow> results, BindingWindow actual)
             throws IOException {
         final int numberOfResults = results.size();
         for (int i = 0; i < numberOfResults; i++) {
             final BindingWindow found = WindowUtils.findMatch(actual, results);
             if (found != null) {
-                logger.debug("Found: {}", found);
+//                logger.debug("Found: {}", found);
 
                 results.remove(found);
 
-                orWriter.writeFound(found, actual);
+                orWriter.writeFound(inputWindow, found, actual);
 
                 if (!results.isEmpty() && (actual = qrReader.next()) == null) {
                     logger.warn(
@@ -244,8 +246,8 @@ public class OnContentChangeComparator implements OracleComparator {
                 }
             } else {
                 logger.debug("Expected, but haven't found: {}", results);
-                logger.debug("It was: {}", actual);
-                orWriter.writeMissing(results, actual);
+//                logger.debug("It was: {}", actual);
+                orWriter.writeMissing(inputWindow, results, actual);
 
                 return actual;
             }
@@ -254,7 +256,7 @@ public class OnContentChangeComparator implements OracleComparator {
         return null;
     }
 
-    private class OCCORWriter extends OracleResultsWriter {
+    public static class OCCORWriter extends OracleResultsWriter {
 
         public static final double ONE = 1.0;
         public static final double ZERO = 0.0;
@@ -297,22 +299,25 @@ public class OnContentChangeComparator implements OracleComparator {
                     .build());
         }
 
-        public void writeMissing(List<BindingWindow> expected, BindingWindow actual)
+        public void writeMissing(TripleWindow inputWindow, 
+                List<BindingWindow> expected, BindingWindow actual)
                 throws IOException {
             for (BindingWindow e : expected) {
-                writeMissing(e, actual);
+                writeMissing(inputWindow, e, actual);
             }
         }
 
-        public void writeMissing(BindingWindow expected, BindingWindow actual)
+        public void writeMissing(TripleWindow inputWindow, 
+                BindingWindow expected, BindingWindow actual)
                 throws IOException {
             write(builder
-                    .precision(0.0)
-                    .recall(0.0)
+                    .precision(ZERO)
+                    .recall(ZERO)
                     .startshift(expected.getStart())
                     .endshift(expected.getEnd())
                     .actualResultSize(actual.getBindings().size())
                     .expectedResultSize(expected.getBindings().size())
+                    .expectedInputSize(inputWindow.getTriples().size())
                     .build());
         }
 
@@ -329,22 +334,25 @@ public class OnContentChangeComparator implements OracleComparator {
                     .build());
         }
 
-        public void writeFound(BindingWindow expected, BindingWindow actual)
+        public void writeFound(TripleWindow inputWindow, 
+                BindingWindow expected, BindingWindow actual)
                 throws IOException {
             write(builder
-                    .precision(1.0)
-                    .recall(1.0)
+                    .precision(ONE)
+                    .recall(ONE)
                     .startshift(expected.getStart())
                     .endshift(expected.getEnd())
                     .actualResultSize(actual.getBindings().size())
                     .expectedResultSize(expected.getBindings().size())
+                    .expectedInputSize(inputWindow.getTriples().size())
+                    .delay(actual.getEnd() - expected.getEnd())
                     .build());
         }
 
         @Override
         public void write(OracleResult result) throws IOException {
             int numberOfSlides = 0;
-            while ((numberOfSlides + 1) * windowSlide <= result.getEndshift()) {
+            while ((numberOfSlides + 1) * windowSlide < result.getEndshift()) {
                 numberOfSlides++;
             }
 
@@ -375,13 +383,14 @@ public class OnContentChangeComparator implements OracleComparator {
                 throws IOException {
             for (int i = current; i < slides; i++) {
                 super.write(builder
-                        .precision(1.0)
-                        .recall(1.0)
-                        .startshift(currentWindowNumber * windowSlide)
-                        .endshift(currentWindowNumber * windowSlide + windowSize)
+                        .precision(ONE)
+                        .recall(ONE)
+                        .startshift(i * windowSlide)
+                        .endshift(i * windowSlide + windowSize)
                         .expectedInputSize(0)
                         .expectedResultSize(0)
                         .actualResultSize(0)
+                        .delay(0)
                         .build());
             }
         }
@@ -391,6 +400,7 @@ public class OnContentChangeComparator implements OracleComparator {
             double recall = 0;
             int actualRS = 0;
             int expectedRS = 0;
+            long delay = 0;
             long windowStart = Long.MAX_VALUE;
             long windowEnd = Long.MIN_VALUE;
 
@@ -399,6 +409,7 @@ public class OnContentChangeComparator implements OracleComparator {
                 recall += r.getRecall();
                 actualRS += r.getActualResultSize();
                 expectedRS += r.getExpectedResultSize();
+                delay += r.getDelay();
                 if (r.getStartshift() < windowStart) {
                     windowStart = r.getStartshift();
                 }
@@ -410,6 +421,7 @@ public class OnContentChangeComparator implements OracleComparator {
             final OracleResult windowResult = builder
                     .precision(precision / rs.size())
                     .recall(recall / rs.size())
+                    .delay(delay / rs.size())
                     .startshift(windowStart)
                     .endshift(windowEnd)
                     .expectedResultSize(expectedRS)
