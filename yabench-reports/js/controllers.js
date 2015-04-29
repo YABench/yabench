@@ -120,7 +120,16 @@
                 },
                 title: {text: 'Window and Result size (# of triples)'},
                 series: [],
-                yAxis: [{title: {text: '# of triples'}}]
+                yAxis: [
+                    {title: {text: '# of triples'}, min: 0},
+                    {title: {text: '# of triples'}, min: 0},
+                    {
+                        title: {text: 'Delay'}, 
+                        min: 0, 
+                        opposite: true, 
+                        labels: {format: "{value} ms"}
+                    }
+                ]
             };
 
             $scope.chartP = {
@@ -204,9 +213,10 @@
                 var lines = $fileContent.split('\n');
                 var seriesRP = [[], [], [], []];
                 var seriesW = [
-                    {name: 'Result size (actual)', data: []},
-                    {name: 'Result size (expected)', data: []},
-                    {name: 'Window size (expected)', data: []}
+                    {yAxis: 0, name: 'Result size (actual)', data: []},
+                    {yAxis: 0, name: 'Result size (expected)', data: []},
+                    {yAxis: 1, name: 'Window size (expected)', data: []},
+                    {yAxis: 2, name: 'Delay', data: []}
                 ];
 
                 var xAxis = {
@@ -247,6 +257,7 @@
                         seriesW[0].data.push(values[2]);
                         seriesW[1].data.push(values[3]);
                         seriesW[2].data.push(values[4]);
+                        seriesW[3].data.push(values[7]);
                     }
                 });
                 addToChart($scope.chartRP, seriesRP);

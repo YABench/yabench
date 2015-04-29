@@ -400,6 +400,7 @@ public class OnContentChangeComparator implements OracleComparator {
             double recall = 0;
             int actualRS = 0;
             int expectedRS = 0;
+            int expectedIS = 0;
             long delay = 0;
             long windowStart = Long.MAX_VALUE;
             long windowEnd = Long.MIN_VALUE;
@@ -409,6 +410,7 @@ public class OnContentChangeComparator implements OracleComparator {
                 recall += r.getRecall();
                 actualRS += r.getActualResultSize();
                 expectedRS += r.getExpectedResultSize();
+                expectedIS += r.getExpectedInputSize();
                 delay += r.getDelay();
                 if (r.getStartshift() < windowStart) {
                     windowStart = r.getStartshift();
@@ -425,6 +427,7 @@ public class OnContentChangeComparator implements OracleComparator {
                     .startshift(windowStart)
                     .endshift(windowEnd)
                     .expectedResultSize(expectedRS)
+                    .expectedInputSize(expectedIS / rs.size())
                     .actualResultSize(actualRS)
                     .build();
             return windowResult;
