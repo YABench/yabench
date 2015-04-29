@@ -2,7 +2,6 @@ package io.github.yabench.oracle.readers;
 
 import io.github.yabench.oracle.BindingWindow;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 

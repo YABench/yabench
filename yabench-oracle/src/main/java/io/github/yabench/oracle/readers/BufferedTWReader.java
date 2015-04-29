@@ -49,7 +49,7 @@ public class BufferedTWReader extends TripleWindowReader {
     public TripleWindow readWindowWithoutFirstGraph(Window window) {
         long afterFirst = buffer.higher(
                 new TemporalTriple(null, window.getStart() + 1)).getTime();
-        System.out.println(afterFirst);
+        
         List<TemporalTriple> triples = Arrays.asList(buffer.stream()
                 .filter((t) -> {
                     return isBetween(t.getTime(), afterFirst, window.getEnd());
