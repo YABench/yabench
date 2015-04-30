@@ -250,8 +250,8 @@ public class OnContentChangeComparator implements OracleComparator {
                 orWriter.writeMissing(inputWindow, results, actual);
 
                 return actual;
+                }
             }
-        }
 
         return null;
     }
@@ -419,15 +419,17 @@ public class OnContentChangeComparator implements OracleComparator {
                     windowEnd = r.getEndshift();
                 }
             }
+            
+            int divisor = rs.size() == 0? 1 : rs.size();
 
             final OracleResult windowResult = builder
-                    .precision(precision / rs.size())
-                    .recall(recall / rs.size())
-                    .delay(delay / rs.size())
+                    .precision(precision / divisor)
+                    .recall(recall / divisor)
+                    .delay(delay / divisor)
                     .startshift(windowStart)
                     .endshift(windowEnd)
                     .expectedResultSize(expectedRS)
-                    .expectedInputSize(expectedIS / rs.size())
+                    .expectedInputSize(expectedIS / divisor)
                     .actualResultSize(actualRS)
                     .build();
             return windowResult;
