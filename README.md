@@ -8,5 +8,5 @@ Look at our [wiki pages](https://github.com/YABench/yabench/wiki) to find more i
 * [LSBench - Linked Stream Benchmark] (https://code.google.com/p/lsbench/)
 
 ## Authors
-* Peter Wetz, [Vienna University of Technology](http://www.tuwien.ac.at/), Austria
+* Peter Wetz, [TU Wien](http://www.tuwien.ac.at/), Austria
 * [Maxim Kolchin](http://kolchinmax.ru), [ITMO University](http://en.ifmo.ru/), Russia
