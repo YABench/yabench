@@ -30,11 +30,13 @@ public class OnContentChangeComparator implements OracleComparator {
     private final QueryExecutor qexec;
     private final OCCORWriter orWriter;
     private final boolean graceful;
+    private final boolean singleResult;
 
     OnContentChangeComparator(TripleWindowReader inputStreamReader,
             EngineResultsReader queryResultsReader,
             WindowFactory windowFactory, QueryExecutor queryExecutor,
-            OracleResultsWriter oracleResultsWriter, boolean graceful) {
+            OracleResultsWriter oracleResultsWriter, boolean graceful, 
+            boolean singleResult) {
         this.isReader = new BufferedTWReader(inputStreamReader);
         this.qrReader = new BufferedERReader(queryResultsReader);
         this.windowFactory = windowFactory;
@@ -43,6 +45,7 @@ public class OnContentChangeComparator implements OracleComparator {
                 windowFactory.getSlide().toMillis(),
                 windowFactory.getSize().toMillis());
         this.graceful = graceful;
+        this.singleResult = singleResult;
     }
 
     @Override
@@ -195,7 +198,22 @@ public class OnContentChangeComparator implements OracleComparator {
 //                        logger.debug("Actual: {}", actual);
 
                         if (actual != null) {
-                            actual = find(inputWindow, expected, actual);
+                            FindResult result = find(inputWindow, expected, actual);
+                            actual = result.actual;
+                            
+                            if(actual != null && !result.matched) {
+                                if (singleResult) {
+                                    actual = null;
+                                } else {
+                                    do {
+                                        if((actual = qrReader.next()) != null) {
+//                                            logger.debug("Actual (S): {}", actual);
+                                            result = find(inputWindow, expected, actual);
+                                            actual = result.actual;
+                                        }
+                                    } while (actual != null && !result.matched);
+                                }
+                            }
                         } else {
                             logger.debug(
                                     "Expected, but there are no actual results anymore: {}",
@@ -219,17 +237,19 @@ public class OnContentChangeComparator implements OracleComparator {
                 break;
             }
         } while (true);
-        
+
         orWriter.flush();
     }
 
-    private BindingWindow find(TripleWindow inputWindow, 
+    private FindResult find(TripleWindow inputWindow,
             List<BindingWindow> results, BindingWindow actual)
             throws IOException {
+        FindResult result = new FindResult();
         final int numberOfResults = results.size();
         for (int i = 0; i < numberOfResults; i++) {
             final BindingWindow found = WindowUtils.findMatch(actual, results);
             if (found != null) {
+                result.matched = true;
 //                logger.debug("Found: {}", found);
 
                 results.remove(found);
@@ -242,18 +262,24 @@ public class OnContentChangeComparator implements OracleComparator {
                             results);
 
                     orWriter.writeMissingActual(results);
-                    return null;
+                    return result;
                 }
             } else {
                 logger.debug("Expected, but haven't found: {}", results);
 //                logger.debug("It was: {}", actual);
                 orWriter.writeMissing(inputWindow, results, actual);
 
-                return actual;
-                }
+                result.actual = actual;
+                return result;
             }
+        }
 
-        return null;
+        return result;
+    }
+    
+    public static class FindResult {
+        public BindingWindow actual = null;
+        public boolean matched = false;
     }
 
     public static class OCCORWriter extends OracleResultsWriter {
@@ -285,7 +311,7 @@ public class OnContentChangeComparator implements OracleComparator {
 
         public void writeMissingActual(BindingWindow expected) throws IOException {
             write(builder
-                    .precision(ZERO)
+                    .precision(ONE)
                     .recall(ZERO)
                     .expectedResultSize(expected.getBindings().size())
                     .build());
@@ -294,12 +320,12 @@ public class OnContentChangeComparator implements OracleComparator {
         public void writeMissingExpected(BindingWindow actual) throws IOException {
             write(builder
                     .precision(ZERO)
-                    .recall(ZERO)
+                    .recall(ONE)
                     .actualResultSize(actual.getBindings().size())
                     .build());
         }
 
-        public void writeMissing(TripleWindow inputWindow, 
+        public void writeMissing(TripleWindow inputWindow,
                 List<BindingWindow> expected, BindingWindow actual)
                 throws IOException {
             for (BindingWindow e : expected) {
@@ -307,7 +333,7 @@ public class OnContentChangeComparator implements OracleComparator {
             }
         }
 
-        public void writeMissing(TripleWindow inputWindow, 
+        public void writeMissing(TripleWindow inputWindow,
                 BindingWindow expected, BindingWindow actual)
                 throws IOException {
             write(builder
@@ -334,7 +360,7 @@ public class OnContentChangeComparator implements OracleComparator {
                     .build());
         }
 
-        public void writeFound(TripleWindow inputWindow, 
+        public void writeFound(TripleWindow inputWindow,
                 BindingWindow expected, BindingWindow actual)
                 throws IOException {
             write(builder
@@ -419,8 +445,8 @@ public class OnContentChangeComparator implements OracleComparator {
                     windowEnd = r.getEndshift();
                 }
             }
-            
-            int divisor = rs.size() == 0? 1 : rs.size();
+
+            int divisor = rs.isEmpty() ? 1 : rs.size();
 
             final OracleResult windowResult = builder
                     .precision(precision / divisor)

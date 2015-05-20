@@ -21,6 +21,7 @@ public class OracleTestBuilder {
     private final String queryTemplate;
     
     private boolean graceful;
+    private boolean singleResult;
     private Duration windowSize;
     private Duration windowSlide;
     private WindowPolicy windowPolicy;
@@ -53,10 +54,15 @@ public class OracleTestBuilder {
         return this;
     }
     
+    public OracleTestBuilder withSingleResult(boolean singleResult) {
+        this.singleResult = singleResult;
+        return this;
+    }
+    
     public OracleTest build() throws IOException {
         OracleTestImpl test = new OracleTestImpl(
                 inputStream, queryResults, output, windowSize, windowSlide, 
-                windowPolicy, graceful, properties, queryTemplate);
+                windowPolicy, graceful, singleResult, properties, queryTemplate);
         return test;
     }
 

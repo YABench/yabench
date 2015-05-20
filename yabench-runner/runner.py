@@ -176,6 +176,8 @@ def runOracle(testDir, resultsDir, config):
         run_args.extend(["-P" + key + "=" + config['vars'][key]])
     if 'graceful' in config:
         run_args.extend(["-graceful", config['graceful']])
+    if 'singleresult' in config:
+        run_args.extend(["-singleresult", config['singleresult']])
 
     print(run_args)
     return subprocess.check_call(run_args)
