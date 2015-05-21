@@ -4,20 +4,27 @@
 "exec.oracle": "yabench-oracle/target/yabench-oracle-1.0-SNAPSHOT-jar-with-dependencies.jar",
 
     "generator": "SG1",
-    "duration": "5m",
+    "duration": "30s",
     "seed": "123123123",
     "vars": {
         "TEMP": "50.0",
-        "WSIZE": "60s",
-        "WSLIDE": "60s",
+        "WSIZE": "5s",
+        "WSLIDE": "5s",
         "WPOLICY": "oncontentchange",
         "VARIATION_THRESHOLD": "0.0"
     },
-    "stations": "10",
+    "singleresult": "false",
+    "graceful": "false",
     "tests": [
         {
             "name": "1",
-            "interval": "30s"
+            "interval": "3s",
+            "stations": "1"
+        },
+        {
+            "name": "2",
+            "interval": "1s",
+            "stations": "10"
         }
     ]
 }

@@ -4,7 +4,6 @@ import io.github.yabench.oracle.tests.comparators.OracleComparator;
 import io.github.yabench.oracle.tests.comparators.OracleComparatorBuilder;
 import io.github.yabench.oracle.QueryExecutor;
 import io.github.yabench.oracle.readers.EngineResultsReader;
-import io.github.yabench.oracle.readers.TripleWindowReader;
 import io.github.yabench.oracle.OracleResultsWriter;
 import io.github.yabench.oracle.readers.BufferedTWReader;
 import io.github.yabench.oracle.WindowFactory;
@@ -31,13 +30,14 @@ class OracleTestImpl implements OracleTest {
     private final Duration windowSlide;
     private final WindowPolicy windowPolicy;
     private final boolean graceful;
+    private final boolean singleResult;
     private final Properties properties;
     private final String queryTemplate;
 
     OracleTestImpl(File inputStream, File queryResults, File output, 
             Duration windowSize, Duration windowSlide, 
-            WindowPolicy windowPolicy, boolean graceful, Properties properties, 
-            String queryTemplate) 
+            WindowPolicy windowPolicy, boolean graceful, boolean singleResult, 
+            Properties properties, String queryTemplate) 
             throws IOException {
         this.inputStreamReader = new BufferedTWReader(new FileReader(inputStream));
         this.oracleResultsWriter = new OracleResultsWriter(new FileWriter(output));
@@ -46,6 +46,7 @@ class OracleTestImpl implements OracleTest {
         this.windowSlide = windowSlide;
         this.windowPolicy = windowPolicy;
         this.graceful = graceful;
+        this.singleResult = singleResult;
         this.properties = properties;
         this.queryTemplate = queryTemplate;
     }
@@ -67,7 +68,7 @@ class OracleTestImpl implements OracleTest {
                 new WindowFactory(windowSize, windowSlide);
         final OracleComparator comparator = new OracleComparatorBuilder(
                 inputStreamReader, queryResultsReader, windowFactory,
-                queryExecutor, oracleResultsWriter, graceful)
+                queryExecutor, oracleResultsWriter, graceful, singleResult)
                 .newComparator(windowPolicy);
         
         comparator.compare();

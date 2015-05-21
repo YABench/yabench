@@ -2,7 +2,6 @@ package io.github.yabench.oracle.tests.comparators;
 
 import io.github.yabench.oracle.readers.BufferedTWReader;
 import io.github.yabench.oracle.readers.EngineResultsReader;
-import io.github.yabench.oracle.readers.TripleWindowReader;
 import io.github.yabench.oracle.OracleResultsWriter;
 import io.github.yabench.oracle.QueryExecutor;
 import io.github.yabench.oracle.WindowFactory;
@@ -16,17 +15,20 @@ public class OracleComparatorBuilder {
     private final QueryExecutor queryExecutor;
     private final OracleResultsWriter oracleResultsWriter;
     private final boolean graceful;
+    private final boolean singleResult;
 
     public OracleComparatorBuilder(BufferedTWReader inputStreamReader,
             EngineResultsReader queryResultsReader,
             WindowFactory windowFactory, QueryExecutor queryExecutor,
-            OracleResultsWriter oracleResultsWriter, boolean graceful) {
+            OracleResultsWriter oracleResultsWriter, boolean graceful, 
+            boolean  singleResult) {
         this.inputStreamReader = inputStreamReader;
         this.queryResultsReader = queryResultsReader;
         this.windowFactory = windowFactory;
         this.queryExecutor = queryExecutor;
         this.oracleResultsWriter = oracleResultsWriter;
         this.graceful = graceful;
+        this.singleResult = singleResult;
     }
     
     public OracleComparator newComparator(final WindowPolicy policy) {
@@ -38,7 +40,7 @@ public class OracleComparatorBuilder {
             case ONCONTENTCHANGE:
                 return new OnContentChangeComparator(
                         inputStreamReader, queryResultsReader, windowFactory,
-                        queryExecutor, oracleResultsWriter, graceful);
+                        queryExecutor, oracleResultsWriter, graceful, singleResult);
             default:
                 throw new UnsupportedOperationException(
                         "Can't build oracle comparator for the given window policy!");

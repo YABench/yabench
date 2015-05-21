@@ -22,6 +22,8 @@ public class Launcher extends AbstractLauncher {
     private static final String ARG_HELP = "help";
     private static final String ARG_GRACEFUL = "graceful";
     private static final String ARG_GRACEFUL_DEFAULT = "true";
+    private static final String ARG_SINGLE_RESULT = "singleresult";
+    private static final String ARG_SINGLE_RESULT_DEFAULT = "true";
     private static final String ARG_INPUTSTREAM_LONG = "inputstream";
     private static final String ARG_INPUTSTREAM_SHORT = "is";
     private static final String ARG_QUERYRESULTS_LONG = "queryresults";
@@ -51,6 +53,8 @@ public class Launcher extends AbstractLauncher {
             final File output = new File(cli.getOptionValue(ARG_OUTPUT_LONG));
             final boolean graceful = Boolean.parseBoolean(
                     cli.getOptionValue(ARG_GRACEFUL, ARG_GRACEFUL_DEFAULT));
+            final boolean singleResult = Boolean.parseBoolean(
+                    cli.getOptionValue(ARG_SINGLE_RESULT, ARG_SINGLE_RESULT_DEFAULT));
             final Properties props = cli.getOptionProperties(ARG_VARIABLE_PREFIX);
 
             if (!props.containsKey("WSIZE") || !props.containsKey("WPOLICY")) {
@@ -61,6 +65,7 @@ public class Launcher extends AbstractLauncher {
             OracleTestBuilder testFactory = new OracleTestBuilder(
                     inputStream, queryResults, output, query)
                     .withGraceful(graceful)
+                    .withSingleResult(singleResult)
                     .withVariables(props);
             if (cli.hasOption(ARG_HELP)) {
                 printHelp(options);
@@ -123,6 +128,11 @@ public class Launcher extends AbstractLauncher {
                 .withType(Boolean.class)
                 .hasArg()
                 .create(ARG_GRACEFUL);
+        
+        Option singleResult = OptionBuilder
+                .withType(Boolean.class)
+                .hasArg()
+                .create(ARG_SINGLE_RESULT);
 
         Option help = OptionBuilder
                 .create(ARG_HELP);
@@ -135,6 +145,7 @@ public class Launcher extends AbstractLauncher {
         opt.addOption(graceful);
         opt.addOption(help);
         opt.addOption(graceful);
+        opt.addOption(singleResult);
         return opt;
     }
 
