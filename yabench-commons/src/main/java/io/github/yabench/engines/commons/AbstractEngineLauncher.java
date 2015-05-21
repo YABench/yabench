@@ -74,13 +74,13 @@ public abstract class AbstractEngineLauncher extends AbstractLauncher {
 					while ((graph = reader.readNextGraph()) != null) {
 						t1 = (System.nanoTime() - t2) / 1000000;
 						sleep = graph.getTime() - time - t1 < 0 ? graph.getTime() - time : graph.getTime() - time - t1;
-						starts = System.nanoTime();
+						//starts = System.nanoTime();
 						Thread.sleep(sleep);
-						sleeptime = (System.nanoTime() - starts) / 1000000;
+						//sleeptime = (System.nanoTime() - starts) / 1000000;
 						t2 = System.nanoTime();
 
-						logger.info("streamts,currtime,sleep,t1,actsleep {},{},{},{},{}", graph.getTime(), System.currentTimeMillis(),
-								sleep, t1, sleeptime);
+						//logger.info("streamts,currtime,sleep,t1,actsleep {},{},{},{},{}", graph.getTime(), System.currentTimeMillis(),
+						//		sleep, t1, sleeptime);
 						for (TemporalTriple triple : graph.getTriples()) {
 							engine.stream(triple.getStatement());
 						}
