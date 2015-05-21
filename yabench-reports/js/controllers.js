@@ -118,7 +118,7 @@
                     plotOptions: {line: {dataLabels: {enabled: true}}},
                     tooltip: {shared: true, crosshairs: true}
                 },
-                title: {text: 'Window and Result size (# of triples)'},
+                title: {text: 'Window and Result size (# of triples) + Delay (ms)'},
                 series: [],
                 yAxis: [
                     {title: {text: '# of triples'}, min: 0},
