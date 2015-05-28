@@ -8,7 +8,7 @@ public final class WindowUtils {
 
     private static final int FIRST = 0;
 
-    public static BindingWindow join(final List<BindingWindow> windows) {
+    public static BindingWindow mergeBindings(final List<BindingWindow> windows) {
         if (windows == null || windows.isEmpty()) {
             throw new IllegalArgumentException("Can't join a empty list of BindingWindows!");
         }
@@ -20,6 +20,28 @@ public final class WindowUtils {
             bindings.addAll(window.getBindings());
         }
 
+        return new BindingWindow(bindings, start, end);
+    }
+    
+    public static BindingWindow merge(final List<BindingWindow> windows) {
+        if (windows == null || windows.isEmpty()) {
+            throw new IllegalArgumentException("Can't join a empty list of BindingWindows!");
+        }
+        
+        final List<Binding> bindings = new ArrayList<>();
+        long start = windows.get(FIRST).getStart();
+        long end = windows.get(FIRST).getEnd();
+        
+        for (BindingWindow window : windows) {
+            if(window.getStart() < start) {
+                start = window.getStart();
+            }
+            if(window.getEnd() > end) {
+                end = window.getEnd();
+            }
+            bindings.addAll(bindings);
+        }
+        
         return new BindingWindow(bindings, start, end);
     }
     
