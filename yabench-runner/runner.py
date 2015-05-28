@@ -70,6 +70,12 @@ def gen_test_config(config, test_config, cli_config):
     if 'vars' in test_config:
         new_vars.update(test_config['vars'])
     new_dict['vars'] = new_vars
+    
+    if 'runs' not in new_dict:
+        new_dict['runs'] = '1'
+        
+    if 'boxplots' not in new_dict:
+        new_dict['boxplots'] = 'false'
 
     if cli_config is not None:
         for c in cli_config:
@@ -84,7 +90,7 @@ def prepare_query(resultsDir, config, queryFile):
         with open(queryFile) as f:
             t = Template(f.read())
 
-        qF = "{}/{}{}".format(resultsDir, QUERY_PREFIX, config['name'])
+        qF = "{}/{}{}{}".format(resultsDir, QUERY_PREFIX, config['name'], config['suffix'])
         with open(qF, 'w') as q:
             query = t.substitute(config['vars'])
             q.write(query)
@@ -122,7 +128,7 @@ class JavaLikeProps(argparse.Action):
 ###############################################################################
 
 def runGenerator(resultsDir, config):
-    destination = "{}/{}{}".format(resultsDir, INPUTSTREAM_PREFIX, config['name'])
+    destination = "{}/{}{}{}".format(resultsDir, INPUTSTREAM_PREFIX, config['name'], config['suffix'])
 
     run_args = ["java", "-jar", config['exec.generator']]
     run_args.extend(["-dest", destination]);
@@ -143,13 +149,13 @@ def runGenerator(resultsDir, config):
 
 def runEngine(testDir, resultsDir, config):
     run_args = ["java", "-jar", config['exec.engine']]
-    run_args.extend(["-dest", "{}/{}{}".format(resultsDir, QUERYRESULTS_PREFIX, config['name'])])
+    run_args.extend(["-dest", "{}/{}{}{}".format(resultsDir, QUERYRESULTS_PREFIX, config['name'], config['suffix'])])
     run_args.extend(["-query", prepare_query(resultsDir, config, "{}/{}".format(testDir, QUERY_4_ENGINE))])
     run_args.extend(["-source", config['inputstream']])
 
     print(run_args)
 
-    ptimer = ProcessTimer(run_args, "{}/{}{}".format(resultsDir, PERFORMANCERESULTS_PREFIX, config['name']))
+    ptimer = ProcessTimer(run_args, "{}/{}{}{}".format(resultsDir, PERFORMANCERESULTS_PREFIX, config['name'], config['suffix']))
 
     try:
         ptimer.execute()
@@ -168,8 +174,8 @@ def runEngine(testDir, resultsDir, config):
 
 def runOracle(testDir, resultsDir, config):
     run_args = ["java", "-jar", config['exec.oracle']]
-    run_args.extend(["--queryresults", "{}/{}{}".format(resultsDir, QUERYRESULTS_PREFIX, config['name'])])
-    run_args.extend(["--output", "{}/{}{}".format(resultsDir, ORACLE_OUTPUT_PREFIX, config['name'])])
+    run_args.extend(["--queryresults", "{}/{}{}{}".format(resultsDir, QUERYRESULTS_PREFIX, config['name'], config['suffix'])])
+    run_args.extend(["--output", "{}/{}{}{}".format(resultsDir, ORACLE_OUTPUT_PREFIX, config['name'], config['suffix'])])
     run_args.extend(["--inputstream", config['inputstream']])
     run_args.extend(["--query", "{}/{}".format(testDir, QUERY_4_ORACLE)])
     for key in config['vars']:
@@ -180,6 +186,28 @@ def runOracle(testDir, resultsDir, config):
         run_args.extend(["-singleresult", config['singleresult']])
 
     print(run_args)
+    return subprocess.check_call(run_args)
+    
+def runBoxplots(resultsDir, config):
+    #build r-script argument string
+    rargs = ""
+    base_dir = os.path.abspath('.')
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    #split and join resultsDir to make it work for different os
+    resultsDir = resultsDir.split('/')
+    resultsDir = os.path.join(*resultsDir)
+    for i in range(int(config['runs'])):
+        filename = "{}{}{}".format(ORACLE_OUTPUT_PREFIX, config['name'], i+1)
+        rargs+="{}{}".format(os.path.join(base_dir, resultsDir, filename),',')
+    
+    rargs = rargs[:-1]
+    destination = os.path.join(base_dir, resultsDir)
+    
+    rscript_dir = os.path.join(script_dir, "boxplots.R")
+   
+    run_args = ["Rscript", rscript_dir, rargs, destination]
+    print(run_args)
+
     return subprocess.check_call(run_args)
 
 ###############################################################################
@@ -214,22 +242,36 @@ def main():
             for test_config in config['tests']:
                 #Merge the setting
                 new_config = gen_test_config(config, test_config, args.D)
+                
+                #flag to check if config contains parameter for inputstream (is needed later)
+                inputstream = True if 'inputstream' in new_config else False
 
-                if (args.test and args.test == new_config['name']) or not args.test:
-                    if args.onlyoracle:
-                        if 'inputstream' not in new_config:
-                            new_config['inputstream'] = "{}/{}".format(resultsDir, INPUTSTREAM_PREFIX + new_config['name'])
-                        runOracle(args.testDir, resultsDir, new_config)
-                    else:
-                        if 'inputstream' not in new_config:
-                            #Generate a new input stream, otherwise
-                            #use input stream from 'inputstream' setting.
-                            runGenerator(resultsDir, new_config)
-                        runEngine(args.testDir, resultsDir, new_config)
-                        if not args.withoutoracle:
+                for counter in range(int(new_config['runs'])):
+                    new_config['suffix'] = counter+1
+
+                    #delete inputstream from config if it was only added during runtime and not in the initial config (this is checked above) to ensure a new stream is generated for a new run (may be needed later if we want to run with different seeds)
+                    if not inputstream:
+                        new_config.pop('inputstream', None)
+                  
+                    if (args.test and args.test == new_config['name']) or not args.test:
+                        if args.onlyoracle:
+                            if 'inputstream' not in new_config:
+                                new_config['inputstream'] = "{}/{}".format(resultsDir, INPUTSTREAM_PREFIX + new_config['name'] + new_config['suffix'])
                             runOracle(args.testDir, resultsDir, new_config)
-                else:
-                    continue;
+                        else:
+                            if 'inputstream' not in new_config:
+                                #Generate a new input stream, otherwise
+                                #use input stream from 'inputstream' setting.
+                                runGenerator(resultsDir, new_config)
+                            runEngine(args.testDir, resultsDir, new_config)
+                            if not args.withoutoracle:
+                                runOracle(args.testDir, resultsDir, new_config)
+                    else:
+                        continue;
+                #create boxplots only if runs > 1 and boxplots = true
+                if new_config['boxplots'].lower() == 'true' and int(new_config['runs']) > 1:
+                    print('boxplots!')
+                    runBoxplots(resultsDir, new_config)
     except IOError:
         print("Can\'t open {}/config.json file".format(args.testDir))
 
