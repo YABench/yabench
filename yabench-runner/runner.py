@@ -205,7 +205,7 @@ def runBoxplots(resultsDir, config):
     
     rscript_dir = os.path.join(script_dir, "boxplots.R")
    
-    run_args = ["Rscript", rscript_dir, rargs, destination]
+    run_args = ["Rscript", rscript_dir, rargs, destination, config['name']]
     print(run_args)
 
     return subprocess.check_call(run_args)
@@ -270,7 +270,6 @@ def main():
                         continue;
                 #create boxplots only if runs > 1 and boxplots = true
                 if new_config['boxplots'].lower() == 'true' and int(new_config['runs']) > 1:
-                    print('boxplots!')
                     runBoxplots(resultsDir, new_config)
     except IOError:
         print("Can\'t open {}/config.json file".format(args.testDir))
