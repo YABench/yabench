@@ -70,10 +70,10 @@ def gen_test_config(config, test_config, cli_config):
     if 'vars' in test_config:
         new_vars.update(test_config['vars'])
     new_dict['vars'] = new_vars
-    
+
     if 'runs' not in new_dict:
         new_dict['runs'] = '1'
-        
+
     if 'boxplots' not in new_dict:
         new_dict['boxplots'] = 'false'
 
@@ -187,7 +187,7 @@ def runOracle(testDir, resultsDir, config):
 
     print(run_args)
     return subprocess.check_call(run_args)
-    
+
 def runBoxplots(resultsDir, config):
     #build r-script argument string
     rargs = ""
@@ -199,12 +199,12 @@ def runBoxplots(resultsDir, config):
     for i in range(int(config['runs'])):
         filename = "{}{}{}".format(ORACLE_OUTPUT_PREFIX, config['name'], i+1)
         rargs+="{}{}".format(os.path.join(base_dir, resultsDir, filename),',')
-    
+
     rargs = rargs[:-1]
     destination = os.path.join(base_dir, resultsDir)
-    
+
     rscript_dir = os.path.join(script_dir, "boxplots.R")
-   
+
     run_args = ["Rscript", rscript_dir, rargs, destination, config['name']]
     print(run_args)
 
@@ -242,17 +242,20 @@ def main():
             for test_config in config['tests']:
                 #Merge the setting
                 new_config = gen_test_config(config, test_config, args.D)
-                
+
                 #flag to check if config contains parameter for inputstream (is needed later)
                 inputstream = True if 'inputstream' in new_config else False
 
                 for counter in range(int(new_config['runs'])):
-                    new_config['suffix'] = counter+1
+                    if int(new_config['runs']) == 1:
+                        new_config['suffix'] = ''
+                    else:
+                        new_config['suffix'] = counter + 1
 
                     #delete inputstream from config if it was only added during runtime and not in the initial config (this is checked above) to ensure a new stream is generated for a new run (may be needed later if we want to run with different seeds)
                     if not inputstream:
                         new_config.pop('inputstream', None)
-                  
+
                     if (args.test and args.test == new_config['name']) or not args.test:
                         if args.onlyoracle:
                             if 'inputstream' not in new_config:

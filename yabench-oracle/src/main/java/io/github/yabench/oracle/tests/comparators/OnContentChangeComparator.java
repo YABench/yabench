@@ -41,7 +41,7 @@ public class OnContentChangeComparator implements OracleComparator {
         this.qrReader = new BufferedERReader(queryResultsReader);
         this.windowFactory = windowFactory;
         this.qexec = queryExecutor;
-        this.orWriter = new OCCORWriter(oracleResultsWriter,
+        this.orWriter = new OCCORWriter(isReader, oracleResultsWriter,
                 windowFactory.getSlide().toMillis(),
                 windowFactory.getSize().toMillis());
         this.graceful = graceful;
@@ -224,7 +224,8 @@ public class OnContentChangeComparator implements OracleComparator {
                         previous = current;
                     }
                 }
-                isReader.purge(window.getStart());
+                isReader.purge(window.getStart() 
+                        - windowFactory.getWindowSize().toMillis());
             } else {
                 if ((actual = qrReader.next()) != null) {
                     logger.debug("Didn't find expected for:");
@@ -287,18 +288,21 @@ public class OnContentChangeComparator implements OracleComparator {
 
         public static final double ONE = 1.0;
         public static final double ZERO = 0.0;
+        private final BufferedTWReader erReader;
         private final List<OracleResult> results = new ArrayList<>();
         private final long windowSize;
         private final long windowSlide;
         private int currentWindowNumber = 0;
         private boolean isFirstWindow = true;
 
-        public OCCORWriter(OracleResultsWriter writer, long windowSlide, long windowSize) {
-            this(writer.getWriter(), windowSlide, windowSize);
+        public OCCORWriter(BufferedTWReader erReader, 
+                OracleResultsWriter writer, long windowSlide, long windowSize) {
+            this(erReader, writer.getWriter(), windowSlide, windowSize);
         }
 
-        public OCCORWriter(Writer writer, long windowSlide, long windowSize) {
+        public OCCORWriter(BufferedTWReader erReader, Writer writer, long windowSlide, long windowSize) {
             super(writer);
+            this.erReader = erReader;
             this.windowSlide = windowSlide;
             this.windowSize = windowSize;
         }
@@ -441,7 +445,6 @@ public class OnContentChangeComparator implements OracleComparator {
             double recall = 0;
             int actualRS = 0;
             int expectedRS = 0;
-            int expectedIS = 0;
             int delayNum = 0;
             long delay = 0;
             long windowStart = Long.MAX_VALUE;
@@ -452,7 +455,6 @@ public class OnContentChangeComparator implements OracleComparator {
                 recall += r.getRecall();
                 actualRS += r.getActualResultSize();
                 expectedRS += r.getExpectedResultSize();
-                expectedIS += r.getExpectedInputSize();
                 delay += r.getDelay() > 0 ? r.getDelay() : 0;
                 delayNum += r.getDelay() > 0 ? 1 : 0;
                 if (r.getStartshift() < windowStart) {
@@ -474,7 +476,8 @@ public class OnContentChangeComparator implements OracleComparator {
                     .startshift(windowStart)
                     .endshift(windowEnd)
                     .expectedResultSize(expectedRS)
-                    .expectedInputSize(expectedIS / divisor)
+                    .expectedInputSize(erReader.sizeOfGraph(
+                            windowStart, windowStart + windowSize))
                     .actualResultSize(actualRS)
                     .build();
             return windowResult;

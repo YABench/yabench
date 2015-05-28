@@ -7,9 +7,9 @@ public class OracleResult {
     private long startshift;
     private long endshift;
     private long delay;
+    private long expectedInputSize;
     private int actualResultSize;
     private int expectedResultSize;
-    private int expectedInputSize;
 
     public double getPrecision() {
         return precision;
@@ -43,55 +43,51 @@ public class OracleResult {
         this.expectedResultSize = expectedResultSize;
     }
 
-    public int getExpectedInputSize() {
+    public long getExpectedInputSize() {
         return expectedInputSize;
     }
 
-    public void setExpectedInputSize(int expectedInputSize) {
+    public void setExpectedInputSize(long expectedInputSize) {
         this.expectedInputSize = expectedInputSize;
     }
 
-	/**
-	 * @return the startshift
-	 */
-	public long getStartshift() {
-		return startshift;
-	}
+    /**
+     * @return the startshift
+     */
+    public long getStartshift() {
+        return startshift;
+    }
 
-	/**
-	 * @param startshift the startshift to set
-	 */
-	public void setStartshift(long startshift) {
-		this.startshift = startshift;
-	}
+    /**
+     * @param startshift the startshift to set
+     */
+    public void setStartshift(long startshift) {
+        this.startshift = startshift;
+    }
 
-	/**
-	 * @return the endshift
-	 */
-	public long getEndshift() {
-		return endshift;
-	}
+    /**
+     * @return the endshift
+     */
+    public long getEndshift() {
+        return endshift;
+    }
 
-	/**
-	 * @param endshift the endshift to set
-	 */
-	public void setEndshift(long endshift) {
-		this.endshift = endshift;
-	}
-	
+    /**
+     * @param endshift the endshift to set
+     */
+    public void setEndshift(long endshift) {
+        this.endshift = endshift;
+    }
 
-	/**
-	 * @return the endshift
-	 */
-	public long getDelay() {
-		return delay;
-	}
+    public long getDelay() {
+        return delay;
+    }
 
-	/**
-	 * @param endshift the endshift to set
-	 */
-	public void setDelay(long delay) {
-		this.delay = delay;
-	}
+    /**
+     * @param delay
+     */
+    public void setDelay(long delay) {
+        this.delay = delay;
+    }
 
 }
