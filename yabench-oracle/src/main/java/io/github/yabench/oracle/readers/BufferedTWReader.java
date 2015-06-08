@@ -92,6 +92,12 @@ public class BufferedTWReader extends TripleWindowReader {
             return null;
         }
     }
+    
+    public long sizeOfGraph(long start, long end) {
+        return buffer.stream()
+                .filter((TemporalTriple t) -> isBetween(t.getTime(), start, end))
+                .count();
+    }
 
     private boolean isBetween(long it, long start, long end) {
         return it >= start && it <= end;

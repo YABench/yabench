@@ -10,9 +10,9 @@ public class OracleResultBuilder {
     private long startshift = DEFAULT_LONG;
     private long endshift = DEFAULT_LONG;
     private long delay = DEFAULT_LONG;
+    private long expectedInputSize = DEFAULT_LONG;
     private int actualResultSize = DEFAULT_INT;
     private int expectedResultSize = DEFAULT_INT;
-    private int expectedInputSize = DEFAULT_INT;
     
     public OracleResultBuilder() {
     }
@@ -65,7 +65,7 @@ public class OracleResultBuilder {
         return this;
     }
     
-    public OracleResultBuilder expectedInputSize(final int expected) {
+    public OracleResultBuilder expectedInputSize(final long expected) {
         this.expectedInputSize = expected;
         return this;
     }
