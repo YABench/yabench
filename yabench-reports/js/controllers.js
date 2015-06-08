@@ -236,11 +236,11 @@
                         var windowName = '#' + (index + 1);
                         //Recall and Precision
                         seriesRP[2].push({
-                            x: windowCenter, y: (values[0].toPrecision(3) * 100), 
+                            x: windowCenter, y: (parseInt((values[0] * 100).toPrecision(3))), 
                             x1: values[5], x2: values[6], name: windowName
                         });
                         seriesRP[3].push({
-                            x: windowCenter, y: (values[1].toPrecision(3) * 100), 
+                            x: windowCenter, y: (parseInt((values[1] * 100).toPrecision(3))),  
                             x1: values[5], x2: values[6], name: windowName
                         });
                         
