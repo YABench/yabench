@@ -132,6 +132,64 @@
                 ]
             };
 
+            $scope.chartBP = {
+                chart: {type: 'boxplot'},
+                
+                title: {
+                    text: 'Highcharts box plot styling'
+                },
+                
+                legend: {
+                    enabled: true
+                },
+
+                xAxis: {
+                    categories: ['1', '2'],
+                    title: {
+                        text: 'Experiment No.'
+                    }
+                },
+
+                yAxis: [{
+                    title: {
+                        text: 'Observations'
+                    }},
+                    {
+                    title: {
+                        text: 'Observations2'
+                    }}],
+
+                plotOptions: {
+                    boxplot: {
+                        fillColor: '#F0F0E0',
+                        lineWidth: 2,
+                        medianColor: '#0C5DA5',
+                        medianWidth: 3,
+                        stemColor: '#A63400',
+                        stemDashStyle: 'dot',
+                        stemWidth: 1,
+                        whiskerColor: '#3D9200',
+                        whiskerLength: '20%',
+                        whiskerWidth: 3
+                    }
+                },
+
+                series: [{
+                    name: 'Observations',
+                    data: [
+                        [10, 20, 30, 40, 50],
+                        [1, 2, 3, 4, 5]
+                    ]
+                },
+                {
+                    name: 'Observations2',
+                    data: [
+                        [360, 801, 848, 895, 965],
+                        [733, 853, 939, 980, 1080]
+                        ]
+                }]
+            };
+            
             $scope.chartP = {
                 options: {
                     chart: {type: 'line'},
@@ -265,7 +323,54 @@
                 $scope.chartW.series = seriesW;
                 $scope.chartW.xAxis = xAxis;
             };
+            
+            $scope.loadBPData = function ($fileContent) {
+            /*
+                var xAxis = {
+                    categories: [],
+                    title: {
+                        text: 'Windows',
+                        format: 'Window #{value}'
+                    }
+                };
+                var lines = $fileContent.split('\n');
+                lines.pop();
 
+                var seriesBP = [
+                    {name: 'Precision', yAxis: 0, data: []},
+                    {name: 'Recall', yAxis: 1, data: []},
+                    {name: 'Delay', yAxis: 2, data: []}
+                ];
+
+                angular.forEach(lines, function (line, index) {
+                    xAxis.categories.push('#' + (index + 1));
+                    
+                    var values = line.split(';');
+                    
+                    
+                    var pr = values[0].split(',').map(function (item) {
+                        return parseFloat(item);
+                    });
+                    
+                    var re = values[1].split(',').map(function (item) {
+                        return parseFloat(item);
+                    });
+                    
+                    var del = values[2].split(',').map(function (item) {
+                        return parseFloat(item);
+                    });
+                    
+                    seriesBP[0].data.push(getBoxValues(pr));
+                    seriesBP[1].data.push(getBoxValues(re));
+                    //seriesBP[2].data.push(getBoxValues(del));
+                });
+                
+
+                //$scope.chartBP.series = seriesBP;
+                //$scope.chartBP.xAxis = xAxis;
+                */
+            };
+            
             $scope.loadPData = function ($fileContent) {
                 var lines = $fileContent.split('\n');
                 lines = lines.slice(1, lines.length - 1);
@@ -359,12 +464,45 @@
                 $scope.chartP.xAxis = xAxis;
             };
         }
+        
     ]);
 
     function addToChart(chart, array) {
         angular.forEach(array, function (data, index) {
             chart.series[index].data = data;
         });
+    }
+    
+    function numSort(a,b) { 
+        return a - b; 
+    } 
+    
+    function getPercentile(data, percentile) {
+        data.sort(numSort);
+        var index = (percentile/100) * data.length;
+        var result;
+        if (Math.floor(index) == index) {
+             result = (data[(index-1)] + data[index])/2;
+        }
+        else {
+            result = data[Math.floor(index)];
+        }
+        return result;
+    }
+    
+    function getBoxValues(data) {
+        var boxValues = [];
+        //min
+        boxValues[0] = Math.min.apply(Math,data);
+        //q1
+        boxValues[1] = getPercentile(data, 25);
+        //median
+        boxValues[2] = getPercentile(data, 50);
+        //q3
+        boxValues[3] = getPercentile(data, 75);
+        //max
+        boxValues[4] = Math.max.apply(Math,data);
+        return boxValues;
     }
     
     function isEven(n) {

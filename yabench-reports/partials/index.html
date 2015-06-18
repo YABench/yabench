@@ -1,9 +1,11 @@
 <div>
     <div class="label">Oracle Results:</div> <input type="file" on-read-file="loadData($fileContent)"/><br/>
+    <div class="label">Boxplots:</div> <input type="file" on-read-file="loadBPData($fileContent)"/><br/>
     <div class="label">Performance Results:</div> <input type="file" on-read-file="loadPData($fileContent)"/>
 </div>
 <div>
     <highchart id="chartRP" config="chartRP"></highchart>
     <highchart id="chartW" config="chartW"></highchart>
+    <highchart id="chartBP" config="chartBP"></highchart>
     <highchart id="chartP" config="chartP"></highchart>
 </div>
