@@ -133,7 +133,9 @@
             };
 
             $scope.chartBP = {
-                chart: {type: 'boxplot'},
+                options: {
+                    chart: {type: 'boxplot'}
+                },
                 
                 title: {
                     text: 'Highcharts box plot styling'
