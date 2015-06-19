@@ -124,72 +124,68 @@
                     {title: {text: '# of triples'}, min: 0},
                     {title: {text: '# of triples'}, min: 0},
                     {
-                        title: {text: 'Delay'}, 
+                        title: {text: 'Delay (ms)'}, 
                         min: 0, 
                         opposite: true, 
-                        labels: {format: "{value} ms"}
+                        labels: {format: "{value}"}
                     }
                 ]
             };
 
             $scope.chartBP = {
                 options: {
-                    chart: {type: 'boxplot'}
+                    chart: {type: 'boxplot',
+                            zoomType: 'y'},
+                    plotOptions: {
+                        boxplot: {
+                            fillColor: '#F0F0E0',
+                            lineWidth: 2,
+                            medianColor: '#0C5DA5',
+                            medianWidth: 3,
+                            stemColor: '#A63400',
+                            stemDashStyle: 'dot',
+                            stemWidth: 1,
+                            whiskerColor: '#3D9200',
+                            whiskerLength: '20%',
+                            whiskerWidth: 3
+                        }
+                    },
+                    tooltip: {crosshairs: true}
                 },
                 
                 title: {
-                    text: 'Highcharts box plot styling'
+                    text: 'Boxplots of Precision, Recall, and Delay'
                 },
                 
                 legend: {
                     enabled: true
                 },
 
-                xAxis: {
-                    categories: ['1', '2'],
-                    title: {
-                        text: 'Experiment No.'
-                    }
-                },
-
                 yAxis: [{
                     title: {
-                        text: 'Observations'
-                    }},
+                        text: 'Percentage (%)'
+                    },
+                    labels: {
+                        formatter: function() {
+                            return this.value*100;
+                        }
+                    },
+                    min: 0,
+                    max: 1,
+                    showEmpty: false,},
                     {
                     title: {
-                        text: 'Observations2'
-                    }}],
+                        text: 'Delay (ms)'
+                    },
+                    labels: {
+                        formatter: function() {
+                            return this.value;
+                        }
+                    },
+                    showEmpty: false,}],
 
-                plotOptions: {
-                    boxplot: {
-                        fillColor: '#F0F0E0',
-                        lineWidth: 2,
-                        medianColor: '#0C5DA5',
-                        medianWidth: 3,
-                        stemColor: '#A63400',
-                        stemDashStyle: 'dot',
-                        stemWidth: 1,
-                        whiskerColor: '#3D9200',
-                        whiskerLength: '20%',
-                        whiskerWidth: 3
-                    }
-                },
 
-                series: [{
-                    name: 'Observations',
-                    data: [
-                        [10, 20, 30, 40, 50],
-                        [1, 2, 3, 4, 5]
-                    ]
-                },
-                {
-                    name: 'Observations2',
-                    data: [
-                        [360, 801, 848, 895, 965],
-                        [733, 853, 939, 980, 1080]
-                        ]
-                }]
+                series: []
             };
             
             $scope.chartP = {
@@ -208,13 +204,13 @@
                 yAxis: [{// Primary yAxis
                         min: 0,
                         labels: {
-                            format: '{value}MB',
+                            format: '{value}',
                             style: {
                                 color: Highcharts.getOptions().colors[0]
                             }
                         },
                         title: {
-                            text: 'Memory Usage',
+                            text: 'Memory Usage (MB)',
                             style: {
                                 color: Highcharts.getOptions().colors[0]
                             }
@@ -223,13 +219,13 @@
                         gridLineWidth: 0,
                         min: 0,
                         title: {
-                            text: 'Memory Usage %',
+                            text: 'Memory Usage (%)',
                             style: {
                                 color: Highcharts.getOptions().colors[1]
                             }
                         },
                         labels: {
-                            format: '{value} %',
+                            format: '{value}',
                             style: {
                                 color: Highcharts.getOptions().colors[1]
                             }
@@ -238,13 +234,13 @@
                     }, {// Tertiary yAxis
                         gridLineWidth: 0,
                         title: {
-                            text: 'CPU Usage %',
+                            text: 'CPU Usage (%)',
                             style: {
                                 color: Highcharts.getOptions().colors[2]
                             }
                         },
                         labels: {
-                            format: '{value} %',
+                            format: '{value}',
                             style: {
                                 color: Highcharts.getOptions().colors[2]
                             }
@@ -276,7 +272,7 @@
                     {yAxis: 0, name: 'Result size (actual)', data: []},
                     {yAxis: 0, name: 'Result size (expected)', data: []},
                     {yAxis: 1, name: 'Window size (expected)', data: []},
-                    {yAxis: 2, name: 'Delay', data: []}
+                    {yAxis: 2, name: 'Delay', data: [], tooltip: {valueSuffix: ' ms'}}
                 ];
 
                 var xAxis = {
@@ -327,7 +323,7 @@
             };
             
             $scope.loadBPData = function ($fileContent) {
-            /*
+            
                 var xAxis = {
                     categories: [],
                     title: {
@@ -340,8 +336,8 @@
 
                 var seriesBP = [
                     {name: 'Precision', yAxis: 0, data: []},
-                    {name: 'Recall', yAxis: 1, data: []},
-                    {name: 'Delay', yAxis: 2, data: []}
+                    {name: 'Recall', yAxis: 0, data: []},
+                    {name: 'Delay', yAxis: 1, data: [],tooltip: {valueSuffix: ' ms'}}
                 ];
 
                 angular.forEach(lines, function (line, index) {
@@ -351,11 +347,11 @@
                     
                     
                     var pr = values[0].split(',').map(function (item) {
-                        return parseFloat(item);
+                        return parseFloat(parseFloat(item).toPrecision(3));
                     });
                     
                     var re = values[1].split(',').map(function (item) {
-                        return parseFloat(item);
+                        return parseFloat(parseFloat(item).toPrecision(3));
                     });
                     
                     var del = values[2].split(',').map(function (item) {
@@ -364,34 +360,34 @@
                     
                     seriesBP[0].data.push(getBoxValues(pr));
                     seriesBP[1].data.push(getBoxValues(re));
-                    //seriesBP[2].data.push(getBoxValues(del));
+                    seriesBP[2].data.push(getBoxValues(del));
                 });
                 
 
-                //$scope.chartBP.series = seriesBP;
-                //$scope.chartBP.xAxis = xAxis;
-                */
+                $scope.chartBP.series = seriesBP;
+                $scope.chartBP.xAxis = xAxis;
+                
             };
             
             $scope.loadPData = function ($fileContent) {
                 var lines = $fileContent.split('\n');
                 lines = lines.slice(1, lines.length - 1);
                 var seriesP = [
-                    {name: 'Memory Usage', yAxis: 0, data: [],
+                    {name: 'Memory Usage (MB)', yAxis: 0, data: [],
                         dataLabels: {
                             enabled: true,
                             formatter: function () {
                                 return this.y + ' MB';
                             }},
                         tooltip: {valueSuffix: ' MB'}},
-                    {name: 'Memory Usage %', yAxis: 1, data: [],
+                    {name: 'Memory Usage (%)', yAxis: 1, data: [],
                         dataLabels: {
                             enabled: true,
                             formatter: function () {
                                 return this.y + ' %';
                             }},
                         tooltip: {valueSuffix: ' %'}},
-                    {name: 'CPU %', yAxis: 2, data: [],
+                    {name: 'CPU (%)', yAxis: 2, data: [],
                         dataLabels: {
                             enabled: true,
                             formatter: function () {
@@ -401,10 +397,8 @@
                     {name: 'Threads', yAxis: 3, data: []}
                 ];
                 var xAxis = {
-                    //categories: [],
                     title: {
                         text: 'Time'
-                                //format: 'Window #{value}'
                     }
                 };
 

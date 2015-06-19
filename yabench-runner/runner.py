@@ -7,6 +7,8 @@ import subprocess
 import os
 import errno
 import shutil
+import csv
+import glob
 from string import Template
 from processTimer import *
 
@@ -35,6 +37,7 @@ QUERYRESULTS_PREFIX = 'QR_'
 PERFORMANCERESULTS_PREFIX = 'P_'
 QUERY_PREFIX = "QUERY_"
 ORACLE_OUTPUT_PREFIX = "ORACLE_"
+BOXPLOTS_OUTPUT_PREFIX = "BOXPLOTS_"
 
 ###############################################################################
 # Utility classes and functions
@@ -70,10 +73,10 @@ def gen_test_config(config, test_config, cli_config):
     if 'vars' in test_config:
         new_vars.update(test_config['vars'])
     new_dict['vars'] = new_vars
-
+    
     if 'runs' not in new_dict:
         new_dict['runs'] = '1'
-
+        
     if 'boxplots' not in new_dict:
         new_dict['boxplots'] = 'false'
 
@@ -187,8 +190,9 @@ def runOracle(testDir, resultsDir, config):
 
     print(run_args)
     return subprocess.check_call(run_args)
-
-def runBoxplots(resultsDir, config):
+    
+def runBoxplotsDeprecated(resultsDir, config):
+    #script to run r-script for boxplotting
     #build r-script argument string
     rargs = ""
     base_dir = os.path.abspath('.')
@@ -198,17 +202,51 @@ def runBoxplots(resultsDir, config):
     resultsDir = os.path.join(*resultsDir)
     for i in range(int(config['runs'])):
         filename = "{}{}{}".format(ORACLE_OUTPUT_PREFIX, config['name'], i+1)
-        rargs+="{}{}".format(os.path.join(base_dir, resultsDir, filename),',')
-
+        rargs+="{}{}".format(os.path.abspath(os.path.join(base_dir, resultsDir, filename)),',')
+    
     rargs = rargs[:-1]
-    destination = os.path.join(base_dir, resultsDir)
-
+    destination = os.path.abspath(os.path.join(base_dir, resultsDir))
+    
     rscript_dir = os.path.join(script_dir, "boxplots.R")
-
+   
     run_args = ["Rscript", rscript_dir, rargs, destination, config['name']]
     print(run_args)
 
     return subprocess.check_call(run_args)
+    
+def runBoxplots(resultsDir, config):
+    globdict = {}
+    base_dir = os.path.abspath('.')
+    resultsDir = resultsDir.split('/')
+    resultsDir = os.path.join(*resultsDir)
+    oracleresults = sorted(glob.glob(os.path.join(base_dir,resultsDir,ORACLE_OUTPUT_PREFIX+config['name']) + "*"), key = lambda name: int(name[len(base_dir+os.sep+resultsDir+os.sep+ORACLE_OUTPUT_PREFIX+config['name']):]))
+
+    oracledict = {}
+    wincount = 1
+    for filen in oracleresults:
+        f = open(filen)
+        csv_f = csv.reader(f,delimiter=',')
+        dictkey = filen.split(os.sep)[-1]
+        
+        for row in csv_f:
+            if wincount in globdict:
+                globdict[wincount][0].append(float(row[0]))
+                globdict[wincount][1].append(float(row[1]))
+                globdict[wincount][2].append(float(row[7]))
+            else:
+                globdict[wincount] = [[],[],[]]
+                globdict[wincount][0].append(float(row[0]))
+                globdict[wincount][1].append(float(row[1]))
+                globdict[wincount][2].append(float(row[7]))
+            wincount = wincount+1
+        wincount=1
+    
+    filename = "{}{}".format(BOXPLOTS_OUTPUT_PREFIX, config['name'])
+    with open(os.path.join(resultsDir, filename), 'w') as the_file:
+        for win, value in globdict.items():
+            row = ";".join([','.join(map(str, x)) for x in value])
+            the_file.write(row+'\n')
+
 
 ###############################################################################
 # Main functions
@@ -250,12 +288,11 @@ def main():
                     if int(new_config['runs']) == 1:
                         new_config['suffix'] = ''
                     else:
-                        new_config['suffix'] = counter + 1
-
+                        new_config['suffix'] = counter+1
                     #delete inputstream from config if it was only added during runtime and not in the initial config (this is checked above) to ensure a new stream is generated for a new run (may be needed later if we want to run with different seeds)
                     if not inputstream:
                         new_config.pop('inputstream', None)
-
+                  
                     if (args.test and args.test == new_config['name']) or not args.test:
                         if args.onlyoracle:
                             if 'inputstream' not in new_config:
