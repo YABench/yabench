@@ -88,7 +88,8 @@ public class SG1 extends AbstractStreamGenerator {
 
         final String template = readTemplate(TEMPLATE_NAME);
 
-        long currentTime = stations.getFirst().nextObservation;
+        //long currentTime = stations.getFirst().nextObservation;
+        long currentTime = 0L;
         while (currentTime <= getDuration().toMillis()) {
             final Station currentStation = stations.pop();
 

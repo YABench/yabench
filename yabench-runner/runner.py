@@ -51,7 +51,7 @@ def make_sure_path_exists(path):
     except OSError as exception:
         if exception.errno != errno.EEXIST:
             raise
-
+            
 def arg_to_dict(arg, separator='='):
     new_dict = dict();
     for a in arg:
@@ -76,6 +76,9 @@ def gen_test_config(config, test_config, cli_config):
     
     if 'runs' not in new_dict:
         new_dict['runs'] = '1'
+        
+    if 'enginename' not in new_dict:
+        new_dict['enginename'] = 'unknown'
         
     if 'boxplots' not in new_dict:
         new_dict['boxplots'] = 'false'
@@ -158,7 +161,7 @@ def runEngine(testDir, resultsDir, config):
 
     print(run_args)
 
-    ptimer = ProcessTimer(run_args, "{}/{}{}{}".format(resultsDir, PERFORMANCERESULTS_PREFIX, config['name'], config['suffix']))
+    ptimer = ProcessTimer(run_args, "{}/{}{}{}".format(resultsDir, PERFORMANCERESULTS_PREFIX, config['name'], config['suffix']),config)
 
     try:
         ptimer.execute()
@@ -219,7 +222,8 @@ def runBoxplots(resultsDir, config):
     base_dir = os.path.abspath('.')
     resultsDir = resultsDir.split('/')
     resultsDir = os.path.join(*resultsDir)
-    oracleresults = sorted(glob.glob(os.path.join(base_dir,resultsDir,ORACLE_OUTPUT_PREFIX+config['name']) + "*"), key = lambda name: int(name[len(base_dir+os.sep+resultsDir+os.sep+ORACLE_OUTPUT_PREFIX+config['name']):]))
+    #oracleresults = sorted(glob.glob(os.path.join(base_dir,resultsDir,ORACLE_OUTPUT_PREFIX+config['name']) + "*"), key = lambda name: int(name[len(base_dir+os.sep+resultsDir+os.sep+ORACLE_OUTPUT_PREFIX+config['name']):]))
+    oracleresults = sorted(glob.glob(os.path.join(base_dir,resultsDir,ORACLE_OUTPUT_PREFIX+config['name']) + "*"))
 
     oracledict = {}
     wincount = 1
@@ -243,6 +247,8 @@ def runBoxplots(resultsDir, config):
     
     filename = "{}{}".format(BOXPLOTS_OUTPUT_PREFIX, config['name'])
     with open(os.path.join(resultsDir, filename), 'w') as the_file:
+        #write engine name in first line
+        the_file.write(config['enginename']+'\n')
         for win, value in globdict.items():
             row = ";".join([','.join(map(str, x)) for x in value])
             the_file.write(row+'\n')
@@ -296,7 +302,7 @@ def main():
                     if (args.test and args.test == new_config['name']) or not args.test:
                         if args.onlyoracle:
                             if 'inputstream' not in new_config:
-                                new_config['inputstream'] = "{}/{}".format(resultsDir, INPUTSTREAM_PREFIX + new_config['name'] + new_config['suffix'])
+                                new_config['inputstream'] = "{}/{}".format(resultsDir, INPUTSTREAM_PREFIX + new_config['name'] + str(new_config['suffix']))
                             runOracle(args.testDir, resultsDir, new_config)
                         else:
                             if 'inputstream' not in new_config:

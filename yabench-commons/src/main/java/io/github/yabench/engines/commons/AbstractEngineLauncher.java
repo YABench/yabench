@@ -13,6 +13,9 @@ import java.io.FileWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.time.Instant;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -63,33 +66,40 @@ public abstract class AbstractEngineLauncher extends AbstractLauncher {
 					final Writer writer = new BufferedWriter(new FileWriter(dest))) {
 				logger.info("initialize engine");
 				EngineFactory engineFactory = new EngineFactory();
+				ExecutorService executor = Executors.newSingleThreadExecutor();
+
 				try (Engine engine = engineFactory.create()) {
 					engine.initialize();
 					final ResultSerializer serializer = new ResultSerializer(writer);
 					TemporalGraph graph;
-					long t1 = 0, t2 = 0, time = 0, sleep = 0, starts = 0, sleeptime = 0;
+					long t1 = 0, t2 = 0, time = 0, sleep = 0;
 					engine.registerQuery(query, serializer);
+					Thread.sleep(1000); //provide setup time for the engine before starting to stream
 					serializer.initialize();
 					logger.info("started sending triples at {}", Instant.now());
 					while ((graph = reader.readNextGraph()) != null) {
 						t1 = (System.nanoTime() - t2) / 1000000;
 						sleep = graph.getTime() - time - t1 < 0 ? graph.getTime() - time : graph.getTime() - time - t1;
-						//starts = System.nanoTime();
 						Thread.sleep(sleep);
-						//sleeptime = (System.nanoTime() - starts) / 1000000;
 						t2 = System.nanoTime();
-
-						//logger.info("streamts,currtime,sleep,t1,actsleep {},{},{},{},{}", graph.getTime(), System.currentTimeMillis(),
-						//		sleep, t1, sleeptime);
 						for (TemporalTriple triple : graph.getTriples()) {
-							engine.stream(triple.getStatement());
+					        executor.execute(new Runnable() {
+					            @Override
+					            public void run() {
+					            	engine.stream(triple.getStatement());
+					            }
+					        });
+							//engine.stream(triple.getStatement());
 						}
+						//logger.info("streamed graph with t: " + graph.getTime());
 						time = graph.getTime();
-
 					}
 
 					logger.info("stopped sending triples at {}", Instant.now());
 
+				    executor.shutdown();
+					//executor.shutdownNow();
+				    executor.awaitTermination(500, TimeUnit.MINUTES);
 					t.interrupt();
 					onInputStreamEnd();
 

@@ -1,11 +1,15 @@
 <div>
-    <div class="label">Oracle Results:</div> <input type="file" on-read-file="loadData($fileContent)"/><br/>
-    <div class="label">Boxplots:</div> <input type="file" on-read-file="loadBPData($fileContent)"/><br/>
-    <div class="label">Performance Results:</div> <input type="file" on-read-file="loadPData($fileContent)"/>
+    <div class="label">Single Oracle Results:</div> <input type="file" on-read-file="loadData($fileContent)"/><br/>
+    <div class="label">Performance Results Engine 1:</div> <input type="file" on-read-file="loadPData($fileContent)"/><br/>
+    <div class="label">Performance Results Engine 2:</div> <input type="file" on-read-file="loadP2Data($fileContent)"/><br/>
+    <div class="label">Aggregated P/R/D Boxplots Engine 1:</div> <input type="file" on-read-file="loadBPE1Data($fileContent)"/><br/>
+    <div class="label">Aggregated P/R/D Boxplots Engine 2:</div> <input type="file" on-read-file="loadBPE2Data($fileContent)"/><br/>
 </div>
 <div>
     <highchart id="chartRP" config="chartRP"></highchart>
     <highchart id="chartW" config="chartW"></highchart>
-    <highchart id="chartBP" config="chartBP"></highchart>
+    <highchart id="chartBPPR" config="chartBPPR"></highchart>
+    <highchart id="chartBPD" config="chartBPD"></highchart>
     <highchart id="chartP" config="chartP"></highchart>
+
 </div>

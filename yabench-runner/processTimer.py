@@ -6,12 +6,13 @@ import subprocess
 import time
 
 class ProcessTimer:
-  def __init__(self,command,resultsFile):
+  def __init__(self,command,resultsFile,config):   
     self.command = command
     self.resultsFile = resultsFile
     self.execution_state = False
     
     self.results = open(self.resultsFile, 'w')
+    self.results.write("{}\n".format(config['enginename']))
     self.results.write("{},{},{},{},{}\n".format("time","rss_mem","cpu_percent","mem_percent","threads"))
 
   def execute(self):
