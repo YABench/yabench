@@ -1,8 +1,8 @@
 (function (angular, Highcharts, Math) {
     var module = angular.module('yabench-controllers', ['highcharts-ng']);
 
-    module.controller('IndexCtrl', ['$scope',
-        function ($scope) {
+    module.controller('IndexCtrl', ['$scope', '$document', '$http',
+        function ($scope, $document, $http) {
             $scope.chartRP = {
                 title: {text: 'Precision/Recall'},
                 options: {
@@ -625,9 +625,56 @@
                 //$scope.chartP.series.push(seriesP2[3]);
                 
             };
-        }
-        
 
+            $document.ready(function () {
+               console.log('here again');
+               //load BPE1
+               $http.get('examples/cqels/BOXPLOTS_medium').
+                    success(function(data, status, headers, config) {
+                      $scope.loadBPE1Data(data);
+                    }).
+                    error(function(data, status, headers, config) {
+                      console.log('error');
+                    });
+                    
+               //load BPE2
+               $http.get('examples/c-sparql/BOXPLOTS_big').
+                    success(function(data, status, headers, config) {
+                      $scope.loadBPE2Data(data);
+                    }).
+                    error(function(data, status, headers, config) {
+                      console.log('error');
+                    });
+                    
+               //load PE1
+               $http.get('examples/cqels/P_big_agg').
+                    success(function(data, status, headers, config) {
+                      $scope.loadPData(data);
+                    }).
+                    error(function(data, status, headers, config) {
+                      console.log('error');
+                    });
+                    
+               //load PE2
+               $http.get('examples/c-sparql/P_big_agg').
+                    success(function(data, status, headers, config) {
+                      $scope.loadP2Data(data);
+                    }).
+                    error(function(data, status, headers, config) {
+                      console.log('error');
+                    });
+                    
+               //load single result
+               $http.get('examples/c-sparql/ORACLE_big1').
+                    success(function(data, status, headers, config) {
+                      $scope.loadData(data);
+                    }).
+                    error(function(data, status, headers, config) {
+                      console.log('error');
+                    });
+            });
+
+        }
     ]);
 
     function addToChart(chart, array) {
