@@ -224,7 +224,7 @@ def runBoxplots(resultsDir, config):
     resultsDir = os.path.join(*resultsDir)
     #oracleresults = sorted(glob.glob(os.path.join(base_dir,resultsDir,ORACLE_OUTPUT_PREFIX+config['name']) + "*"), key = lambda name: int(name[len(base_dir+os.sep+resultsDir+os.sep+ORACLE_OUTPUT_PREFIX+config['name']):]))
     oracleresults = sorted(glob.glob(os.path.join(base_dir,resultsDir,ORACLE_OUTPUT_PREFIX+config['name']) + "*"))
-
+    print(resultsDir)
     oracledict = {}
     wincount = 1
     for filen in oracleresults:
@@ -262,6 +262,8 @@ def parse_arguments():
     parser.add_argument('testDir')
     parser.add_argument('--onlyoracle', help='only re-run the oracle',
                         action='store_true')
+    parser.add_argument('--onlyboxplots', help='only create boxplots (oracle files already need to be available)',
+                        action='store_true')
     parser.add_argument('--withoutoracle', help='without the oracle',
                         action='store_true')
     parser.add_argument('--rm_prev', help='remove previous results',
@@ -289,34 +291,37 @@ def main():
 
                 #flag to check if config contains parameter for inputstream (is needed later)
                 inputstream = True if 'inputstream' in new_config else False
-
-                for counter in range(int(new_config['runs'])):
-                    if int(new_config['runs']) == 1:
-                        new_config['suffix'] = ''
-                    else:
-                        new_config['suffix'] = counter+1
-                    #delete inputstream from config if it was only added during runtime and not in the initial config (this is checked above) to ensure a new stream is generated for a new run (may be needed later if we want to run with different seeds)
-                    if not inputstream:
-                        new_config.pop('inputstream', None)
-                  
-                    if (args.test and args.test == new_config['name']) or not args.test:
-                        if args.onlyoracle:
-                            if 'inputstream' not in new_config:
-                                new_config['inputstream'] = "{}/{}".format(resultsDir, INPUTSTREAM_PREFIX + new_config['name'] + str(new_config['suffix']))
-                            runOracle(args.testDir, resultsDir, new_config)
+                
+                if not args.onlyboxplots:
+                    print('not boxplots only')
+                    for counter in range(int(new_config['runs'])):
+                        if int(new_config['runs']) == 1:
+                            new_config['suffix'] = ''
                         else:
-                            if 'inputstream' not in new_config:
-                                #Generate a new input stream, otherwise
-                                #use input stream from 'inputstream' setting.
-                                runGenerator(resultsDir, new_config)
-                            runEngine(args.testDir, resultsDir, new_config)
-                            if not args.withoutoracle:
+                            new_config['suffix'] = counter+1
+                        #delete inputstream from config if it was only added during runtime and not in the initial config (this is checked above) to ensure a new stream is generated for a new run (may be needed later if we want to run with different seeds)
+                        if not inputstream:
+                            new_config.pop('inputstream', None)
+                      
+                        if (args.test and args.test == new_config['name']) or not args.test:
+                            if args.onlyoracle:
+                                if 'inputstream' not in new_config:
+                                    new_config['inputstream'] = "{}/{}".format(resultsDir, INPUTSTREAM_PREFIX + new_config['name'] + str(new_config['suffix']))
                                 runOracle(args.testDir, resultsDir, new_config)
-                    else:
-                        continue;
-                #create boxplots only if runs > 1 and boxplots = true
-                if new_config['boxplots'].lower() == 'true' and int(new_config['runs']) > 1:
-                    runBoxplots(resultsDir, new_config)
+                            else:
+                                if 'inputstream' not in new_config:
+                                    #Generate a new input stream, otherwise
+                                    #use input stream from 'inputstream' setting.
+                                    runGenerator(resultsDir, new_config)
+                                runEngine(args.testDir, resultsDir, new_config)
+                                if not args.withoutoracle:
+                                    runOracle(args.testDir, resultsDir, new_config)
+                        else:
+                            continue;
+                else:
+                    #create boxplots only if runs > 1 and boxplots = true
+                    if new_config['boxplots'].lower() == 'true' and int(new_config['runs']) > 1:
+                        runBoxplots(resultsDir, new_config)
     except IOError:
         print("Can\'t open {}/config.json file".format(args.testDir))
 
